@@ -12,6 +12,9 @@ i) download biochemical and biological data from genomic databases; ii) design t
 implements the most appropriate workflow for the experiment they are analyzing; iii) view statistics and
 graphics of results;  and iv) track the status of processes during execution.
 
+Refer to the TOA-manual.pdf in the "Package" folder for installation
+instructions, a description of the software and examples of use.
+
 This software has been developed by:
 
     GI Sistemas Naturales e Historia Forestal
@@ -22,9 +25,6 @@ This software has been developed by:
     
     http://gfhforestal.com/
     https://github.com/ggfhf/
-
-Refer to the TOA-manual.pdf in the "Package" folder for installation
-instructions, a description of the software and examples of use.
 
 ### Disclaimer
 
