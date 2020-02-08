@@ -24,6 +24,7 @@ menu items in console mode.
 
 #-------------------------------------------------------------------------------
 
+import gzip
 import os
 import pathlib
 import subprocess

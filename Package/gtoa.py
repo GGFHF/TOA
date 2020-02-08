@@ -24,6 +24,7 @@ menu items in gui mode.
 
 #-------------------------------------------------------------------------------
 
+import gzip
 import matplotlib
 import os
 import pandas

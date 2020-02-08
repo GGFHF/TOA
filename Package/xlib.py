@@ -68,7 +68,7 @@ def get_project_version():
     Get the project version.
     '''
 
-    return '0.55'
+    return '0.56'
 
 #-------------------------------------------------------------------------------
     

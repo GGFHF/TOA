@@ -23,7 +23,6 @@ This software has been developed by:
     ETSI Montes, Forestal y del Medio Natural
     Universidad Politécnica de Madrid
     
-    http://gfhforestal.com/
     https://github.com/ggfhf/
 
 ### Disclaimer
