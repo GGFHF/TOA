@@ -384,16 +384,22 @@ def calculate_functional_stats(conn, annotation_file, type, stats_file):
 
                 # extract the Mapman identifications and add them into the Mapman identifications list.
                 # mapman_id format: "mapman_id1*mapman_id2*...*mapman_idn"
-                if data_dict['mapman_id'] != '':
-                    mapman_id_list = data_dict['mapman_id'].split('*')
-                else:
+                try:
+                    if data_dict['mapman_id'] != '':
+                        mapman_id_list = data_dict['mapman_id'].split('*')
+                    else:
+                        mapman_id_list = []
+                except:
                     mapman_id_list = []
 
                 # extract the Mapman descriptions and add them into the Mapman description dictionary.
                 # mapman_id format: "mapman_desc1*mapman_desc2*...*mapman_descn"
-                if data_dict['mapman_desc'] != '':
-                    mapman_desc_list = data_dict['mapman_desc'].split('*')
-                else:
+                try:
+                    if data_dict['mapman_desc'] != '':
+                            mapman_desc_list = data_dict['mapman_desc'].split('*')
+                    else:
+                        mapman_desc_list = []
+                except:
                     mapman_desc_list = []
                 for i in range(len(mapman_id_list)):
                     mapman_desc_dict[mapman_id_list[i]] = mapman_desc_list[i]
@@ -413,9 +419,12 @@ def calculate_functional_stats(conn, annotation_file, type, stats_file):
 
                 # extract the EC identifications and add them into the EC identifications list.
                 # ec_id format: "ec_id1*ec_id2*...*ec_idn"
-                if data_dict['ec_id'] != '':
-                    ec_id_list = data_dict['ec_id'].split('*')
-                else:
+                try:
+                    if data_dict['ec_id'] != '':
+                        ec_id_list = data_dict['ec_id'].split('*')
+                    else:
+                        ec_id_list = []
+                except:
                     ec_id_list = []
 
                 # increase the EC identification counters in the corresponding statistics dictionary (all and first hsp cases)
@@ -433,9 +442,12 @@ def calculate_functional_stats(conn, annotation_file, type, stats_file):
 
                 # extract the KEGG identifications and add them into the KEGG identifications list.
                 # kegg_id format: "kegg_id1*kegg_id2*...*kegg_idn"
-                if data_dict['kegg_id'] != '':
-                    kegg_id_list = data_dict['kegg_id'].split('*')
-                else:
+                try:
+                    if data_dict['kegg_id'] != '':
+                        kegg_id_list = data_dict['kegg_id'].split('*')
+                    else:
+                        kegg_id_list = []
+                except:
                     kegg_id_list = []
 
                 # increase the KEGG identification counters in the corresponding statistics dictionary (all and first hsp cases)
@@ -453,9 +465,12 @@ def calculate_functional_stats(conn, annotation_file, type, stats_file):
 
                 # extract the Metacyc identifications and add them into the Metacyc identifications list.
                 # metacyc_id format: "metacyc_id1*metacyc_id2*...*metacyc_idn"
-                if data_dict['metacyc_id'] != '':
-                    metacyc_id_list = data_dict['metacyc_id'].split('*')
-                else:
+                try:
+                    if data_dict['metacyc_id'] != '':
+                        metacyc_id_list = data_dict['metacyc_id'].split('*')
+                    else:
+                        metacyc_id_list = []
+                except:
                     metacyc_id_list = []
 
                 # increase the Metacyc identification counters in the corresponding statistics dictionary (all and first hsp cases)
@@ -688,11 +703,11 @@ def write_dataset_stats(stats_dict, generic_stats_file):
             raise xlib.ProgramException('F003', stats_file)
 
     # write the header
-    stats_file_id.write('"dataset_name";"annotated_seq_count";"remained_seq_count"\n')
+    stats_file_id.write( '"dataset_name";"annotated_seq_count";"remained_seq_count"\n')
 
     # write data record
     for key in sorted(stats_dict.keys()):
-        stats_file_id.write('"{0}";"{1}";{2}\n'.format(stats_dict[key]['name'], stats_dict[key]['annotated'], stats_dict[key]['remained']))
+        stats_file_id.write( '"{0}";"{1}";{2}\n'.format(stats_dict[key]['name'], stats_dict[key]['annotated'], stats_dict[key]['remained']))
 
     # close statistics file
     stats_file_id.close()
@@ -722,23 +737,23 @@ def write_x_per_y_stats(stats_dict, generic_stats_file, stats_code):
 
     # write the header
     if stats_code == 'hit_per_hsp':
-        stats_file_id.write('"hsp_num";"hit_num"\n')
+        stats_file_id.write( '"hsp_num";"hit_num"\n')
     elif stats_code == 'seq_per_go':
-        stats_file_id.write('"go_num";"seq_num"\n')
+        stats_file_id.write( '"go_num";"seq_num"\n')
     elif stats_code == 'seq_per_interpro':
-        stats_file_id.write('"interpro_num";"seq_num"\n')
+        stats_file_id.write( '"interpro_num";"seq_num"\n')
     elif stats_code == 'seq_per_mapman':
-        stats_file_id.write('"mapman_num";"seq_num"\n')
+        stats_file_id.write( '"mapman_num";"seq_num"\n')
     elif stats_code == 'seq_per_ec':
-        stats_file_id.write('"ec_num";"seq_num"\n')
+        stats_file_id.write( '"ec_num";"seq_num"\n')
     elif stats_code == 'seq_per_kegg':
-        stats_file_id.write('"kegg_num";"seq_num"\n')
+        stats_file_id.write( '"kegg_num";"seq_num"\n')
     elif stats_code == 'seq_per_metacyc':
-        stats_file_id.write('"metacyc_num";"seq_num"\n')
+        stats_file_id.write( '"metacyc_num";"seq_num"\n')
 
     # write data record
     for key in sorted(stats_dict.keys()):
-        stats_file_id.write('"{0}";"{1}"\n'.format(key, stats_dict[key]))
+        stats_file_id.write( '"{0}";"{1}"\n'.format(key, stats_dict[key]))
 
     # close statistics file
     stats_file_id.close()
@@ -768,15 +783,15 @@ def write_phylogenic_data_frecuency(stats_dict, generic_stats_file, stats_code):
 
     # write the header
     if stats_code == 'species':
-        stats_file_id.write('"species";"all_count";"first_hsp_countT";"min_evalue_count"\n')
+        stats_file_id.write( '"species";"all_count";"first_hsp_countT";"min_evalue_count"\n')
     elif stats_code == 'family':
-        stats_file_id.write('"family";"all_count";"first_hsp_count";"min_evalue_count"\n')
+        stats_file_id.write( '"family";"all_count";"first_hsp_count";"min_evalue_count"\n')
     elif stats_code == 'phylum':
-        stats_file_id.write('"phylum";"all_count";"first_hsp_count";"min_evalue_count"\n')
+        stats_file_id.write( '"phylum";"all_count";"first_hsp_count";"min_evalue_count"\n')
 
     # write data record
     for key in sorted(stats_dict.keys()):
-        stats_file_id.write('"{0}";{1};{2};{3}\n'.format(key, stats_dict[key]['all'], stats_dict[key]['hsp1'], stats_dict[key]['minevalue']))
+        stats_file_id.write( '"{0}";{1};{2};{3}\n'.format(key, stats_dict[key]['all'], stats_dict[key]['hsp1'], stats_dict[key]['minevalue']))
 
     # close statistics file
     stats_file_id.close()
@@ -806,15 +821,15 @@ def write_ontologic_data_frecuency(stats_dict, desc_dict, generic_stats_file, st
 
     # write the header
     if stats_code == 'interpro':
-        stats_file_id.write('"interpro_id";"description";"all_count";"first_hsp_countT";"min_evalue_count"\n')
+        stats_file_id.write( '"interpro_id";"description";"all_count";"first_hsp_countT";"min_evalue_count"\n')
     elif stats_code == 'mapman':
-        stats_file_id.write('"mapman_id";"description";"all_count";"first_hsp_countT";"min_evalue_count"\n')
+        stats_file_id.write( '"mapman_id";"description";"all_count";"first_hsp_countT";"min_evalue_count"\n')
     elif stats_code == 'ec':
-        stats_file_id.write('"ec_id";"description";"all_count";"first_hsp_countT";"min_evalue_count"\n')
+        stats_file_id.write( '"ec_id";"description";"all_count";"first_hsp_countT";"min_evalue_count"\n')
     elif stats_code == 'kegg':
-        stats_file_id.write('"kegg_id";"description";"all_count";"first_hsp_countT";"min_evalue_count"\n')
+        stats_file_id.write( '"kegg_id";"description";"all_count";"first_hsp_countT";"min_evalue_count"\n')
     elif stats_code == 'metacyc':
-        stats_file_id.write('"metacyc_id";"description";"all_count";"first_hsp_countT";"min_evalue_count"\n')
+        stats_file_id.write( '"metacyc_id";"description";"all_count";"first_hsp_countT";"min_evalue_count"\n')
 
     # write data record
     for key in sorted(stats_dict.keys()):
@@ -825,7 +840,7 @@ def write_ontologic_data_frecuency(stats_dict, desc_dict, generic_stats_file, st
             desc = desc_dict.get(key2, {}).get('desc', 'N/A')
         else:
             desc = desc_dict.get(key, 'N/A')
-        stats_file_id.write('"{0}";"{1}";{2};{3};{4}\n'.format(key, desc, stats_dict[key]['all'], stats_dict[key]['hsp1'], stats_dict[key]['minevalue']))
+        stats_file_id.write( '"{0}";"{1}";{2};{3};{4}\n'.format(key, desc, stats_dict[key]['all'], stats_dict[key]['hsp1'], stats_dict[key]['minevalue']))
 
     # close statistics file
     stats_file_id.close()
@@ -861,19 +876,19 @@ def write_go_data_frecuency(conn, go_id_stats_dict, generic_stats_file):
             raise xlib.ProgramException('F003', go_id_stats_file)
 
     # write the header in the file of statistics by GO identifier
-    go_id_stats_file_id.write('"go_term";"description";"namespace";"all_count";"first_hsp_countT";"min_evalue_count"\n')
+    go_id_stats_file_id.write( '"go_term";"description";"namespace";"all_count";"first_hsp_countT";"min_evalue_count"\n')
 
     # write data in the file of statistics by GO identifier and accumulate data in the namespace statistics dictionary
     for key in sorted(go_id_stats_dict.keys()):
         try:
-            go_id_stats_file_id.write('"GO:{0}";{1};{2};{3};{4};{5}\n'.format(key, go_ontology_dictionary[key]['go_name'], go_ontology_dictionary[key]['namespace'], go_id_stats_dict[key]['all'], go_id_stats_dict[key]['hsp1'], go_id_stats_dict[key]['minevalue']))
+            go_id_stats_file_id.write( '"GO:{0}";{1};{2};{3};{4};{5}\n'.format(key, go_ontology_dictionary[key]['go_name'], go_ontology_dictionary[key]['namespace'], go_id_stats_dict[key]['all'], go_id_stats_dict[key]['hsp1'], go_id_stats_dict[key]['minevalue']))
             namespace_data = namespace_stats_dict.get(go_ontology_dictionary[key]['namespace'], {'all': 0, 'hsp1': 0, 'minevalue':0})
             namespace_data['all'] = namespace_data['all'] + go_id_stats_dict[key]['all']
             namespace_data['hsp1'] = namespace_data['hsp1'] + go_id_stats_dict[key]['hsp1']
             namespace_data['minevalue'] = namespace_data['minevalue'] + go_id_stats_dict[key]['minevalue']
             namespace_stats_dict[go_ontology_dictionary[key]['namespace']] = namespace_data
         except Exception as e:
-            go_id_stats_file_id.write('"GO:{0}";{1};{2};{3};{4};{5}\n'.format(key, 'N/A', 'N/A', go_id_stats_dict[key]['all'], go_id_stats_dict[key]['hsp1'], go_id_stats_dict[key]['minevalue']))
+            go_id_stats_file_id.write( '"GO:{0}";{1};{2};{3};{4};{5}\n'.format(key, 'N/A', 'N/A', go_id_stats_dict[key]['all'], go_id_stats_dict[key]['hsp1'], go_id_stats_dict[key]['minevalue']))
             namespace_data = namespace_stats_dict.get('N/A', {'all': 0, 'hsp1': 0, 'minevalue':0})
             namespace_data['all'] = namespace_data['all'] + go_id_stats_dict[key]['all']
             namespace_data['hsp1'] = namespace_data['hsp1'] + go_id_stats_dict[key]['hsp1']
@@ -896,13 +911,13 @@ def write_go_data_frecuency(conn, go_id_stats_dict, generic_stats_file):
             raise xlib.ProgramException('F003', namespace_stats_file)
 
     # write the header in the file of statistics by namespace
-    namespace_stats_file_id.write('"namespace";"all_count";"first_hsp_countT";"min_evalue_count"\n')
+    namespace_stats_file_id.write( '"namespace";"all_count";"first_hsp_countT";"min_evalue_count"\n')
 
     # write data in the file of statistics by namespace
     for key in sorted(namespace_stats_dict.keys()):
 
         # write data record
-        namespace_stats_file_id.write('"{0}";{1};{2};{3}\n'.format(key, namespace_stats_dict[key]['all'], namespace_stats_dict[key]['hsp1'], namespace_stats_dict[key]['minevalue']))
+        namespace_stats_file_id.write( '"{0}";{1};{2};{3}\n'.format(key, namespace_stats_dict[key]['all'], namespace_stats_dict[key]['hsp1'], namespace_stats_dict[key]['minevalue']))
 
     # close the file of statistics by namespace
     namespace_stats_file_id.close()

@@ -687,8 +687,8 @@ def annotate_sequences_refseq(conn, dataset_id, seq_file, id_relationship_dict, 
                         # get the description and species name
                         pos6 = data_dict['hit_def'][pos5:].find('[')
                         pos7 = data_dict['hit_def'][pos5:].find(']')
-                        data_dict['desc'] = data_dict['hit_def'][pos5+1:pos5+1+pos6].strip()
-                        data_dict['species'] = data_dict['hit_def'][pos5+1+pos6+1:pos5+1+pos7].strip().capitalize()
+                        data_dict['desc'] = data_dict['hit_def'][pos5+1:pos5+1+pos6-1].strip()
+                        data_dict['species'] = data_dict['hit_def'][pos5+pos6+1:pos5+1+pos7-1].strip().capitalize()
 
                     # get the protein accession value, description, species name and taxonomy data
                     (species_dict, family_name, phylum_name, kingdom_name, superkingdom_name) = xlib.get_species_data(conn, species_dict, data_dict['species'])

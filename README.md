@@ -12,7 +12,7 @@ i) download biochemical and biological data from genomic databases; ii) design t
 implements the most appropriate workflow for the experiment they are analyzing; iii) view statistics and
 graphics of results;  and iv) track the status of processes during execution.
 
-Refer to the TOA-manual.pdf in the "Package" folder for installation
+Refer to the TOA manual (https://github.com/GGFHF/TOA/blob/master/Package/TOA-manual.pdf) for installation
 instructions, a description of the software and examples of use.
 
 This software has been developed by:
