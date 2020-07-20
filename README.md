@@ -1,6 +1,6 @@
-# TOA (Tree-oriented annotation)
+# TOA (Taxonomy-oriented Annotation)
 
-TOA aims to establish workflows geared towards woody plant species that automate the extraction of
+TOA aims to establish workflows geared towards plant species that automate the extraction of
 information from genomic databases and the annotation of sequences. TOA uses the following databases:
 Dicots PLAZA 4.0, Monocots PLAZA 4.0, Gymno PLAZA 1.0, NCBI RefSeq Plant and NCBI Nucleotide Database (NT)
 and NCBI Non-Redundant Protein Sequence Database (NR). Although TOA was primarily designed to work with
