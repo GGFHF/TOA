@@ -31,29 +31,110 @@ import xtoa
 
 #-------------------------------------------------------------------------------
 
-def input_directory(dir_name, default_dir=None, is_created=False):
+def input_code(text, code_list, default_code):
+    '''
+    Input a code selected from a code list.
+    '''
+
+    # initialize the code
+    code = ''
+
+    # get the code list text
+    code_list_text = str(code_list).strip('[]').replace('\'','').replace(',', ' or')
+
+    # input and check the code
+    while code == '':
+        if default_code is None:
+            code = input(f'{text} ({code_list_text}): ').lower()
+        else:
+            code = input(f'{text} ({code_list_text}) [{default_code}]: ').lower()
+            if code == '': code = default_code
+        found = False
+        for i in range(len(code_list)):
+            if code.lower() == code_list[i].lower():
+                code = code_list[i]
+                found = True
+                break
+        if not found:
+            print(f'*** ERROR: {code} is not in {code_list_text}.')
+            code = ''
+
+    # return the code
+    return code
+
+#-------------------------------------------------------------------------------
+
+def input_int(text, default=None, minimum=(-sys.maxsize - 1), maximum=sys.maxsize):
+    '''
+    Input a integer number.
+    '''
+
+    # initialize the number
+    literal = None
+
+    # input and check the integer number
+    while literal is None:
+        if default is None:
+            literal = input(f'{text}: ')
+        else:
+            literal = input(f'{text} [{default}]: ')
+            if literal == '': literal = default
+        if not xlib.check_int(literal, minimum, maximum):
+            print(f'*** ERROR: {literal} is not a valid value.')
+            literal = None
+
+    # return the integer value
+    return int(literal)
+
+#-------------------------------------------------------------------------------
+
+def input_float(text, default=None, minimum=float(-sys.maxsize - 1), maximum=float(sys.maxsize), mne=0.0, mxe=0.0):
+    '''
+    Input a float number.
+    '''
+
+    # initialize the number
+    literal = None
+
+    # input and check the float number
+    while literal is None:
+        if default is None:
+            literal = input(f'{text}: ')
+        else:
+            literal = input(f'{text} [{default}]: ')
+            if literal == '': literal = default
+        if not xlib.check_float(literal, minimum, maximum, mne, mxe):
+            print(f'*** ERROR: {literal} is not a valid value.')
+            literal = None
+
+    # return the float value
+    return float(literal)
+
+#-------------------------------------------------------------------------------
+
+def input_directory(directory_name, default_directory=None, is_created=False):
     '''
     Input a directory path.
     '''
 
     # get the directory
-    dir = ''
-    while dir == '':
-        if default_dir is None:
-            dir = input('Enter {0} directory: '.format(dir_name))
+    directory = ''
+    while directory == '':
+        if default_directory is None:
+            directory = input(f'Enter {directory_name} directory: ')
         else:
-            dir = input('Enter {0} directory [{1}]: '.format(dir_name, default_dir))
-            if dir == '':
-                dir = default_dir
-        if is_created and not xlib.is_valid_path(dir):
-            print('***ERROR: The directory {0} is not valid.'.format(dir))
-            dir = ''
-        elif dir != '' and dir[0] != '/':
-            print('***ERROR: The directory {0} is not an absolute path.'.format(dir))
-            dir = ''
+            directory = input(f'Enter {directory_name} directory [{default_directory}]: ')
+            if directory == '':
+                directory = default_directory
+        if is_created and not xlib.is_valid_path(directory):
+            print(f'***ERROR: The directory {directory} is not valid.')
+            directory = ''
+        elif directory != '' and directory[0] != '/':
+            print(f'***ERROR: The directory {directory} is not an absolute path.')
+            directory = ''
 
     # result the directory
-    return dir
+    return directory
 
 #-------------------------------------------------------------------------------
 
@@ -77,13 +158,15 @@ def input_database_list(candidate_database_list, last_database):
 
         # input a candidate database
         if order_number == 1:
-            print('All candidate databases: {0} ...'.format(str(candidate_database_list).strip('[]').replace('\'','')))
-            print('(if {0} is selected, it has to be the last)'.format(last_database))
-            database = input('Enter the database {0}: '.format(order_number))
+            candidate_database_list_text = str(candidate_database_list).strip('[]').replace('\'','')
+            print(f'All candidate databases: {candidate_database_list_text} ...')
+            print(f'(if {last_database} is selected, it has to be the last)')
+            database = input(f'Enter the database {order_number}: ')
         else:
-            print('Remaining candidate databases: {0} ...'.format(str(candidate_database_list).strip('[]').replace('\'','')))
-            print('(if {0} is selected, it has to be the last)'.format(last_database))
-            database = input('Enter the database {0} or END to finish: '.format(order_number))
+            candidate_database_list_text = str(candidate_database_list).strip('[]').replace('\'','')
+            print(f'Remaining candidate databases: {candidate_database_list_text} ...')
+            print(f'(if {last_database} is selected, it has to be the last)')
+            database = input(f'Enter the database {order_number} or END to finish: ')
         if database != '' and database.upper() != 'END':
             if database in candidate_database_list:
                 selected_database_list.append(database)
@@ -92,7 +175,7 @@ def input_database_list(candidate_database_list, last_database):
                 if database == last_database:
                     database = 'END'
             else:
-                print('*** ERROR: {0} is not in candidate database list.'.format(database))
+                print(f'*** ERROR: {database} is not in candidate database list.')
         elif database.upper() == 'END' and order_number == 1:
             database = ''
             print('*** ERROR: You have to input at least one database.')
@@ -126,7 +209,8 @@ def input_experiment_id():
 
     # print the experiment/process identifications in the clusters
     if experiment_id_list != []:
-        print('Experiment/process ids existing: {0} ...'.format(str(experiment_id_list).strip('[]').replace('\'','')))
+        experiment_id_list_text = str(experiment_id_list).strip('[]').replace('\'','')
+        print(f'Experiment/process ids existing: {experiment_id_list_text} ...')
     else:
         OK = False
 
@@ -135,7 +219,7 @@ def input_experiment_id():
         while experiment_id == '':
             experiment_id = input('... Enter the experiment/process id: ')
             if experiment_id not in experiment_id_list:
-                print('*** ERROR: {0} does not exist.'.format(experiment_id))
+                print(f'*** ERROR: {experiment_id} does not exist.')
                 experiment_id = ''
 
     # return the experiment/process identification
@@ -161,8 +245,8 @@ def input_result_dataset_id(experiment_id, app_list):
     result_dataset_id_list = []
 
     # get the result dataset identifications of the experiment
-    experiment_dir = '{0}/{1}'.format(toa_config_dict['RESULT_DIR'], experiment_id)
-    subdir_list = [subdir for subdir in os.listdir(experiment_dir) if os.path.isdir(os.path.join(experiment_dir, subdir))]
+    experiment_dir = f'''{toa_config_dict['RESULT_DIR']}/{experiment_id}'''
+    subdir_list = sorted([subdir for subdir in os.listdir(experiment_dir) if os.path.isdir(os.path.join(experiment_dir, subdir))])
     for subdir in subdir_list:
         for app in app_list:
             if app == xlib.get_all_applications_selected_code() or subdir.startswith(app):
@@ -171,7 +255,8 @@ def input_result_dataset_id(experiment_id, app_list):
 
     # print the result dataset identifications in the clusters
     if result_dataset_id_list != []:
-        print('dataset ids existing in {0}: {1} ...'.format(experiment_id, str(result_dataset_id_list).strip('[]').replace('\'','')))
+        result_dataset_id_list_text = str(result_dataset_id_list).strip('[]').replace('\'','')
+        print(f'dataset ids existing in {experiment_id}: {result_dataset_id_list_text} ...')
     else:
         OK = False
 
@@ -180,7 +265,7 @@ def input_result_dataset_id(experiment_id, app_list):
         while result_dataset_id == '':
             result_dataset_id = input('... Enter the dataset id: ')
             if result_dataset_id not in result_dataset_id_list:
-                print('*** ERROR: {0} does not exist.'.format(result_dataset_id))
+                print(f'*** ERROR: {result_dataset_id} does not exist.')
                 result_dataset_id = ''
 
     # return the result dataset identification
@@ -204,7 +289,8 @@ def input_submission_log_file():
 
     # print the submission log file list
     if submission_log_file_list != []:
-        print('Submission log files: {0} ...'.format(str(submission_log_file_list).strip('[]').replace('\'','')))
+        submission_log_file_list_text = str(submission_log_file_list).strip('[]').replace('\'','')
+        print(f'Submission log files: {submission_log_file_list_text} ...')
     else:
         OK = False
 
@@ -213,7 +299,7 @@ def input_submission_log_file():
         while submission_log_file == '':
             submission_log_file = input('... Enter the submission log file: ')
             if submission_log_file not in submission_log_file_list:
-                print('*** ERROR: {0} does not exist.'.format(submission_log_file))
+                print(f'*** ERROR: {submission_log_file} does not exist.')
                 submission_log_file = ''
 
     # return the submission log file

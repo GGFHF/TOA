@@ -18,7 +18,7 @@ Licence: GNU General Public Licence Version 3.
 #-------------------------------------------------------------------------------
 
 '''
-This file contains the classes related to forms corresponding to TOA (Tree-oriented Annotation)
+This file contains the classes related to forms corresponding to TOA (Taxonomy-oriented Annotation)
 menu items in gui mode.
 '''
 
@@ -66,7 +66,7 @@ class FormRecreateToaConfigFile(tkinter.Frame):
         self.main.update()
 
         # assign the text of the "head"
-        self.head = 'Recreate {0} config file'.format(xlib.get_toa_name())
+        self.head = f'Recreate {xlib.get_toa_name()} config file'
 
         # create the wrappers to track changes in inputs
         self.wrapper_miniconda3_dir = tkinter.StringVar()
@@ -158,15 +158,23 @@ class FormRecreateToaConfigFile(tkinter.Frame):
         home_dir = str(pathlib.Path.home())
 
         # load initial data in inputs
-        self.wrapper_miniconda3_dir.set('{0}/TOA-Miniconda3'.format(home_dir))
-        self.wrapper_db_dir.set('{0}/TOA-databases'.format(home_dir))
-        self.wrapper_result_dir.set('{0}/TOA-results'.format(home_dir))
+        if os.getcwd() == xlib.get_docker_toa_dir():
+            self.wrapper_miniconda3_dir.set(f'{xlib.get_docker_toa_dir()}/{xlib.get_miniconda_dir()}')
+            self.entry_miniconda3_dir['state'] = 'disabled'
+            self.wrapper_db_dir.set(f'{xlib.get_docker_toa_dir()}/{xlib.get_toa_database_dir()}')
+            self.entry_db_dir['state'] = 'disabled'
+            self.wrapper_result_dir.set(f'{xlib.get_docker_toa_dir()}/{xlib.get_toa_result_dir()}')
+            self.entry_result_dir['state'] = 'disabled'
+        else:
+            self.wrapper_miniconda3_dir.set(f'{home_dir}/{xlib.get_miniconda_dir()}')
+            self.wrapper_db_dir.set(f'{home_dir}/{xlib.get_toa_database_dir()}')
+            self.wrapper_result_dir.set(f'{home_dir}/{xlib.get_toa_result_dir()}')
 
     #---------------
 
     def check_inputs(self, *args):
         '''
-        Check the content of each input of "FormRecreateToaConfigFile" and do the actions linked to its value
+        Check the content of each input of "FormRecreateToaConfigFile" and do the actions linked to its value.
         '''
 
         # initialize the control variable
@@ -197,7 +205,7 @@ class FormRecreateToaConfigFile(tkinter.Frame):
 
     def check_entry_miniconda3_dir(self):
         '''
-        Check the content of "entry_miniconda3_dir"
+        Check the content of "entry_miniconda3_dir".
         '''
 
         # initialize the control variable
@@ -219,7 +227,7 @@ class FormRecreateToaConfigFile(tkinter.Frame):
 
     def check_entry_db_dir(self):
         '''
-        Check the content of "entry_db_dir"
+        Check the content of "entry_db_dir".
         '''
 
         # initialize the control variable
@@ -241,7 +249,7 @@ class FormRecreateToaConfigFile(tkinter.Frame):
 
     def check_entry_result_dir(self):
         '''
-        Check the content of "entry_result_dir"
+        Check the content of "entry_result_dir".
         '''
 
         # initialize the control variable
@@ -270,12 +278,12 @@ class FormRecreateToaConfigFile(tkinter.Frame):
         OK = self.check_inputs()
         if not OK:
             message = 'Some input values are not OK.'
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # confirm the recreation of the TOA config file
         if OK:
-            message = 'The file {0} is going to be recreated. The previous file will be lost.\n\nAre you sure to continue?'.format(xtoa.get_toa_config_file())
-            OK = tkinter.messagebox.askyesno('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            message = f'The file {xtoa.get_toa_config_file()} is going to be recreated. The previous file will be lost.\n\nAre you sure to continue?'
+            OK = tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # set the TOA directory
         if OK:
@@ -285,13 +293,13 @@ class FormRecreateToaConfigFile(tkinter.Frame):
         if OK:
             (OK, error_list) = xtoa.create_toa_config_file(toa_dir, self.wrapper_miniconda3_dir.get(), self.wrapper_db_dir.get(), self.wrapper_result_dir.get())
             if OK:
-                message = 'The file {0} is created with default values.'.format(xtoa.get_toa_config_file())
-                tkinter.messagebox.showinfo('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+                message = f'The file {xtoa.get_toa_config_file()} is created with default values.'
+                tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {self.head}', message)
             else:
                 message = ''
                 for error in error_list:
-                    message = '{0}{1}\n'.format(message, error) 
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+                    message = f'{message}{error}\n'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
                 OK = False
 
         # close the form
@@ -338,9 +346,9 @@ class FormManageToaDatabase(tkinter.Frame):
 
         # assign the text of the "head"
         if self.process_type == xlib.get_toa_type_recreate():
-            self.head = 'Recreate {0} database'.format(xlib.get_toa_name())
+            self.head = f'Recreate {xlib.get_toa_name()} database'
         elif self.process_type == xlib.get_toa_type_rebuild():
-            self.head = 'Rebuild {0} database'.format(xlib.get_toa_name())
+            self.head = f'Rebuild {xlib.get_toa_name()} database'
 
         # create the wrappers to track changes in the inputs
         pass
@@ -393,7 +401,7 @@ class FormManageToaDatabase(tkinter.Frame):
 
     def check_inputs(self, *args):
         '''
-        Check the content of each input of "FormManageToaDatabase" and do the actions linked to its value
+        Check the content of each input of "FormManageToaDatabase" and do the actions linked to its value.
         '''
 
         # initialize the control variable
@@ -413,12 +421,12 @@ class FormManageToaDatabase(tkinter.Frame):
         OK = self.check_inputs()
         if not OK:
             message = 'Some input values are not OK.'
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # confirm the process run
         if OK:
-            message = 'The {0} database is going to be {1}.\n\nAre you sure to continue?'.format(xlib.get_toa_name(), self.process_type)
-            OK = tkinter.messagebox.askyesno('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            message = f'The {xlib.get_toa_name()} database is going to be {self.process_type}.\n\nAre you sure to continue?'
+            OK = tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # execute the process
         if OK:
@@ -481,6 +489,8 @@ class FormManageGenomicDatabase(tkinter.Frame):
             self.name = xlib.get_toa_data_monocots_04_name()
         elif self.genomic_database == xlib.get_toa_data_refseq_plant_code():
             self.name = xlib.get_toa_data_refseq_plant_name()
+        elif self.genomic_database == xlib.get_toa_data_taxonomy_code():
+            self.name = xlib.get_toa_data_taxonomy_name()
         elif self.genomic_database == xlib.get_toa_data_nt_code():
             self.name = xlib.get_toa_data_nt_name()
         elif self.genomic_database == xlib.get_toa_data_viridiplantae_nucleotide_gi_code():
@@ -497,16 +507,18 @@ class FormManageGenomicDatabase(tkinter.Frame):
             self.name = xlib.get_toa_data_go_name()
 
         # assign the text of the "head"
-        if process_type == xlib.get_toa_type_build_blastdb():
-            self.head = 'Build {0}'.format(self.name)
+        if process_type == xlib.get_toa_type_build_blastplus_db():
+            self.head = f'Build {self.name} for BLAST+'
+        elif process_type == xlib.get_toa_type_build_diamond_db():
+            self.head = f'Build {self.name} for DIAMOND'
         elif process_type == xlib.get_toa_type_build_gilist():
-            self.head = 'Build {0}'.format(self.name)
+            self.head = f'Build {self.name}'
         elif process_type == xlib.get_toa_type_build_proteome():
-            self.head = 'Build {0} proteome'.format(self.name)
+            self.head = f'Build {self.name} proteome'
         elif process_type == xlib.get_toa_type_download_data():
-            self.head = 'Download {0} functional annotations'.format(self.name)
+            self.head = f'Download {self.name} functional annotations'
         elif process_type == xlib.get_toa_type_load_data():
-            self.head = 'Load {0} data in {1} database'.format(self.name, xlib.get_toa_name())
+            self.head = f'Load {self.name} data in {xlib.get_toa_name()} database'
 
         # create the wrappers to track changes in the inputs
         pass
@@ -562,7 +574,7 @@ class FormManageGenomicDatabase(tkinter.Frame):
 
     def check_inputs(self, *args):
         '''
-        Check the content of each input of "FormManageGenomicDatabase" and do the actions linked to its value
+        Check the content of each input of "FormManageGenomicDatabase" and do the actions linked to its value.
         '''
 
         # initialize the control variable
@@ -582,12 +594,12 @@ class FormManageGenomicDatabase(tkinter.Frame):
         OK = self.check_inputs()
         if not OK:
             message = 'Some input values are not OK.'
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # confirm the process run
         if OK:
-            message = 'The {0} process is going to be run.\n\nAre you sure to continue?'.format(self.name)
-            OK = tkinter.messagebox.askyesno('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            message = f'The {self.name} process is going to be run.\n\nAre you sure to continue?'
+            OK = tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # execute the process
         if OK:
@@ -645,7 +657,7 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
             self.name = xlib.get_toa_process_pipeline_aminoacid_name()
 
         # assign the text of the "head"
-        self.head = '{0} - Recreate config file'.format(self.name)
+        self.head = f'{self.name} - Recreate config file'
 
         # initialize the selected alignment dataset list
         self.selected_database_list = []
@@ -657,13 +669,15 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
         elif self.pipeline_type == xlib.get_toa_process_pipeline_aminoacid_code():
             candidate_database_list = xtoa.get_aminoacid_annotation_database_code_list()
         for database in candidate_database_list:
-            self.database_dict [database] = 0
+            self.database_dict[database] = 0
 
         # create the wrappers to track changes in inputs
         self.wrapper_transcriptome_dir = tkinter.StringVar()
         self.wrapper_transcriptome_dir.trace('w', self.check_inputs)
         self.wrapper_transcriptome_file = tkinter.StringVar()
         self.wrapper_transcriptome_file.trace('w', self.check_inputs)
+        self.wrapper_species = tkinter.StringVar()
+        self.wrapper_species.trace('w', self.check_inputs)
         self.wrapper_selected_databases = tkinter.StringVar()
         self.wrapper_selected_databases.trace('w', self.check_inputs)
 
@@ -714,33 +728,42 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
         self.combobox_transcriptome_file = tkinter.ttk.Combobox(self, width=45, height=4, state='readonly', textvariable=self.wrapper_transcriptome_file)
         self.combobox_transcriptome_file.grid(row=1, column=1, padx=(5,5), pady=(45,5), sticky='w')
 
+        # create "label_species" and register it with the grid geometry manager
+        self.label_species = tkinter.Label(self, text='Species')
+        self.label_species.grid(row=2, column=0, padx=(15,5), pady=(45,5), sticky='e')
+
+        # create "entry_species" and register it with the grid geometry manager
+        self.entry_species = tkinter.Entry(self, textvariable=self.wrapper_species, width=50, validatecommand=self.check_inputs)
+        self.entry_species.grid(row=2, column=1, padx=(5,5), pady=(45,5), sticky='w')
+
         # create "label_selected_databases" and register it with the grid geometry manager
         self.label_selected_databases = tkinter.Label(self, text='Selected databases')
-        self.label_selected_databases.grid(row=2, column=0, padx=(15,5), pady=(45,5), sticky='e')
+        self.label_selected_databases.grid(row=3, column=0, padx=(15,5), pady=(45,5), sticky='e')
 
         # create "entry_selected_databases" and register it with the grid geometry manager
         self.entry_selected_databases = tkinter.Entry(self, textvariable=self.wrapper_selected_databases, width=58, state='disabled', validatecommand=self.check_inputs)
-        self.entry_selected_databases.grid(row=2, column=1, padx=(5,5), pady=(45,5), sticky='w')
+        self.entry_selected_databases.grid(row=3, column=1, padx=(5,5), pady=(45,5), sticky='w')
 
         # create "button_select_selected_databases" and register it with the grid geometry manager
         self.button_select_selected_databases = tkinter.ttk.Button(self, image=imagetk_select_dirs, command=self.select_databases, state='enable')
         self.button_select_selected_databases.image = imagetk_select_dirs
-        self.button_select_selected_databases.grid(row=2, column=2, padx=(5,0), pady=(45,5), sticky='w')
+        self.button_select_selected_databases.grid(row=3, column=2, padx=(5,0), pady=(45,5), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
         self.label_fit = tkinter.Label(self, text=' '*(1+xlib.get_os_size_fix()))
-        self.label_fit.grid(row=3, column=3, padx=(0,0), pady=(45,5), sticky='e')
+        self.label_fit.grid(row=4, column=3, padx=(0,0), pady=(45,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
         self.button_execute = tkinter.ttk.Button(self, text='Execute', command=self.execute, state='disabled')
-        self.button_execute.grid(row=3, column=4, padx=(0,5), pady=(45,5), sticky='e')
+        self.button_execute.grid(row=4, column=4, padx=(0,5), pady=(45,5), sticky='e')
 
         # create "button_close" and register it with the grid geometry manager
         self.button_close = tkinter.ttk.Button(self, text='Close', command=self.close)
-        self.button_close.grid(row=3, column=5, padx=(5,5), pady=(45,5), sticky='w')
+        self.button_close.grid(row=4, column=5, padx=(5,5), pady=(45,5), sticky='w')
 
         # link a handler to events
         self.combobox_transcriptome_file.bind('<<ComboboxSelected>>', self.combobox_transcriptome_file_selected_item)
+        self.entry_species.bind('<FocusOut>', self.entry_species_focus_out)
 
     #---------------
 
@@ -765,14 +788,16 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
         # clear the value selected in the combobox
         self.wrapper_transcriptome_file.set('')
 
-
         # initialize the transcriptome file name list
         transcriptome_file_name_list = []
 
         # get the transcriptome file name list
-        file_name_list = [file_name for file_name in os.listdir(self.wrapper_transcriptome_dir.get()) if os.path.isfile(os.path.join(self.wrapper_transcriptome_dir.get(), file_name))]
-        for file_name in file_name_list:
-            transcriptome_file_name_list.append(file_name)
+        try:
+            file_name_list = [file_name for file_name in os.listdir(self.wrapper_transcriptome_dir.get()) if os.path.isfile(os.path.join(self.wrapper_transcriptome_dir.get(), file_name))]
+            for file_name in file_name_list:
+                transcriptome_file_name_list.append(file_name)
+        except:
+            pass
 
         # load the transcriptome file names in the combobox
         self.combobox_transcriptome_file['values'] = sorted(transcriptome_file_name_list)
@@ -852,16 +877,104 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
 
     def combobox_transcriptome_file_selected_item(self, event=None):
         '''
-        Process the event when an item of "combobox_transcriptome_file" has been selected
+        Process the event when an item of "combobox_transcriptome_file" has been selected.
         '''
 
         pass
 
     #---------------
 
+    def entry_species_focus_out(self, event=None):
+        '''
+        Set the default database list when the "entry_species" focus is out.
+        '''
+
+        # initialize control variables
+        OK = True
+        error = False
+
+        # initializae the taxonomy dictionary
+        taxonomy_dict = {}
+
+        # initialize the clade name list
+        clade_name_list = []
+
+        # where there is a species in "entry_species"
+        if self.wrapper_species.get().strip() != '':
+
+            # get the taxonomy dictionary of the species name from taxonomy server
+            try:
+                taxonomy_dict = xlib.get_taxonomy_dict('name', self.wrapper_species.get())
+            except Exception as e:
+                message = f'The taxonomy server {xlib.get_taxonomy_server()} is not available. Default database is not set.'
+                tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {self.head}', message)
+                OK = False
+                error = True
+
+            # when there are taxonomy data, set default databases
+            if taxonomy_dict != {}:
+
+                # Viridiplantae
+                if taxonomy_dict.get('kingdom', {}).get('name', xlib.get_na()) == 'Viridiplantae':
+
+                    # get the cloud name list
+                    for key, value in taxonomy_dict.items():
+                        try:
+                            clade_name = value['name']
+                            clade_name_list.append(clade_name)
+                        except:
+                            pass
+
+                    # Gymnosperms
+                    if 'Acrogymnospermae' in clade_name_list:
+                        default_database_list = ['gymno_01']
+
+                    # Monocots
+                    elif  'Liliopsida' in clade_name_list:
+                        default_database_list = ['monocots_04']
+
+                    # Dicots
+                    elif  'Streptophyta' in clade_name_list:
+                        default_database_list = ['dicots_04']
+
+                    # Viridiplantae remainder
+                    else:
+                        default_database_list = ['refseq_plant', 'dicots_04']
+
+                # no Viridiplantae
+                else:
+                    if self.pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
+                        default_database_list = ['nt']
+                    elif self.pipeline_type == xlib.get_toa_process_pipeline_aminoacid_code():
+                        default_database_list = ['nr']
+
+                # set the default database list as a text
+                default_database_list_text = str(default_database_list).strip('[]').replace('\'','')
+
+                # if there is a previous value in "entry_selected_databases", confirm the modification
+                if self.wrapper_selected_databases.get() != '' and self.wrapper_selected_databases.get() != default_database_list_text:
+                    message = f'Selected database list will be set to: {default_database_list_text}. \n\nAre you sure to continue?'
+                    OK = tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - {self.head}', message)
+
+                # modify the selected databases
+                if OK:
+                    for database in self.database_dict.keys():
+                        self.database_dict[database] = 0
+                    for i in range(len(default_database_list)):
+                        self.selected_database_list = [default_database_list[i]]
+                        self.database_dict[default_database_list[i]] = i + 1
+                    self.wrapper_selected_databases.set(default_database_list_text)
+
+            # when there are not taxonomy data
+            if taxonomy_dict == {} and not error:
+                message = f'The species {self.wrapper_species.get()} is not found in the taxonomy server. Default database is not set.'
+                tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {self.head}', message)
+
+    #---------------
+
     def check_inputs(self, *args):
         '''
-        Check the content of each input of "FormRecreatePipelineConfigFile" and do the actions linked to its value
+        Check the content of each input of "FormRecreatePipelineConfigFile" and do the actions linked to its value.
         '''
 
         # initialize the control variable
@@ -884,7 +997,7 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
 
     def check_database_order(self):
         '''
-        Check the selected database order
+        Check the selected database order.
         '''
 
         # initialize the control variable
@@ -892,18 +1005,18 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
 
         if self.pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
             database_code_list = xtoa.get_nucleotide_annotation_database_code_list()
-            database_order_list = [self.database_dict['dicots_04'], self.database_dict['gymno_01'], self.database_dict['monocots_04'], self.database_dict['refseq_plant'], self.database_dict['nt_viridiplantae'], self.database_dict['nt_complete']]
-            last_database_code = 'nt_complete'
+            database_order_list = [self.database_dict['dicots_04'], self.database_dict['gymno_01'], self.database_dict['monocots_04'], self.database_dict['refseq_plant'], self.database_dict['nt']]
+            last_database_code = 'nt'
         elif self.pipeline_type == xlib.get_toa_process_pipeline_aminoacid_code():
             database_code_list = xtoa.get_aminoacid_annotation_database_code_list()
-            database_order_list = [self.database_dict['dicots_04'], self.database_dict['gymno_01'], self.database_dict['monocots_04'], self.database_dict['refseq_plant'], self.database_dict['nr_viridiplantae'], self.database_dict['nr_complete']]
-            last_database_code = 'nr_complete'
+            database_order_list = [self.database_dict['dicots_04'], self.database_dict['gymno_01'], self.database_dict['monocots_04'], self.database_dict['refseq_plant'], self.database_dict['nr']]
+            last_database_code = 'nr'
         (OK, error_list) = xtoa.check_database_order(database_code_list, database_order_list, last_database_code)
         if not OK:
             message = ''
             for error in error_list:
-                message = '{0}{1}\n'.format(message, error) 
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+                message = f'{message}{error}\n'
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # return the control variable
         return OK
@@ -919,7 +1032,7 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
         OK = self.check_inputs()
         if not OK:
             message = 'Some input values are not OK.'
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # get the config file
         if self.pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
@@ -929,8 +1042,8 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
 
         # confirm the creation of the pipeline config file
         if OK:
-            message = 'The file {0} is going to be recreated. The previous file will be lost.\n\nAre you sure to continue?'.format(config_file)
-            OK = tkinter.messagebox.askyesno('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            message = f'The file {config_file} is going to be recreated. The previous file will be lost.\n\nAre you sure to continue?'
+            OK = tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # recreate the pipeline config file
         if OK:
@@ -938,8 +1051,8 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
             if not OK:
                 message = ''
                 for error in error_list:
-                    message = '{0}{1}\n'.format(message, error) 
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+                    message = f'{message}{error}\n'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # edit the pipeline config file
         if OK:
@@ -951,13 +1064,13 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
             # check the config file
             (OK, error_list) = xtoa.check_pipeline_config_file(self.pipeline_type, strict=False)
             if OK:
-                message = 'The {0} config file is OK.'.format(self.name)
-                tkinter.messagebox.showinfo('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+                message = f'The {self.name} config file is OK.'
+                tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {self.head}', message)
             else:
                 message = 'Detected errors:\n\n'
                 for error in error_list:
-                    message = '{0}{1}\n'.format(message, error) 
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+                    message = f'{message}{error}\n'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # close the form
         self.close()
@@ -967,6 +1080,374 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
     def close(self):
         '''
         Close "FormRecreatePipelineConfigFile".
+        '''
+
+        # clear the label of the current process name
+        self.main.label_process['text'] = ''
+
+        # close the current form
+        self.main.close_current_form()
+
+    #---------------
+
+#-------------------------------------------------------------------------------
+
+class FormRecreateAnnotatioMergerConfigFile(tkinter.Frame):
+
+    #---------------
+
+    def __init__(self, parent, main):
+        '''
+        Execute actions correspending to the creation of a "FormRecreateAnnotatioMergerConfigFile" instance.
+        '''
+
+        # save initial parameters in instance variables
+        self.parent = parent
+        self.main = main
+
+        # call the init method of the parent class
+        tkinter.Frame.__init__(self, self.parent)
+
+        # set cursor to show busy status
+        self.main.config(cursor='watch')
+        self.main.update()
+
+        # set the name
+        self.name = xlib.get_toa_process_merge_annotations_name()
+
+        # assign the text of the "head"
+        self.head = f'{self.name} - Recreate config file'
+
+        # create the wrappers to track changes in the inputs
+        self.wrapper_process_type = tkinter.StringVar()
+        self.wrapper_process_type.trace('w', self.check_inputs)
+        self.wrapper_pipeline_dataset_1 = tkinter.StringVar()
+        self.wrapper_pipeline_dataset_1.trace('w', self.check_inputs)
+        self.wrapper_merger_operation = tkinter.StringVar()
+        self.wrapper_merger_operation.trace('w', self.check_inputs)
+        self.wrapper_pipeline_dataset_2 = tkinter.StringVar()
+        self.wrapper_pipeline_dataset_2.trace('w', self.check_inputs)
+
+        # build the graphical user interface
+        self.build_gui()
+
+        # load initial data in inputs
+        self.initialize_inputs()
+
+        # set cursor to show normal status
+        self.main.config(cursor='')
+        self.main.update()
+
+    #---------------
+
+    def build_gui(self):
+        '''
+        Build the graphical user interface of "FormRecreateAnnotatioMergerConfigFile".
+        '''
+
+        # assign the text to the label of the current process name
+        self.main.label_process['text'] = self.head
+
+        # create "label_process_type" and register it with the grid geometry manager
+        self.label_process_type = tkinter.Label(self, text='Process type')
+        self.label_process_type.grid(row=0, column=0, padx=(15,5), pady=(75,5), sticky='e')
+
+        # create "combobox_process_type" and register it with the grid geometry manager
+        self.combobox_process_type = tkinter.ttk.Combobox(self, width=30, height=4, state='readonly', textvariable=self.wrapper_process_type)
+        self.combobox_process_type.grid(row=0, column=1, padx=(5,5), pady=(75,5), sticky='w')
+
+        # create "label_pipeline_dataset_1" and register it with the grid geometry manager
+        self.label_pipeline_dataset_1 = tkinter.Label(self, text='First pipeline dataset')
+        self.label_pipeline_dataset_1.grid(row=1, column=0, padx=(15,5), pady=(45,5), sticky='e')
+
+        # create "combobox_pipeline_dataset_1" and register it with the grid geometry manager
+        self.combobox_pipeline_dataset_1 = tkinter.ttk.Combobox(self, width=45, height=4, state='readonly', textvariable=self.wrapper_pipeline_dataset_1)
+        self.combobox_pipeline_dataset_1.grid(row=1, column=1, padx=(5,5), pady=(45,5), sticky='w')
+
+        # create "label_merger_operation" and register it with the grid geometry manager
+        self.label_merger_operation = tkinter.Label(self, text='Merger operation')
+        self.label_merger_operation.grid(row=2, column=0, padx=(15,5), pady=(45,5), sticky='e')
+
+        # create "combobox_merger_operation" and register it with the grid geometry manager
+        self.combobox_merger_operation = tkinter.ttk.Combobox(self, width=10, height=4, state='readonly', textvariable=self.wrapper_merger_operation)
+        self.combobox_merger_operation.grid(row=2, column=1, padx=(5,5), pady=(45,5), sticky='w')
+
+        # create "label_pipeline_dataset_2" and register it with the grid geometry manager
+        self.label_pipeline_dataset_2 = tkinter.Label(self, text='Second pipeline dataset')
+        self.label_pipeline_dataset_2.grid(row=3, column=0, padx=(15,5), pady=(45,5), sticky='e')
+
+        # create "combobox_pipeline_dataset_2" and register it with the grid geometry manager
+        self.combobox_pipeline_dataset_2 = tkinter.ttk.Combobox(self, width=45, height=4, state='readonly', textvariable=self.wrapper_pipeline_dataset_2)
+        self.combobox_pipeline_dataset_2.grid(row=3, column=1, padx=(5,5), pady=(45,5), sticky='w')
+
+        # create "label_pipeline_dataset_2_warning" and register it with the grid geometry manager
+        self.label_pipeline_dataset_2_warning = tkinter.Label(self, text='')
+        self.label_pipeline_dataset_2_warning.grid(row=3, column=2, columnspan=4, padx=(5,5), pady=(45,5), sticky='w')
+
+        # create "label_fit" and register it with the grid geometry manager
+        self.label_fit = tkinter.Label(self, text=' '*(25+xlib.get_os_size_fix()))
+        self.label_fit.grid(row=4, column=2, padx=(0,0), pady=(45,5), sticky='e')
+
+        # create "button_execute" and register it with the grid geometry manager
+        self.button_execute = tkinter.ttk.Button(self, text='Execute', command=self.execute, state='disabled')
+        self.button_execute.grid(row=4, column=3, padx=(5,5), pady=(45,5), sticky='e')
+
+        # create "button_close" and register it with the grid geometry manager
+        self.button_close = tkinter.ttk.Button(self, text='Close', command=self.close)
+        self.button_close.grid(row=4, column=4, padx=(5,5), pady=(45,5), sticky='w')
+
+        # link a handler to events
+        self.combobox_process_type.bind('<<ComboboxSelected>>', self.combobox_process_type_selected_item)
+        self.combobox_pipeline_dataset_1.bind('<<ComboboxSelected>>', self.combobox_pipeline_dataset_1_selected_item)
+        self.combobox_merger_operation.bind('<<ComboboxSelected>>', self.combobox_merger_operation_selected_item)
+        self.combobox_pipeline_dataset_2.bind('<<ComboboxSelected>>', self.combobox_pipeline_dataset_2_selected_item)
+
+    #---------------
+
+    def initialize_inputs(self):
+        '''
+        Load initial data in inputs.
+        '''
+
+        # load initial data in inputs
+        self.combobox_process_type['values'] = []
+        self.wrapper_process_type.set('')
+        self.combobox_pipeline_dataset_1['values'] = []
+        self.wrapper_pipeline_dataset_1.set('')
+        self.combobox_merger_operation['values'] = []
+        self.wrapper_merger_operation.set('')
+        self.combobox_pipeline_dataset_2['values'] = []
+        self.wrapper_pipeline_dataset_2.set('')
+
+        # populate data in comboboxes
+        self.populate_combobox_process_type()
+        self.populate_combobox_merger_operation()
+
+    #---------------
+
+    def populate_combobox_process_type(self):
+        '''
+        Populate data in "combobox_process_type".
+        '''
+
+        # clear the value selected in the combobox
+        self.wrapper_process_type.set('')
+
+        # set the process type list
+        process_type_list = [xlib.get_toa_result_pipeline_dir()]
+
+        # load the process type list in the combobox
+        self.combobox_process_type['values'] = sorted(process_type_list)
+
+    #---------------
+
+    def populate_combobox_pipeline_dataset_1(self):
+        '''
+        Populate data in "combobox_pipeline_dataset_1".
+        '''
+
+        # clear the value selected in the combobox
+        self.wrapper_pipeline_dataset_1.set('')
+
+        # get the dictionary of TOA configuration.
+        toa_config_dict = xtoa.get_toa_config_dict()
+
+        # initialize the pipeline dataset name list
+        pipeline_dataset_name_list = []
+
+        # get the result dataset identifications of the process type
+        pipeline_dir = f'{toa_config_dict["RESULT_DIR"]}/{xlib.get_toa_result_pipeline_dir()}'
+        subdir_list = [subdir for subdir in os.listdir(pipeline_dir) if os.path.isdir(os.path.join(pipeline_dir, subdir))]
+        for subdir in subdir_list:
+            if subdir.startswith(xlib.get_toa_process_pipeline_nucleotide_code()) or subdir.startswith(xlib.get_toa_process_pipeline_aminoacid_code()) or subdir.startswith(xlib.get_toa_process_merge_annotations_code()):
+                pipeline_dataset_name_list.append(subdir)
+
+        # load the pipeline dataset names in the combobox
+        self.combobox_pipeline_dataset_1['values'] = sorted(pipeline_dataset_name_list)
+
+    #---------------
+
+    def populate_combobox_merger_operation(self):
+        '''
+        Populate data in "combobox_merger_operation".
+        '''
+
+        # clear the value selected in the combobox
+        self.wrapper_merger_operation.set('')
+
+        # load the process type list in the combobox
+        self.combobox_merger_operation['values'] = sorted(xlib.get_annotation_merger_operation_code_list())
+
+    #---------------
+
+    def combobox_process_type_selected_item(self, event=None):
+        '''
+        Process the event when an item of "combobox_process_type" has been selected.
+        '''
+
+        # set cursor to show busy status
+        self.main.config(cursor='watch')
+        self.main.update()
+
+        # load data in "combobox_pipeline_dataset_1" and "combobox_pipeline_dataset_2"
+        self.populate_combobox_pipeline_dataset_1()
+        self.populate_combobox_pipeline_dataset_2()
+
+        # set cursor to show normal status
+        self.main.config(cursor='')
+        self.main.update()
+
+    #---------------
+
+    def populate_combobox_pipeline_dataset_2(self):
+        '''
+        Populate data in "combobox_pipeline_dataset_2".
+        '''
+
+        # clear the value selected in the combobox
+        self.wrapper_pipeline_dataset_2.set('')
+
+        # get the dictionary of TOA configuration.
+        toa_config_dict = xtoa.get_toa_config_dict()
+
+        # initialize the pipeline dataset name list
+        pipeline_dataset_name_list = []
+
+        # get the result dataset identifications of the process type
+        pipeline_dir = f'{toa_config_dict["RESULT_DIR"]}/{xlib.get_toa_result_pipeline_dir()}'
+        subdir_list = [subdir for subdir in os.listdir(pipeline_dir) if os.path.isdir(os.path.join(pipeline_dir, subdir))]
+        for subdir in subdir_list:
+            if subdir.startswith(xlib.get_toa_process_pipeline_nucleotide_code()) or subdir.startswith(xlib.get_toa_process_pipeline_aminoacid_code()) or subdir.startswith(xlib.get_toa_process_merge_annotations_code()):
+                pipeline_dataset_name_list.append(subdir)
+
+        # load the pipeline dataset names in the combobox
+        self.combobox_pipeline_dataset_2['values'] = sorted(pipeline_dataset_name_list)
+
+    #---------------
+
+    def combobox_pipeline_dataset_1_selected_item(self, event=None):
+        '''
+        Process the event when an item of "combobox_pipeline_dataset_1" has been selected.
+        '''
+
+        pass
+
+    #---------------
+
+    def combobox_merger_operation_selected_item(self, event=None):
+        '''
+        Process the event when an item of "combobox_merger_operation" has been selected.
+        '''
+
+        pass
+
+    #---------------
+
+    def combobox_pipeline_dataset_2_selected_item(self, event=None):
+        '''
+        Process the event when an item of "combobox_pipeline_dataset_2" has been selected.
+        '''
+
+        pass
+
+    #---------------
+
+    def check_inputs(self, *args):
+        '''
+        Check the content of each input of "FormRecreateAnnotatioMergerConfigFile" and do the actions linked to its value.
+        '''
+
+        # initialize the control variable
+        OK = True
+
+        # check the content of "pipeline_dataset_1" and "pipeline_dataset_2"
+        if not self.check_pipeline_datasets():
+            OK = False
+
+        # check if "button_execute" has to be enabled or disabled
+        if self.wrapper_process_type.get() != ''  and self.wrapper_pipeline_dataset_1.get() != '' and self.wrapper_merger_operation.get() != '' and self.wrapper_pipeline_dataset_2.get() != '':
+            self.button_execute['state'] = 'enable'
+        else:
+            self.button_execute['state'] = 'disabled'
+
+        # return the control variable
+        return OK
+
+    #---------------
+
+    def check_pipeline_datasets(self):
+        '''
+        Check the content of "pipeline_dataset_1" and "pipeline_dataset_2".
+        '''
+
+        # initialize the control variable
+        OK = True
+
+        # check that the "pipeline_dataset_1" data is different to the "pipeline_dataset_2" data
+        if self.wrapper_pipeline_dataset_1.get() != '' and self.wrapper_pipeline_dataset_1.get() == self.wrapper_merger_operation.get():
+            self.label_pipeline_dataset_2_warning['text'] = 'Both pipeline datasets have to be different.'
+            self.label_pipeline_dataset_2_warning['foreground'] = 'red'
+            OK = False
+        else:
+            self.label_pipeline_dataset_2_warning['text'] = ''
+            self.label_pipeline_dataset_2_warning['foreground'] = 'black'
+
+        # return the control variable
+        return OK
+
+    #---------------
+
+    def execute(self):
+        '''
+        Execute the creation of the config file.
+        '''
+
+        # check inputs
+        OK = self.check_inputs()
+        if not OK:
+            message = 'Some input values are not OK.'
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
+
+        # confirm the creation of the pipeline config file
+        if OK:
+            message = f'The file {xtoa.get_annotation_merger_config_file()} is going to be recreated. The previous file will be lost.\n\nAre you sure to continue?'
+            OK = tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - {self.head}', message)
+
+        # recreate the pipeline config file
+        if OK:
+            (OK, error_list) = xtoa.create_annotation_merger_config_file(self.wrapper_pipeline_dataset_1.get(), self.wrapper_pipeline_dataset_2.get(), self.wrapper_merger_operation.get())
+            if not OK:
+                message = ''
+                for error in error_list:
+                    message = f'{message}{error}\n'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
+
+        # edit the pipeline config file
+        if OK:
+
+            # edit the config file using "DialogEditor" 
+            dialog_editor = gdialogs.DialogEditor(self, xtoa.get_annotation_merger_config_file())
+            self.wait_window(dialog_editor)
+
+            # check the config file
+            (OK, error_list) = xtoa.check_annotation_merger_config_file(strict=False)
+            if OK:
+                message = f'The {self.name} config file is OK.'
+                tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {self.head}', message)
+            else:
+                message = 'Detected errors:\n\n'
+                for error in error_list:
+                    message = f'{message}{error}\n'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
+
+        # close the form
+        self.close()
+
+    #---------------
+
+    def close(self):
+        '''
+        Close "FormRecreateAnnotatioMergerConfigFile".
         '''
 
         # clear the label of the current process name
@@ -1003,11 +1484,15 @@ class FormRunPipelineProcess(tkinter.Frame):
         # set the name
         if self.pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
             self.name = xlib.get_toa_process_pipeline_nucleotide_name()
+
         elif self.pipeline_type == xlib.get_toa_process_pipeline_aminoacid_code():
             self.name = xlib.get_toa_process_pipeline_aminoacid_name()
 
+        elif self.pipeline_type == xlib.get_toa_process_merge_annotations_code():
+            self.name = xlib.get_toa_process_merge_annotations_name()
+
         # assign the text of the "head"
-        self.head = '{0} - Run process'.format(self.name)
+        self.head = f'{self.name} - Run process'
 
         # create the wrappers to track changes in the inputs
         pass
@@ -1060,7 +1545,7 @@ class FormRunPipelineProcess(tkinter.Frame):
 
     def check_inputs(self, *args):
         '''
-        Check the content of each input of "FormRunPipelineProcess" and do the actions linked to its value
+        Check the content of each input of "FormRunPipelineProcess" and do the actions linked to its value.
         '''
 
         # initialize the control variable
@@ -1081,19 +1566,30 @@ class FormRunPipelineProcess(tkinter.Frame):
         OK = self.check_inputs()
         if not OK:
             message = 'Some input values are not OK.'
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # confirm the process run
         if OK:
-            message = 'The {0} process is going to be run.\n\nAre you sure to continue?'.format(self.name)
-            OK = tkinter.messagebox.askyesno('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            message = f'The {self.name} process is going to be run.\n\nAre you sure to continue?'
+            OK = tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # execute the process
         if OK:
 
-            dialog_log = gdialogs.DialogLog(self, self.head, xtoa.run_pipeline_process.__name__)
-            threading.Thread(target=self.wait_window, args=(dialog_log,)).start()
-            threading.Thread(target=xtoa.run_pipeline_process, args=(self.pipeline_type, dialog_log, lambda: dialog_log.enable_button_close())).start()
+            if self.pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
+                dialog_log = gdialogs.DialogLog(self, self.head, xtoa.run_pipeline_process.__name__)
+                threading.Thread(target=self.wait_window, args=(dialog_log,)).start()
+                threading.Thread(target=xtoa.run_pipeline_process, args=(self.pipeline_type, dialog_log, lambda: dialog_log.enable_button_close())).start()
+
+            elif self.pipeline_type == xlib.get_toa_process_pipeline_aminoacid_code():
+                dialog_log = gdialogs.DialogLog(self, self.head, xtoa.run_pipeline_process.__name__)
+                threading.Thread(target=self.wait_window, args=(dialog_log,)).start()
+                threading.Thread(target=xtoa.run_pipeline_process, args=(self.pipeline_type, dialog_log, lambda: dialog_log.enable_button_close())).start()
+
+            elif self.pipeline_type == xlib.get_toa_process_merge_annotations_code():
+                dialog_log = gdialogs.DialogLog(self, self.head, xtoa.run_annotation_merger_process.__name__)
+                threading.Thread(target=self.wait_window, args=(dialog_log,)).start()
+                threading.Thread(target=xtoa.run_annotation_merger_process, args=(dialog_log, lambda: dialog_log.enable_button_close())).start()
 
         # close the form
         if OK:
@@ -1144,11 +1640,11 @@ class FormRestartPipelineProcess(tkinter.Frame):
             self.name = xlib.get_toa_process_pipeline_aminoacid_name()
 
         # assign the text of the "head"
-        self.head = '{0} - Restart process'.format(self.name)
+        self.head = f'{self.name} - Restart process'
 
         # create the wrappers to track changes in the inputs
-        self.wrapper_experiment_id = tkinter.StringVar()
-        self.wrapper_experiment_id.trace('w', self.check_inputs)
+        self.wrapper_process_type = tkinter.StringVar()
+        self.wrapper_process_type.trace('w', self.check_inputs)
         self.wrapper_pipeline_dataset = tkinter.StringVar()
         self.wrapper_pipeline_dataset.trace('w', self.check_inputs)
 
@@ -1172,13 +1668,13 @@ class FormRestartPipelineProcess(tkinter.Frame):
         # assign the text to the label of the current process name
         self.main.label_process['text'] = self.head
 
-        # create "label_experiment_id" and register it with the grid geometry manager
-        self.label_experiment_id = tkinter.Label(self, text='Experiment/process')
-        self.label_experiment_id.grid(row=0, column=0, padx=(15,5), pady=(75,5), sticky='e')
+        # create "label_process_type" and register it with the grid geometry manager
+        self.label_process_type = tkinter.Label(self, text='Process type')
+        self.label_process_type.grid(row=0, column=0, padx=(15,5), pady=(75,5), sticky='e')
 
-        # create "combobox_experiment_id" and register it with the grid geometry manager
-        self.combobox_experiment_id = tkinter.ttk.Combobox(self, width=30, height=4, state='readonly', textvariable=self.wrapper_experiment_id)
-        self.combobox_experiment_id.grid(row=0, column=1, padx=(5,5), pady=(75,5), sticky='w')
+        # create "combobox_process_type" and register it with the grid geometry manager
+        self.combobox_process_type = tkinter.ttk.Combobox(self, width=30, height=4, state='readonly', textvariable=self.wrapper_process_type)
+        self.combobox_process_type.grid(row=0, column=1, padx=(5,5), pady=(75,5), sticky='w')
 
         # create "label_pipeline_dataset" and register it with the grid geometry manager
         self.label_pipeline_dataset = tkinter.Label(self, text='Pipeline dataset')
@@ -1189,7 +1685,7 @@ class FormRestartPipelineProcess(tkinter.Frame):
         self.combobox_pipeline_dataset.grid(row=1, column=1, padx=(5,5), pady=(45,5), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(35+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*(40+xlib.get_os_size_fix()))
         self.label_fit.grid(row=2, column=2, padx=(0,0), pady=(45,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -1201,7 +1697,7 @@ class FormRestartPipelineProcess(tkinter.Frame):
         self.button_close.grid(row=2, column=4, padx=(5,5), pady=(45,5), sticky='w')
 
         # link a handler to events
-        self.combobox_experiment_id.bind('<<ComboboxSelected>>', self.combobox_experiment_id_selected_item)
+        self.combobox_process_type.bind('<<ComboboxSelected>>', self.combobox_process_type_selected_item)
         self.combobox_pipeline_dataset.bind('<<ComboboxSelected>>', self.combobox_pipeline_dataset_selected_item)
 
     #---------------
@@ -1212,29 +1708,29 @@ class FormRestartPipelineProcess(tkinter.Frame):
         '''
 
         # load initial data in inputs
-        self.combobox_experiment_id['values'] = []
-        self.wrapper_experiment_id.set('')
+        self.combobox_process_type['values'] = []
+        self.wrapper_process_type.set('')
         self.combobox_pipeline_dataset['values'] = []
         self.wrapper_pipeline_dataset.set('')
 
         # populate data in comboboxes
-        self.populate_combobox_experiment_id()
+        self.populate_combobox_process_type()
 
     #---------------
 
-    def populate_combobox_experiment_id(self):
+    def populate_combobox_process_type(self):
         '''
-        Populate data in "combobox_experiment_id".
+        Populate data in "combobox_process_type".
         '''
 
         # clear the value selected in the combobox
-        self.wrapper_experiment_id.set('')
+        self.wrapper_process_type.set('')
 
-        # initialize the experiment identification list
-        experiment_id_list = [xlib.get_toa_result_pipeline_dir()]
+        # set the process type list
+        process_type_list = [xlib.get_toa_result_pipeline_dir()]
 
-        # load the experiment identifications in the combobox
-        self.combobox_experiment_id['values'] = sorted(experiment_id_list)
+        # load the process type list in the combobox
+        self.combobox_process_type['values'] = sorted(process_type_list)
 
     #---------------
 
@@ -1252,21 +1748,22 @@ class FormRestartPipelineProcess(tkinter.Frame):
         # initialize the pipeline dataset name list
         pipeline_dataset_name_list = []
 
-        # get the result dataset identifications of the experiment
-        experiment_dir = '{0}/{1}'.format(toa_config_dict['RESULT_DIR'], xlib.get_toa_result_pipeline_dir())
-        subdir_list = [subdir for subdir in os.listdir(experiment_dir) if os.path.isdir(os.path.join(experiment_dir, subdir))]
+        # get the result dataset identifications of the process type
+        pipeline_dir = f'{toa_config_dict["RESULT_DIR"]}/{xlib.get_toa_result_pipeline_dir()}'
+        subdir_list = [subdir for subdir in os.listdir(pipeline_dir) if os.path.isdir(os.path.join(pipeline_dir, subdir))]
         for subdir in subdir_list:
             if subdir.startswith(self.pipeline_type):
-                pipeline_dataset_name_list.append(subdir)
+                if subdir.startswith(xlib.get_toa_process_pipeline_nucleotide_code()) or subdir.startswith(xlib.get_toa_process_pipeline_aminoacid_code()):
+                    pipeline_dataset_name_list.append(subdir)
 
         # load the pipeline dataset names in the combobox
         self.combobox_pipeline_dataset['values'] = sorted(pipeline_dataset_name_list)
 
     #---------------
 
-    def combobox_experiment_id_selected_item(self, event=None):
+    def combobox_process_type_selected_item(self, event=None):
         '''
-        Process the event when an item of "combobox_experiment_id" has been selected
+        Process the event when an item of "combobox_process_type" has been selected.
         '''
 
         # set cursor to show busy status
@@ -1284,7 +1781,7 @@ class FormRestartPipelineProcess(tkinter.Frame):
 
     def combobox_pipeline_dataset_selected_item(self, event=None):
         '''
-        Process the event when an item of "combobox_pipeline_dataset" has been selected
+        Process the event when an item of "combobox_pipeline_dataset" has been selected.
         '''
 
         pass
@@ -1293,14 +1790,14 @@ class FormRestartPipelineProcess(tkinter.Frame):
 
     def check_inputs(self, *args):
         '''
-        Check the content of each input of "FormRestartPipelineProcess" and do the actions linked to its value
+        Check the content of each input of "FormRestartPipelineProcess" and do the actions linked to its value.
         '''
 
         # initialize the control variable
         OK = True
 
         # check if "button_execute" has to be enabled or disabled
-        if self.wrapper_experiment_id.get() != ''  and self.wrapper_pipeline_dataset.get() != '':
+        if self.wrapper_process_type.get() != ''  and self.wrapper_pipeline_dataset.get() != '':
             self.button_execute['state'] = 'enable'
         else:
             self.button_execute['state'] = 'disabled'
@@ -1319,12 +1816,12 @@ class FormRestartPipelineProcess(tkinter.Frame):
         OK = self.check_inputs()
         if not OK:
             message = 'Some input values are not OK.'
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # confirm the process run
         if OK:
-            message = 'The {0} process is going to be run.\n\nAre you sure to continue?'.format(self.name)
-            OK = tkinter.messagebox.askyesno('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            message = f'The {self.name} process is going to be run.\n\nAre you sure to continue?'
+            OK = tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # execute the process
         if OK:
@@ -1414,11 +1911,11 @@ class FormViewStats(tkinter.Frame):
             self.name = 'MetaCyc - # sequences per # ids'
 
         # assign the text of the "head"
-        self.head = 'Statistics - {0} data'.format(self.name)
+        self.head = f'Statistics - {self.name} data'
 
         # create the wrappers to track changes in the inputs
-        self.wrapper_experiment_id = tkinter.StringVar()
-        self.wrapper_experiment_id.trace('w', self.check_inputs)
+        self.wrapper_process_type = tkinter.StringVar()
+        self.wrapper_process_type.trace('w', self.check_inputs)
         self.wrapper_pipeline_dataset = tkinter.StringVar()
         self.wrapper_pipeline_dataset.trace('w', self.check_inputs)
 
@@ -1442,13 +1939,13 @@ class FormViewStats(tkinter.Frame):
         # assign the text to the label of the current process name
         self.main.label_process['text'] = self.head
 
-        # create "label_experiment_id" and register it with the grid geometry manager
-        self.label_experiment_id = tkinter.Label(self, text='Experiment/process')
-        self.label_experiment_id.grid(row=0, column=0, padx=(15,5), pady=(75,5), sticky='e')
+        # create "label_process_type" and register it with the grid geometry manager
+        self.label_process_type = tkinter.Label(self, text='Process type')
+        self.label_process_type.grid(row=0, column=0, padx=(15,5), pady=(75,5), sticky='e')
 
-        # create "combobox_experiment_id" and register it with the grid geometry manager
-        self.combobox_experiment_id = tkinter.ttk.Combobox(self, width=30, height=4, state='readonly', textvariable=self.wrapper_experiment_id)
-        self.combobox_experiment_id.grid(row=0, column=1, padx=(5,5), pady=(75,5), sticky='w')
+        # create "combobox_process_type" and register it with the grid geometry manager
+        self.combobox_process_type = tkinter.ttk.Combobox(self, width=30, height=4, state='readonly', textvariable=self.wrapper_process_type)
+        self.combobox_process_type.grid(row=0, column=1, padx=(5,5), pady=(75,5), sticky='w')
 
         # create "label_pipeline_dataset" and register it with the grid geometry manager
         self.label_pipeline_dataset = tkinter.Label(self, text='Pipeline dataset')
@@ -1459,7 +1956,7 @@ class FormViewStats(tkinter.Frame):
         self.combobox_pipeline_dataset.grid(row=1, column=1, padx=(5,5), pady=(45,5), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(35+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*(40+xlib.get_os_size_fix()))
         self.label_fit.grid(row=2, column=2, padx=(0,0), pady=(45,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -1471,7 +1968,7 @@ class FormViewStats(tkinter.Frame):
         self.button_close.grid(row=2, column=4, padx=(5,5), pady=(45,5), sticky='w')
 
         # link a handler to events
-        self.combobox_experiment_id.bind('<<ComboboxSelected>>', self.combobox_experiment_id_selected_item)
+        self.combobox_process_type.bind('<<ComboboxSelected>>', self.combobox_process_type_selected_item)
         self.combobox_pipeline_dataset.bind('<<ComboboxSelected>>', self.combobox_pipeline_dataset_selected_item)
 
     #---------------
@@ -1482,29 +1979,29 @@ class FormViewStats(tkinter.Frame):
         '''
 
         # load initial data in inputs
-        self.combobox_experiment_id['values'] = []
-        self.wrapper_experiment_id.set('')
+        self.combobox_process_type['values'] = []
+        self.wrapper_process_type.set('')
         self.combobox_pipeline_dataset['values'] = []
         self.wrapper_pipeline_dataset.set('')
 
         # populate data in comboboxes
-        self.populate_combobox_experiment_id()
+        self.populate_combobox_process_type()
 
     #---------------
 
-    def populate_combobox_experiment_id(self):
+    def populate_combobox_process_type(self):
         '''
-        Populate data in "combobox_experiment_id".
+        Populate data in "combobox_process_type".
         '''
 
         # clear the value selected in the combobox
-        self.wrapper_experiment_id.set('')
+        self.wrapper_process_type.set('')
 
-        # initialize the experiment identification list
-        experiment_id_list = [xlib.get_toa_result_pipeline_dir()]
+        # set the process type list
+        process_type_list = [xlib.get_toa_result_pipeline_dir()]
 
-        # load the experiment identifications in the combobox
-        self.combobox_experiment_id['values'] = sorted(experiment_id_list)
+        # load the process type list in the combobox
+        self.combobox_process_type['values'] = sorted(process_type_list)
 
     #---------------
 
@@ -1522,20 +2019,25 @@ class FormViewStats(tkinter.Frame):
         # initialize the pipeline dataset name list
         pipeline_dataset_name_list = []
 
-        # get the result dataset identifications of the experiment
-        experiment_dir = '{0}/{1}'.format(toa_config_dict['RESULT_DIR'], xlib.get_toa_result_pipeline_dir())
-        subdir_list = [subdir for subdir in os.listdir(experiment_dir) if os.path.isdir(os.path.join(experiment_dir, subdir))]
+        # get the result dataset identifications of the process type
+        pipeline_dir = f'{toa_config_dict["RESULT_DIR"]}/{xlib.get_toa_result_pipeline_dir()}'
+        subdir_list = [subdir for subdir in os.listdir(pipeline_dir) if os.path.isdir(os.path.join(pipeline_dir, subdir))]
         for subdir in subdir_list:
-            pipeline_dataset_name_list.append(subdir)
+            if self.stats_code == 'hit_per_hsp' or self.stats_code == 'dataset':
+                if subdir.startswith(xlib.get_toa_process_pipeline_nucleotide_code()) or subdir.startswith(xlib.get_toa_process_pipeline_aminoacid_code()):
+                    pipeline_dataset_name_list.append(subdir)
+            else:
+                if subdir.startswith(xlib.get_toa_process_pipeline_nucleotide_code()) or subdir.startswith(xlib.get_toa_process_pipeline_aminoacid_code()) or subdir.startswith(xlib.get_toa_process_merge_annotations_code()):
+                    pipeline_dataset_name_list.append(subdir)
 
         # load the pipeline dataset names in the combobox
         self.combobox_pipeline_dataset['values'] = sorted(pipeline_dataset_name_list)
 
     #---------------
 
-    def combobox_experiment_id_selected_item(self, event=None):
+    def combobox_process_type_selected_item(self, event=None):
         '''
-        Process the event when an item of "combobox_experiment_id" has been selected
+        Process the event when an item of "combobox_process_type" has been selected.
         '''
 
         # set cursor to show busy status
@@ -1553,7 +2055,7 @@ class FormViewStats(tkinter.Frame):
 
     def combobox_pipeline_dataset_selected_item(self, event=None):
         '''
-        Process the event when an item of "combobox_pipeline_dataset" has been selected
+        Process the event when an item of "combobox_pipeline_dataset" has been selected.
         '''
 
         pass
@@ -1562,14 +2064,14 @@ class FormViewStats(tkinter.Frame):
 
     def check_inputs(self, *args):
         '''
-        Check the content of each input of "FormViewStats" and do the actions linked to its value
+        Check the content of each input of "FormViewStats" and do the actions linked to its value.
         '''
 
         # initialize the control variable
         OK = True
 
         # check if "button_execute" has to be enabled or disabled
-        if self.wrapper_experiment_id.get() != ''  and self.wrapper_pipeline_dataset.get() != '':
+        if self.wrapper_process_type.get() != ''  and self.wrapper_pipeline_dataset.get() != '':
             self.button_execute['state'] = 'enable'
         else:
             self.button_execute['state'] = 'disabled'
@@ -1588,7 +2090,7 @@ class FormViewStats(tkinter.Frame):
         OK = self.check_inputs()
         if not OK:
             message = 'Some input values are not OK.'
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # execute the corresponding process
         if OK:
@@ -1624,7 +2126,7 @@ class FormViewStats(tkinter.Frame):
         toa_config_dict = xtoa.get_toa_config_dict()
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(toa_config_dict['RESULT_DIR'], self.wrapper_experiment_id.get(), self.combobox_pipeline_dataset.get(), toa_config_dict['STATS_SUBDIR_NAME'], self.stats_code, toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{toa_config_dict["RESULT_DIR"]}/{self.wrapper_process_type.get()}/{self.combobox_pipeline_dataset.get()}/{toa_config_dict["STATS_SUBDIR_NAME"]}/{self.stats_code}-{toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -1683,7 +2185,7 @@ class FormViewStats(tkinter.Frame):
         # check if there are any stats
         if distribution_dict == {}:
             message = 'There is not any stats data.'
-            tkinter.messagebox.showwarning('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showwarning(f'{xlib.get_short_project_name()} - {self.head}', message)
             OK = False
 
         # build the data list
@@ -1737,7 +2239,7 @@ class FormViewStats(tkinter.Frame):
         toa_config_dict = xtoa.get_toa_config_dict()
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(toa_config_dict['RESULT_DIR'], self.wrapper_experiment_id.get(), self.combobox_pipeline_dataset.get(), toa_config_dict['STATS_SUBDIR_NAME'], self.stats_code, toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{toa_config_dict["RESULT_DIR"]}/{self.wrapper_process_type.get()}/{self.combobox_pipeline_dataset.get()}/{toa_config_dict["STATS_SUBDIR_NAME"]}/{self.stats_code}-{toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -1797,7 +2299,7 @@ class FormViewStats(tkinter.Frame):
         # check if there are any stats
         if distribution_dict == {}:
             message = 'There is not any stats data.'
-            tkinter.messagebox.showwarning('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showwarning(f'{xlib.get_short_project_name()} - {self.head}', message)
             OK = False
 
         # build the data list
@@ -1833,7 +2335,7 @@ class FormViewStats(tkinter.Frame):
         toa_config_dict = xtoa.get_toa_config_dict()
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(toa_config_dict['RESULT_DIR'], self.wrapper_experiment_id.get(), self.combobox_pipeline_dataset.get(), toa_config_dict['STATS_SUBDIR_NAME'], self.stats_code, toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{toa_config_dict["RESULT_DIR"]}/{self.wrapper_process_type.get()}/{self.combobox_pipeline_dataset.get()}/{toa_config_dict["STATS_SUBDIR_NAME"]}/{self.stats_code}-{toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -1894,7 +2396,7 @@ class FormViewStats(tkinter.Frame):
         # check if there are any stats
         if distribution_dict == {}:
             message = 'There is not any stats data.'
-            tkinter.messagebox.showwarning('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showwarning(f'{xlib.get_short_project_name()} - {self.head}', message)
             OK = False
 
         # build the data list
@@ -1931,7 +2433,7 @@ class FormViewStats(tkinter.Frame):
         toa_config_dict = xtoa.get_toa_config_dict()
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(toa_config_dict['RESULT_DIR'], self.wrapper_experiment_id.get(), self.combobox_pipeline_dataset.get(), toa_config_dict['STATS_SUBDIR_NAME'], self.stats_code, toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{toa_config_dict["RESULT_DIR"]}/{self.wrapper_process_type.get()}/{self.combobox_pipeline_dataset.get()}/{toa_config_dict["STATS_SUBDIR_NAME"]}/{self.stats_code}-{toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -1993,7 +2495,7 @@ class FormViewStats(tkinter.Frame):
         # check if there are any stats
         if distribution_dict == {}:
             message = 'There is not any stats data.'
-            tkinter.messagebox.showwarning('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showwarning(f'{xlib.get_short_project_name()} - {self.head}', message)
             OK = False
 
         # build the data list
@@ -2003,7 +2505,7 @@ class FormViewStats(tkinter.Frame):
         # build the data dictionary
         if OK:
             data_dict = {}
-            data_dict['id'] = {'text': '{0} id'.format(self.stats_code.capitalize()), 'width': 250, 'alignment': 'left'}
+            data_dict['id'] = {'text': f'{self.stats_code.capitalize()} id', 'width': 250, 'alignment': 'left'}
             data_dict['desc'] = {'text': 'Description', 'width': 400, 'alignment': 'left'}
             data_dict['all_count'] = {'text': 'All count', 'width': 135, 'alignment': 'right'}
             data_dict['first_hsp_count'] = {'text': 'First HSP count', 'width': 135, 'alignment': 'right'}
@@ -2031,7 +2533,7 @@ class FormViewStats(tkinter.Frame):
         toa_config_dict = xtoa.get_toa_config_dict()
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(toa_config_dict['RESULT_DIR'], self.wrapper_experiment_id.get(), self.combobox_pipeline_dataset.get(), toa_config_dict['STATS_SUBDIR_NAME'], self.stats_code, toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{toa_config_dict["RESULT_DIR"]}/{self.wrapper_process_type.get()}/{self.combobox_pipeline_dataset.get()}/{toa_config_dict["STATS_SUBDIR_NAME"]}/{self.stats_code}-{toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -2094,7 +2596,7 @@ class FormViewStats(tkinter.Frame):
         # check if there are any stats
         if distribution_dict == {}:
             message = 'There is not any stats data.'
-            tkinter.messagebox.showwarning('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showwarning(f'{xlib.get_short_project_name()} - {self.head}', message)
             OK = False
 
         # build the data list
@@ -2196,11 +2698,11 @@ class FormPlotStats(tkinter.Frame):
             self.name = 'MetaCyc - # sequences per # ids'
 
         # assign the text of the "head"
-        self.head = 'Statistics - {0} plot'.format(self.name)
+        self.head = f'Statistics - {self.name} plot'
 
         # create the wrappers to track changes in the inputs
-        self.wrapper_experiment_id = tkinter.StringVar()
-        self.wrapper_experiment_id.trace('w', self.check_inputs)
+        self.wrapper_process_type = tkinter.StringVar()
+        self.wrapper_process_type.trace('w', self.check_inputs)
         self.wrapper_pipeline_dataset = tkinter.StringVar()
         self.wrapper_pipeline_dataset.trace('w', self.check_inputs)
         if self.stats_code == 'go':
@@ -2242,13 +2744,13 @@ class FormPlotStats(tkinter.Frame):
         image_open_folder = PIL.Image.open('./image_open_folder.png')
         imagetk_open_folder = PIL.ImageTk.PhotoImage(image_open_folder)  
 
-        # create "label_experiment_id" and register it with the grid geometry manager
-        self.label_experiment_id = tkinter.Label(self, text='Experiment / process')
-        self.label_experiment_id.grid(row=0, column=0, padx=(15,5), pady=(50,5), sticky='e')
+        # create "label_process_type" and register it with the grid geometry manager
+        self.label_process_type = tkinter.Label(self, text='Process type')
+        self.label_process_type.grid(row=0, column=0, padx=(15,5), pady=(50,5), sticky='e')
 
-        # create "combobox_experiment_id" and register it with the grid geometry manager
-        self.combobox_experiment_id = tkinter.ttk.Combobox(self, width=30, height=4, state='readonly', textvariable=self.wrapper_experiment_id)
-        self.combobox_experiment_id.grid(row=0, column=1, padx=(5,5), pady=(50,5), sticky='w')
+        # create "combobox_process_type" and register it with the grid geometry manager
+        self.combobox_process_type = tkinter.ttk.Combobox(self, width=30, height=4, state='readonly', textvariable=self.wrapper_process_type)
+        self.combobox_process_type.grid(row=0, column=1, padx=(5,5), pady=(50,5), sticky='w')
 
         # create "label_pipeline_dataset" and register it with the grid geometry manager
         self.label_pipeline_dataset = tkinter.Label(self, text='Pipeline dataset')
@@ -2303,7 +2805,7 @@ class FormPlotStats(tkinter.Frame):
         self.label_image_dir.grid(row=7, column=0, padx=(15,5), pady=(0,0), sticky='e')
 
         # create "entry_image_dir" and register it with the grid geometry manager
-        self.entry_image_dir = tkinter.Entry(self, textvariable=self.wrapper_image_dir, width=58, state='disabled', validatecommand=self.check_inputs)
+        self.entry_image_dir = tkinter.Entry(self, textvariable=self.wrapper_image_dir, width=55, state='disabled', validatecommand=self.check_inputs)
         self.entry_image_dir.grid(row=7, column=1, padx=(5,5), pady=(0,0), sticky='w')
 
         # create "button_select_dir" and register it with the grid geometry manager
@@ -2325,18 +2827,18 @@ class FormPlotStats(tkinter.Frame):
 
         # create "label_fit" and register it with the grid geometry manager
         self.label_fit = tkinter.Label(self, text=' '*(1+xlib.get_os_size_fix()))
-        self.label_fit.grid(row=10, column=2, padx=(0,0), pady=(15,5), sticky='e')
+        self.label_fit.grid(row=10, column=3, padx=(0,0), pady=(15,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
         self.button_execute = tkinter.ttk.Button(self, text='Execute', command=self.execute, state='disabled')
-        self.button_execute.grid(row=10, column=3, padx=(5,5), pady=(15,5), sticky='e')
+        self.button_execute.grid(row=10, column=4, padx=(5,5), pady=(15,5), sticky='e')
 
         # create "button_close" and register it with the grid geometry manager
         self.button_close = tkinter.ttk.Button(self, text='Close', command=self.close)
-        self.button_close.grid(row=10, column=4, padx=(5,5), pady=(15,5), sticky='w')
+        self.button_close.grid(row=10, column=5, padx=(5,5), pady=(15,5), sticky='w')
 
         # link a handler to events
-        self.combobox_experiment_id.bind('<<ComboboxSelected>>', self.combobox_experiment_id_selected_item)
+        self.combobox_process_type.bind('<<ComboboxSelected>>', self.combobox_process_type_selected_item)
         self.combobox_pipeline_dataset.bind('<<ComboboxSelected>>', self.combobox_pipeline_dataset_selected_item)
         if self.stats_code == 'go':
             self.combobox_namespace.bind('<<ComboboxSelected>>', self.combobox_namespace_selected_item)
@@ -2352,8 +2854,8 @@ class FormPlotStats(tkinter.Frame):
         '''
 
         # load initial data in inputs
-        self.combobox_experiment_id['values'] = []
-        self.wrapper_experiment_id.set('')
+        self.combobox_process_type['values'] = []
+        self.wrapper_process_type.set('')
         self.combobox_pipeline_dataset['values'] = []
         self.wrapper_pipeline_dataset.set('')
         self.wrapper_dpi.set(600)
@@ -2363,7 +2865,7 @@ class FormPlotStats(tkinter.Frame):
         self.wrapper_image_name.set('Figure.jpeg')
 
         # populate data in comboboxes
-        self.populate_combobox_experiment_id()
+        self.populate_combobox_process_type()
         if self.stats_code == 'go':
             self.populate_combobox_namespace()
         if self.stats_code in ['species', 'family', 'phylum', 'go', 'namespace', 'ec', 'interpro', 'kegg', 'mapman', 'metacyc']:
@@ -2372,19 +2874,19 @@ class FormPlotStats(tkinter.Frame):
 
     #---------------
 
-    def populate_combobox_experiment_id(self):
+    def populate_combobox_process_type(self):
         '''
-        Populate data in "combobox_experiment_id".
+        Populate data in "combobox_process_type".
         '''
 
         # clear the value selected in the combobox
-        self.wrapper_experiment_id.set('')
+        self.wrapper_process_type.set('')
 
-        # initialize the experiment identification list
-        experiment_id_list = [xlib.get_toa_result_pipeline_dir()]
+        # set the process type list
+        process_type_list = [xlib.get_toa_result_pipeline_dir()]
 
-        # load the experiment identifications in the combobox
-        self.combobox_experiment_id['values'] = sorted(experiment_id_list)
+        # load the process type list in the combobox
+        self.combobox_process_type['values'] = sorted(process_type_list)
 
     #---------------
 
@@ -2399,11 +2901,16 @@ class FormPlotStats(tkinter.Frame):
         # initialize the pipeline dataset name list
         pipeline_dataset_name_list = []
 
-        # get the result dataset identifications of the experiment
-        experiment_dir = '{0}/{1}'.format(self.toa_config_dict['RESULT_DIR'], xlib.get_toa_result_pipeline_dir())
-        subdir_list = [subdir for subdir in os.listdir(experiment_dir) if os.path.isdir(os.path.join(experiment_dir, subdir))]
+        # get the result dataset identifications of the process type
+        pipeline_dir = f'{self.toa_config_dict["RESULT_DIR"]}/{xlib.get_toa_result_pipeline_dir()}'
+        subdir_list = [subdir for subdir in os.listdir(pipeline_dir) if os.path.isdir(os.path.join(pipeline_dir, subdir))]
         for subdir in subdir_list:
-            pipeline_dataset_name_list.append(subdir)
+            if self.stats_code == 'hit_per_hsp' or self.stats_code == 'dataset':
+                if subdir.startswith(xlib.get_toa_process_pipeline_nucleotide_code()) or subdir.startswith(xlib.get_toa_process_pipeline_aminoacid_code()):
+                    pipeline_dataset_name_list.append(subdir)
+            else:
+                if subdir.startswith(xlib.get_toa_process_pipeline_nucleotide_code()) or subdir.startswith(xlib.get_toa_process_pipeline_aminoacid_code()) or subdir.startswith(xlib.get_toa_process_merge_annotations_code()):
+                    pipeline_dataset_name_list.append(subdir)
 
         # load the pipeline dataset names in the combobox
         self.combobox_pipeline_dataset['values'] = sorted(pipeline_dataset_name_list)
@@ -2463,9 +2970,9 @@ class FormPlotStats(tkinter.Frame):
 
     #---------------
 
-    def combobox_experiment_id_selected_item(self, event=None):
+    def combobox_process_type_selected_item(self, event=None):
         '''
-        Process the event when an item of "combobox_experiment_id" has been selected
+        Process the event when an item of "combobox_process_type" has been selected.
         '''
 
         # set cursor to show busy status
@@ -2483,7 +2990,7 @@ class FormPlotStats(tkinter.Frame):
 
     def combobox_pipeline_dataset_selected_item(self, event=None):
         '''
-        Process the event when an item of "combobox_pipeline_dataset" has been selected
+        Process the event when an item of "combobox_pipeline_dataset" has been selected.
         '''
 
         pass
@@ -2492,7 +2999,7 @@ class FormPlotStats(tkinter.Frame):
 
     def combobox_namespace_selected_item(self, event=None):
         '''
-        Process the event when an item of "combobox_namespace" has been selected
+        Process the event when an item of "combobox_namespace" has been selected.
         '''
 
         pass
@@ -2501,7 +3008,7 @@ class FormPlotStats(tkinter.Frame):
 
     def combobox_alignment_count_level_selected_item(self, event=None):
         '''
-        Process the event when an item of "combobox_alignment_count_level" has been selected
+        Process the event when an item of "combobox_alignment_count_level" has been selected.
         '''
 
         pass
@@ -2510,18 +3017,18 @@ class FormPlotStats(tkinter.Frame):
 
     def combobox_image_format_selected_item(self, event=None):
         '''
-        Process the event when an item of "combobox_image_format" has been selected
+        Process the event when an item of "combobox_image_format" has been selected.
         '''
 
         if self.wrapper_image_name.get() != '':
             file_name, file_extension = os.path.splitext(self.wrapper_image_name.get())
-            self.wrapper_image_name.set('{0}.{1}'.format(file_name, self.wrapper_image_format.get().lower()))
+            self.wrapper_image_name.set(f'{file_name}.{self.wrapper_image_format.get().lower()}')
 
     #---------------
 
     def check_inputs(self, *args):
         '''
-        Check the content of each input of "FormPlotStats" and do the actions linked to its value
+        Check the content of each input of "FormPlotStats" and do the actions linked to its value.
         '''
 
         # initialize the control variable
@@ -2537,17 +3044,17 @@ class FormPlotStats(tkinter.Frame):
 
         # check if "button_execute" has to be enabled or disabled
         if self.stats_code in ['species', 'family', 'phylum', 'namespace', 'ec', 'interpro', 'kegg', 'mapman', 'metacyc']:
-            if self.wrapper_experiment_id.get() != ''  and self.wrapper_pipeline_dataset.get() != '' and  self.wrapper_alignment_count_level.get() != '' and  self.wrapper_image_format.get() != '' and self.wrapper_dpi.get() != '' and self.wrapper_image_dir.get() != '' and self.wrapper_image_name.get() != '':
+            if self.wrapper_process_type.get() != ''  and self.wrapper_pipeline_dataset.get() != '' and  self.wrapper_alignment_count_level.get() != '' and  self.wrapper_image_format.get() != '' and self.wrapper_dpi.get() != '' and self.wrapper_image_dir.get() != '' and self.wrapper_image_name.get() != '':
                 self.button_execute['state'] = 'enable'
             else:
                 self.button_execute['state'] = 'disabled'
         elif self.stats_code == 'go':
-            if self.wrapper_experiment_id.get() != ''  and self.wrapper_pipeline_dataset.get() != '' and  self.wrapper_namespace.get() != '' and  self.wrapper_alignment_count_level.get() != '' and  self.wrapper_image_format.get() != '' and self.wrapper_dpi.get() != '' and self.wrapper_image_dir.get() != '' and self.wrapper_image_name.get() != '':
+            if self.wrapper_process_type.get() != ''  and self.wrapper_pipeline_dataset.get() != '' and  self.wrapper_namespace.get() != '' and  self.wrapper_alignment_count_level.get() != '' and  self.wrapper_image_format.get() != '' and self.wrapper_dpi.get() != '' and self.wrapper_image_dir.get() != '' and self.wrapper_image_name.get() != '':
                 self.button_execute['state'] = 'enable'
             else:
                 self.button_execute['state'] = 'disabled'
         else:
-            if self.wrapper_experiment_id.get() != ''  and self.wrapper_pipeline_dataset.get() != '' and  self.wrapper_image_format.get() != '' and self.wrapper_dpi.get() != '' and self.wrapper_image_dir.get() != '' and self.wrapper_image_name.get() != '':
+            if self.wrapper_process_type.get() != ''  and self.wrapper_pipeline_dataset.get() != '' and  self.wrapper_image_format.get() != '' and self.wrapper_dpi.get() != '' and self.wrapper_image_dir.get() != '' and self.wrapper_image_name.get() != '':
                 self.button_execute['state'] = 'enable'
             else:
                 self.button_execute['state'] = 'disabled'
@@ -2559,7 +3066,7 @@ class FormPlotStats(tkinter.Frame):
 
     def check_entry_dpi(self):
         '''
-        Check the content of "entry_dpi"
+        Check the content of "entry_dpi".
         '''
 
         # initialize the control variable
@@ -2581,14 +3088,14 @@ class FormPlotStats(tkinter.Frame):
 
     def check_entry_image_name(self):
         '''
-        Check the content of "entry_image_name"
+        Check the content of "entry_image_name".
         '''
 
         # initialize the control variable
         OK = True
 
         # check that "entry_image_name" has the appropriate extension
-        if self.wrapper_image_name.get() != '' and  self.wrapper_image_format.get() != '' and not self.wrapper_image_name.get().lower().endswith('.{0}'.format(self.wrapper_image_format.get().lower())):
+        if self.wrapper_image_name.get() != '' and  self.wrapper_image_format.get() != '' and not self.wrapper_image_name.get().lower().endswith(f'.{self.wrapper_image_format.get().lower()}'):
             self.label_image_name_warning['text'] = 'The extension does not correspond with the format.'
             self.label_image_name_warning['foreground'] = 'red'
             OK = False
@@ -2610,14 +3117,14 @@ class FormPlotStats(tkinter.Frame):
         OK = self.check_inputs()
         if not OK:
             message = 'Some input values are not OK.'
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # check if the image file exists
         if OK:
-            image_file = '{0}/{1}'.format(self.wrapper_image_dir.get(), self.wrapper_image_name.get())
+            image_file = f'{self.wrapper_image_dir.get()}/{self.wrapper_image_name.get()}'
             if os.path.isfile(image_file):
                 message = 'The image file is going to be overwritten. Are you sure to continue?'
-                if not tkinter.messagebox.askyesno('{0} - Plot statistics'.format(xlib.get_short_project_name()), message):
+                if not tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - Plot statistics', message):
                     OK = False
 
         # execute the corresponding process
@@ -2650,10 +3157,10 @@ class FormPlotStats(tkinter.Frame):
         y_count_list = []
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(self.toa_config_dict['RESULT_DIR'], self.wrapper_experiment_id.get(), self.combobox_pipeline_dataset.get(), self.toa_config_dict['STATS_SUBDIR_NAME'], self.stats_code, self.toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{self.toa_config_dict["RESULT_DIR"]}/{self.wrapper_process_type.get()}/{self.combobox_pipeline_dataset.get()}/{self.toa_config_dict["STATS_SUBDIR_NAME"]}/{self.stats_code}-{self.toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # set the graphics file path
-        image_file = '{0}/{1}'.format(self.wrapper_image_dir.get(), self.wrapper_image_name.get())
+        image_file = f'{self.wrapper_image_dir.get()}/{self.wrapper_image_name.get()}'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -2709,7 +3216,7 @@ class FormPlotStats(tkinter.Frame):
         # check if there are any stats
         if len(x_count_list) == 0:
             message = 'There is not any stats data.'
-            tkinter.messagebox.showwarning('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showwarning(f'{xlib.get_short_project_name()} - {self.head}', message)
             OK = False
 
         # there are data
@@ -2759,7 +3266,7 @@ class FormPlotStats(tkinter.Frame):
             plot.save(filename=image_file, height=4.8, width=6.4, dpi=int(self.wrapper_dpi.get()), verbose=False)
 
             # show the plot
-            webbrowser.open_new('file://{0}'.format(image_file))
+            webbrowser.open_new(f'file://{image_file}')
 
         # set cursor to show normal status
         self.main.config(cursor='')
@@ -2783,10 +3290,10 @@ class FormPlotStats(tkinter.Frame):
         data_dict = {}
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(self.toa_config_dict['RESULT_DIR'], self.wrapper_experiment_id.get(), self.combobox_pipeline_dataset.get(), self.toa_config_dict['STATS_SUBDIR_NAME'], self.stats_code, self.toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{self.toa_config_dict["RESULT_DIR"]}/{self.wrapper_process_type.get()}/{self.combobox_pipeline_dataset.get()}/{self.toa_config_dict["STATS_SUBDIR_NAME"]}/{self.stats_code}-{self.toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # set the graphics file path
-        image_file = '{0}/{1}'.format(self.wrapper_image_dir.get(), self.wrapper_image_name.get())
+        image_file = f'{self.wrapper_image_dir.get()}/{self.wrapper_image_name.get()}'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -2851,7 +3358,7 @@ class FormPlotStats(tkinter.Frame):
                     # record format: "go_id";"description";"namespace";"all_count";"first_hsp_count";"min_evalue_count"
                     elif self.stats_code == 'go':
                         if self.wrapper_namespace.get() == 'all' or self.wrapper_namespace.get() == data_list[2]:
-                            key = '{0} ({1})'.format(data_list[0], data_list[1])
+                            key = f'{data_list[0]} ({data_list[1]})'
                             if self.wrapper_alignment_count_level.get() == 'all count':
                                 value = int(data_list[3])
                             elif self.wrapper_alignment_count_level.get() == 'first HSP count':
@@ -2862,7 +3369,7 @@ class FormPlotStats(tkinter.Frame):
                                 data_dict[key] = value
                     # record format: "stats_code_id";"description";"all_count";"first_hsp_count";"min_evalue_count"
                     elif self.stats_code == 'ec':
-                        key = 'EC {0} ({1})'.format(data_list[0], data_list[1]) if data_list[1] != 'N/A' else 'EC {0}'.format(data_list[0])
+                        key = f'EC {data_list[0]} ({data_list[1]})' if data_list[1] != 'N/A' else f'EC {data_list[0]}'
                         if self.wrapper_alignment_count_level.get() == 'all count':
                             value = int(data_list[2])
                         elif self.wrapper_alignment_count_level.get() == 'first HSP count':
@@ -2873,7 +3380,7 @@ class FormPlotStats(tkinter.Frame):
                             data_dict[key] = value
                     # record format: "stats_code_id";"description";"all_count";"first_hsp_count";"min_evalue_count"
                     elif self.stats_code in ['interpro', 'mapman', 'kegg']:
-                        key = '{0} ({1})'.format(data_list[0], data_list[1])
+                        key = f'{data_list[0]} ({data_list[1]})'
                         if self.wrapper_alignment_count_level.get() == 'all count':
                             value = int(data_list[2])
                         elif self.wrapper_alignment_count_level.get() == 'first HSP count':
@@ -2902,7 +3409,7 @@ class FormPlotStats(tkinter.Frame):
         # check if there are any stats
         if data_dict == {}:
             message = 'There is not any stats data.'
-            tkinter.messagebox.showwarning('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showwarning(f'{xlib.get_short_project_name()} - {self.head}', message)
             OK = False
 
         # there are data
@@ -2943,8 +3450,8 @@ class FormPlotStats(tkinter.Frame):
             distribution_df['text_list'] = pandas.Categorical(distribution_df['text_list'], categories=text_list, ordered=False)
 
             # set the title, caption and labels
-            title = '{0} - Namespace: {1}'.format(self.name, self.wrapper_namespace.get()) if self.stats_code == 'go' else self.name
-            caption = '' if self.stats_code == 'dataset' else 'Alignment count level: {0}'.format(self.wrapper_alignment_count_level.get())
+            title = f'{self.name} - Namespace: {self.wrapper_namespace.get()}' if self.stats_code == 'go' else self.name
+            caption = '' if self.stats_code == 'dataset' else f'Alignment count level: {self.wrapper_alignment_count_level.get()}'
             label_y = '# sequences' if self.stats_code == 'dataset' else '# alignments'
 
             # build the "plot"
@@ -2974,7 +3481,7 @@ class FormPlotStats(tkinter.Frame):
                 plot.save(filename=image_file, height=6, width=10, dpi=int(self.wrapper_dpi.get()), verbose=False)
 
             # show the plot
-            webbrowser.open_new('file://{0}'.format(image_file))
+            webbrowser.open_new(f'file://{image_file}')
 
         # set cursor to show normal status
         self.main.config(cursor='')

@@ -18,7 +18,7 @@ Licence: GNU General Public Licence Version 3.
 #-------------------------------------------------------------------------------
 
 '''
-This file contains the functions related to forms corresponding to TOA (Tree-oriented Annotation)
+This file contains the functions related to forms corresponding to TOA (Taxonomy-oriented Annotation)
 menu items in console mode.
 '''
 
@@ -47,7 +47,7 @@ def form_create_toa_config_file():
 
     # print the header
     clib.clear_screen()
-    clib.print_headers_with_environment('{0} - Recreate config file'.format(xlib.get_toa_name()))
+    clib.print_headers_with_environment(f'{xlib.get_toa_name()} - Recreate config file')
     print(xlib.get_separator())
 
     # get the HOME directory
@@ -55,23 +55,23 @@ def form_create_toa_config_file():
 
     # set the TOA directory
     toa_dir = os.path.dirname(os.path.abspath(__file__))
-    print('TOA directory: {0}'.format(toa_dir))
+    print(f'TOA directory: {toa_dir}')
 
     # set the Miniconda3 directory
-    miniconda3_dir = cinputs.input_directory(dir_name='Miniconda3', default_dir='{0}/TOA-Miniconda3'.format(home_dir), is_created=False)
+    miniconda3_dir = cinputs.input_directory(directory_name='Miniconda3', default_directory=f'{home_dir}/{xlib.get_miniconda_dir()}', is_created=False)
 
     # set the database directory
-    db_dir = cinputs.input_directory(dir_name='database', default_dir='{0}/TOA-databases'.format(home_dir), is_created=False)
+    db_dir = cinputs.input_directory(directory_name='database', default_directory=f'{home_dir}/{xlib.get_toa_database_dir()}', is_created=False)
 
     # set the result directory
-    result_dir = cinputs.input_directory(dir_name='result', default_dir='{0}/TOA-results'.format(home_dir), is_created=False)
+    result_dir = cinputs.input_directory(directory_name='result', default_directory=f'{home_dir}/{xlib.get_toa_result_dir()}', is_created=False)
 
     # create the TOA config file
     if OK:
 
         # confirm the creation of the config file
         print(xlib.get_separator())
-        OK = clib.confirm_action('The file {0} is going to be recreated. The previous files will be lost.'.format(xtoa.get_toa_config_file()))
+        OK = clib.confirm_action(f'The file {xtoa.get_toa_config_file()} is going to be recreated. The previous files will be lost.')
 
         # recreate the config file
         if OK:
@@ -99,14 +99,14 @@ def form_manage_toa_database(process_type):
     # print the header
     clib.clear_screen()
     if process_type == xlib.get_toa_type_recreate():
-        clib.print_headers_with_environment('{0} - Recreate database'.format(xlib.get_toa_name()))
+        clib.print_headers_with_environment(f'{xlib.get_toa_name()} - Recreate database')
     elif process_type == xlib.get_toa_type_rebuild():
-        clib.print_headers_with_environment('{0} - Rebuild database'.format(xlib.get_toa_name()))
+        clib.print_headers_with_environment(f'{xlib.get_toa_name()} - Rebuild database')
 
     # confirm the process run
     if OK:
         print(xlib.get_separator())
-        OK = clib.confirm_action('The {0} database is going to be {1}.'.format(xlib.get_toa_name(), process_type))
+        OK = clib.confirm_action(f'The {xlib.get_toa_name()} database is going to be {process_type}.')
 
     # run the process
     if OK:
@@ -128,7 +128,7 @@ def form_view_toa_config_file():
     toa_config_file = xtoa.get_toa_config_file()
 
     # view the file
-    text = '{0} - View config file'.format(xlib.get_toa_name())
+    text = f'{xlib.get_toa_name()} - View config file'
     clib.view_file(toa_config_file, text)
 
     # show continuation message 
@@ -155,6 +155,8 @@ def form_manage_genomic_database(process_type, genomic_database):
         name = xlib.get_toa_data_monocots_04_name()
     elif genomic_database == xlib.get_toa_data_refseq_plant_code():
         name = xlib.get_toa_data_refseq_plant_name()
+    elif genomic_database == xlib.get_toa_data_taxonomy_code():
+        name = xlib.get_toa_data_taxonomy_name()
     elif genomic_database == xlib.get_toa_data_nt_code():
         name = xlib.get_toa_data_nt_name()
     elif genomic_database == xlib.get_toa_data_viridiplantae_nucleotide_gi_code():
@@ -172,21 +174,23 @@ def form_manage_genomic_database(process_type, genomic_database):
 
     # print the header
     clib.clear_screen()
-    if process_type == xlib.get_toa_type_build_blastdb():
-        clib.print_headers_with_environment('Build {0}'.format(name))
+    if process_type == xlib.get_toa_type_build_blastplus_db():
+        clib.print_headers_with_environment(f'Build {name} for BLAST+')
+    elif process_type == xlib.get_toa_type_build_diamond_db():
+        clib.print_headers_with_environment(f'Build {name} for DIAMOND')
     elif process_type == xlib.get_toa_type_build_gilist():
-        clib.print_headers_with_environment('Build {0}'.format(name))
+        clib.print_headers_with_environment(f'Build {name}')
     elif process_type == xlib.get_toa_type_build_proteome():
-        clib.print_headers_with_environment('Build {0} proteome'.format(name))
+        clib.print_headers_with_environment(f'Build {name} proteome')
     elif process_type == xlib.get_toa_type_download_data():
-        clib.print_headers_with_environment('Download {0} functional annotations'.format(name))
+        clib.print_headers_with_environment(f'Download {name} functional annotations')
     elif process_type == xlib.get_toa_type_load_data():
-        clib.print_headers_with_environment('Load {0} data in {1} database'.format(name, xlib.get_toa_name()))
+        clib.print_headers_with_environment(f'Load {name} data in {xlib.get_toa_name()} database')
     print(xlib.get_separator())
 
     # confirm the process run
     if OK:
-        OK = clib.confirm_action('The {0} process is going to be run.'.format(name))
+        OK = clib.confirm_action(f'The {name} process is going to be run.')
 
     # run the process
     if OK:
@@ -221,7 +225,7 @@ def form_recreate_pipeline_config_file(pipeline_type):
 
     # print the header
     clib.clear_screen()
-    clib.print_headers_with_environment('{0} - Recreate config file'.format(name))
+    clib.print_headers_with_environment(f'{name} - Recreate config file')
     print(xlib.get_separator())
 
     # get the transcriptome directory
@@ -229,15 +233,15 @@ def form_recreate_pipeline_config_file(pipeline_type):
     while transcriptome_dir == '':
         transcriptome_dir = input('Enter transcriptome directory: ')
         if not os.path.isdir(transcriptome_dir):
-            print('***ERROR: The directory {0} is not valid.'.format(transcriptome_dir))
+            print(f'***ERROR: The directory {transcriptome_dir} is not valid.')
             transcriptome_dir = ''
 
     # get the transcriptome file
     transcriptome_file = ''
     while transcriptome_file == '':
         transcriptome_dir = input('Enter transcriptome file: ')
-        if not os.path.isfile('{0}/{1}'.format(transcriptome_dir, transcriptome_file)):
-            print('***ERROR: The file {0} is not valid.'.format(transcriptome_file))
+        if not os.path.isfile(f'{transcriptome_dir}/{transcriptome_file}'):
+            print(f'***ERROR: The file {transcriptome_file} is not valid.')
             transcriptome_dir = ''
 
     # get the database list
@@ -245,23 +249,79 @@ def form_recreate_pipeline_config_file(pipeline_type):
 
         # nucleotide pipelines
         if pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
-            database_list = cinputs.input_database_list(xtoa.get_nucleotide_annotation_database_code_list(), 'nt_complete')
+            database_list = cinputs.input_database_list(xtoa.get_nucleotide_annotation_database_code_list(), 'nt')
 
         # amino acid pipelines
         elif pipeline_type == xlib.get_toa_process_pipeline_aminoacid_code():
-            database_list = cinputs.input_database_list(xtoa.get_aminoacid_annotation_database_code_list(), 'nr_complete')
+            database_list = cinputs.input_database_list(xtoa.get_aminoacid_annotation_database_code_list(), 'nr')
 
     # recreate the pipeline config file
     if OK:
 
         # confirm the creation of the config file
         print(xlib.get_separator())
-        print('config_file: {}'.format(config_file))
-        OK = clib.confirm_action('The file {0} is going to be recreated. The previous files will be lost.'.format(config_file))
+        OK = clib.confirm_action(f'The file {config_file} is going to be recreated. The previous files will be lost.')
 
         # recreate the config file
         if OK:
             (OK, error_list) = xtoa.create_pipeline_config_file(pipeline_type, transcriptome_dir, transcriptome_file, database_list)
+            if OK:
+                print('The file is recreated.')
+            else:
+                for error in error_list:
+                    print(error)
+
+    # show continuation message 
+    print(xlib.get_separator())
+    input('Press [Intro] to continue ...')
+
+#-------------------------------------------------------------------------------
+
+def form_recreate_annotation_merger_config_file():
+    '''
+    Recreate the annotation merger config file.
+    '''
+
+    # initialize the control variable
+    OK = True
+
+    # print the header
+    clib.clear_screen()
+    clib.print_headers_with_environment(f'{xlib.get_toa_process_merge_annotations_name()} - Recreate config file')
+
+    # get the identification of the first pipeline dataset
+    app_list = [xlib.get_toa_process_pipeline_nucleotide_code(), xlib.get_toa_process_pipeline_aminoacid_code(), xlib.get_toa_process_merge_annotations_code()]
+    print('First pipeline ...')
+    pipeline_dataset_id_1 = cinputs.input_result_dataset_id(xlib.get_toa_result_pipeline_dir(), app_list)
+    if pipeline_dataset_id_1 == '':
+        print( 'WARNING: There are not any pipeline datasets.')
+        OK = False
+
+    # get the identification of the second pipeline dataset
+    app_list = [xlib.get_toa_process_pipeline_nucleotide_code(), xlib.get_toa_process_pipeline_aminoacid_code(), xlib.get_toa_process_merge_annotations_code()]
+    print('Second pipeline ...')
+    pipeline_dataset_id_2 = cinputs.input_result_dataset_id(xlib.get_toa_result_pipeline_dir(), app_list)
+    if pipeline_dataset_id_2 == '':
+        print( 'WARNING: There are not any pipeline datasets.')
+        OK = False
+    elif pipeline_dataset_id_1 == pipeline_dataset_id_2:
+        print( 'ERROR: The first pipeline dataset is equal to the second one.')
+        OK = False
+
+    # get the merger operation
+    if OK:
+        merger_operation = cinputs.input_code(text='Merger operation', code_list=xlib.get_annotation_merger_operation_code_list(), default_code=None).upper()
+
+    # recreate the pipeline config file
+    if OK:
+
+        # confirm the creation of the config file
+        print(xlib.get_separator())
+        OK = clib.confirm_action(f'The file {xtoa.get_annotation_merger_config_file()} is going to be recreated. The previous files will be lost.')
+
+        # recreate the config file
+        if OK:
+            (OK, error_list) = xtoa.create_annotation_merger_config_file(pipeline_dataset_id_1, pipeline_dataset_id_2, merger_operation)
             if OK:
                 print('The file is recreated.')
             else:
@@ -287,31 +347,40 @@ def form_edit_pipeline_config_file(pipeline_type):
         name = xlib.get_toa_process_pipeline_nucleotide_name()
     elif pipeline_type == xlib.get_toa_process_pipeline_aminoacid_code():
         name = xlib.get_toa_process_pipeline_aminoacid_name()
+    elif pipeline_type == xlib.get_toa_process_merge_annotations_code():
+        name = xlib.get_toa_process_merge_annotations_name()
 
     # print the header
     clib.clear_screen()
-    clib.print_headers_with_environment('{0} - Edit config file'.format(name))
+    clib.print_headers_with_environment(f'{name} - Edit config file')
 
     # get the config file
     if pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
         config_file = xtoa.get_nucleotide_pipeline_config_file()
     elif pipeline_type == xlib.get_toa_process_pipeline_aminoacid_code():
         config_file = xtoa.get_aminoacid_pipeline_config_file()
+    elif pipeline_type == xlib.get_toa_process_merge_annotations_code():
+        config_file = xtoa.get_annotation_merger_config_file()
 
     # edit the read transfer config file
     print(xlib.get_separator())
-    print('Editing the {0} config file ...'.format(name))
-    command = '{0} {1}'.format(xlib.get_editor(), config_file)
+    print(f'Editing the {name} config file ...')
+    command = f'{xlib.get_editor()} {config_file}'
     rc = subprocess.call(command, shell=True)
     if rc != 0:
-        print('*** ERROR: RC {0} in command -> {1}'.format(rc, command))
+        print(f'*** ERROR: RC {rc} in command -> {command}')
         OK = False
 
     # check the config file
     if OK:
         print(xlib.get_separator())
-        print('Checking the {0} config file ...'.format(name))
-        (OK, error_list) = xtoa.check_pipeline_config_file(pipeline_type, strict=False)
+        print(f'Checking the {name} config file ...')
+        if pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
+            (OK, error_list) = xtoa.check_pipeline_config_file(pipeline_type, strict=False)
+        elif pipeline_type == xlib.get_toa_process_pipeline_aminoacid_code():
+            (OK, error_list) = xtoa.check_pipeline_config_file(pipeline_type, strict=False)
+        elif pipeline_type == xlib.get_toa_process_merge_annotations_code():
+            (OK, error_list) = xtoa.check_annotation_merger_config_file(strict=False)
         if OK:
             print('The file is OK.')
         else:
@@ -336,23 +405,36 @@ def form_run_pipeline_process(pipeline_type):
     # set the pipeline name
     if pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
         name = xlib.get_toa_process_pipeline_nucleotide_name()
+
     elif pipeline_type == xlib.get_toa_process_pipeline_aminoacid_code():
         name = xlib.get_toa_process_pipeline_aminoacid_name()
 
+    elif pipeline_type == xlib.get_toa_process_merge_annotations_code():
+        name = xlib.get_toa_process_merge_annotations_name()
+
     # print the header
     clib.clear_screen()
-    clib.print_headers_with_environment('{0} - Run process'.format(name))
+    clib.print_headers_with_environment(f'{name} - Run process')
 
     # confirm the process run
     if OK:
         print(xlib.get_separator())
-        OK = clib.confirm_action('The {0} process is going to be run.'.format(name))
+        OK = clib.confirm_action(f'The {name} process is going to be run.')
 
     # run the process
     if OK:
 
-        devstdout = xlib.DevStdOut(xtoa.run_pipeline_process.__name__)
-        OK = xtoa.run_pipeline_process(pipeline_type, devstdout, function=None)
+        if pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
+            devstdout = xlib.DevStdOut(xtoa.run_pipeline_process.__name__)
+            OK = xtoa.run_pipeline_process(pipeline_type, devstdout, function=None)
+
+        elif pipeline_type == xlib.get_toa_process_pipeline_aminoacid_code():
+            devstdout = xlib.DevStdOut(xtoa.run_pipeline_process.__name__)
+            OK = xtoa.run_pipeline_process(pipeline_type, devstdout, function=None)
+
+        elif pipeline_type == xlib.get_toa_process_merge_annotations_code():
+            devstdout = xlib.DevStdOut(xtoa.run_annotation_merger_process.__name__)
+            OK = xtoa.run_annotation_merger_process(devstdout, function=None)
 
     # show continuation message 
     print(xlib.get_separator())
@@ -376,19 +458,19 @@ def form_restart_pipeline_process(pipeline_type):
 
     # print the header
     clib.clear_screen()
-    clib.print_headers_with_environment('{0} - Run process'.format(name))
+    clib.print_headers_with_environment(f'{name} - Run process')
 
     # get the pipeline dataset identification
     app_list = [pipeline_type]
     pipeline_dataset_id = cinputs.input_result_dataset_id(xlib.get_toa_result_pipeline_dir(), app_list)
     if pipeline_dataset_id == '':
-        print('WARNING: There are not any {0} result datasets.'.format(pipeline_type))
+        print(f'WARNING: There are not any {pipeline_type} result datasets.')
         OK = False
 
     # confirm the process run
     if OK:
         print(xlib.get_separator())
-        OK = clib.confirm_action('The {0} process is going to be run.'.format(name))
+        OK = clib.confirm_action(f'The {name} process is going to be run.')
 
     # run the process
     if OK:
@@ -428,10 +510,13 @@ def form_view_x_per_y_data(stats_code):
 
     # print the header
     clib.clear_screen()
-    clib.print_headers_with_environment('Statistics - {0} data'.format(name))
+    clib.print_headers_with_environment(f'Statistics - {name} data')
 
     # get the pipeline dataset identification
-    app_list = [xlib.get_all_applications_selected_code()]
+    if stats_code == 'hit_per_hsp':
+        app_list = [xlib.get_toa_process_pipeline_nucleotide_code(), xlib.get_toa_process_pipeline_aminoacid_code()]
+    else:
+        app_list = [xlib.get_toa_process_pipeline_nucleotide_code(), xlib.get_toa_process_pipeline_aminoacid_code(), xlib.get_toa_process_merge_annotations_code()]
     pipeline_dataset_id = cinputs.input_result_dataset_id(xlib.get_toa_result_pipeline_dir(), app_list)
     if pipeline_dataset_id == '':
         print('WARNING: There are not any annotation pipeline result datasets.')
@@ -447,7 +532,7 @@ def form_view_x_per_y_data(stats_code):
         toa_config_dict = xtoa.get_toa_config_dict()
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(toa_config_dict['RESULT_DIR'], xlib.get_toa_result_pipeline_dir(), pipeline_dataset_id, toa_config_dict['STATS_SUBDIR_NAME'], stats_code, toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{toa_config_dict["RESULT_DIR"]}/{xlib.get_toa_result_pipeline_dir()}/{pipeline_dataset_id}/{toa_config_dict["STATS_SUBDIR_NAME"]}/{stats_code}-{toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -553,7 +638,7 @@ def form_view_dataset_data_frecuency():
     clib.print_headers_with_environment('Statistics - Annotation datasets - Frequency distribution data')
 
     # get the pipeline dataset identification
-    app_list = [xlib.get_all_applications_selected_code()]
+    app_list = [xlib.get_toa_process_pipeline_nucleotide_code(), xlib.get_toa_process_pipeline_aminoacid_code()]
     pipeline_dataset_id = cinputs.input_result_dataset_id(xlib.get_toa_result_pipeline_dir(), app_list)
     if pipeline_dataset_id == '':
         print('WARNING: There are not any annotation pipeline result datasets.')
@@ -569,7 +654,7 @@ def form_view_dataset_data_frecuency():
         toa_config_dict = xtoa.get_toa_config_dict()
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(toa_config_dict['RESULT_DIR'], xlib.get_toa_result_pipeline_dir(), pipeline_dataset_id, toa_config_dict['STATS_SUBDIR_NAME'], 'dataset', toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{toa_config_dict["RESULT_DIR"]}/{xlib.get_toa_result_pipeline_dir()}/{pipeline_dataset_id}/{toa_config_dict["STATS_SUBDIR_NAME"]}/dataset-{toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -671,10 +756,10 @@ def form_view_phylogenic_data_frecuency(stats_code):
 
     # print the header
     clib.clear_screen()
-    clib.print_headers_with_environment('Statistics - {0} data'.format(name))
+    clib.print_headers_with_environment(f'Statistics - {name} data')
 
     # get the pipeline dataset identification
-    app_list = [xlib.get_all_applications_selected_code()]
+    app_list = [xlib.get_toa_process_pipeline_nucleotide_code(), xlib.get_toa_process_pipeline_aminoacid_code(), xlib.get_toa_process_merge_annotations_code()]
     pipeline_dataset_id = cinputs.input_result_dataset_id(xlib.get_toa_result_pipeline_dir(), app_list)
     if pipeline_dataset_id == '':
         print('WARNING: There are not any annotation pipeline result datasets.')
@@ -690,7 +775,7 @@ def form_view_phylogenic_data_frecuency(stats_code):
         toa_config_dict = xtoa.get_toa_config_dict()
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(toa_config_dict['RESULT_DIR'], xlib.get_toa_result_pipeline_dir(), pipeline_dataset_id, toa_config_dict['STATS_SUBDIR_NAME'], stats_code, toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{toa_config_dict["RESULT_DIR"]}/{xlib.get_toa_result_pipeline_dir()}/{pipeline_dataset_id}/{toa_config_dict["STATS_SUBDIR_NAME"]}/{stats_code}-{toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -798,10 +883,10 @@ def form_view_ontologic_data_frecuency(stats_code):
 
     # print the header
     clib.clear_screen()
-    clib.print_headers_with_environment('Statistics - {0} data'.format(name))
+    clib.print_headers_with_environment(f'Statistics - {name} data')
 
     # get the pipeline dataset identification
-    app_list = [xlib.get_all_applications_selected_code()]
+    app_list = [xlib.get_toa_process_pipeline_nucleotide_code(), xlib.get_toa_process_pipeline_aminoacid_code(), xlib.get_toa_process_merge_annotations_code()]
     pipeline_dataset_id = cinputs.input_result_dataset_id(xlib.get_toa_result_pipeline_dir(), app_list)
     if pipeline_dataset_id == '':
         print('WARNING: There are not any annotation pipeline result datasets.')
@@ -817,7 +902,7 @@ def form_view_ontologic_data_frecuency(stats_code):
         toa_config_dict = xtoa.get_toa_config_dict()
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(toa_config_dict['RESULT_DIR'], xlib.get_toa_result_pipeline_dir(), pipeline_dataset_id, toa_config_dict['STATS_SUBDIR_NAME'], stats_code, toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{toa_config_dict["RESULT_DIR"]}/{xlib.get_toa_result_pipeline_dir()}/{pipeline_dataset_id}/{toa_config_dict["STATS_SUBDIR_NAME"]}/{stats_code}-{toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -891,7 +976,7 @@ def form_view_ontologic_data_frecuency(stats_code):
             # set line template
             line_template = '{0:' + str(id_width) + '}   {1:' + str(desc_width) + '}   {2:' + str(all_count_width) + '}   {3:' + str(first_hsp_count_width) + '}   {4:' + str(min_evalue_count_width) + '}'
             # print header
-            print(line_template.format('{0} id'.format(stats_code.capitalize()), 'Description', 'All', 'First HSP', 'Min e-value'))
+            print(line_template.format(f'{stats_code.capitalize()} id', 'Description', 'All', 'First HSP', 'Min e-value'))
             print(line_template.format('=' * id_width, '=' * desc_width, '=' * all_count_width, '=' * first_hsp_count_width, '=' * min_evalue_count_width))
             # print detail lines
             for key in sorted(distribution_dict.keys()):
@@ -916,7 +1001,7 @@ def form_view_go_data_frecuency():
     clib.print_headers_with_environment('Statistics - Gene Ontology - Frequency distribution data')
 
     # get the pipeline dataset identification
-    app_list = [xlib.get_all_applications_selected_code()]
+    app_list = [xlib.get_toa_process_pipeline_nucleotide_code(), xlib.get_toa_process_pipeline_aminoacid_code(), xlib.get_toa_process_merge_annotations_code()]
     pipeline_dataset_id = cinputs.input_result_dataset_id(xlib.get_toa_result_pipeline_dir(), app_list)
     if pipeline_dataset_id == '':
         print('WARNING: There are not any annotation pipeline result datasets.')
@@ -932,7 +1017,7 @@ def form_view_go_data_frecuency():
         toa_config_dict = xtoa.get_toa_config_dict()
 
         # get the statistics file path
-        stats_file = '{0}/{1}/{2}/{3}/{4}-{5}.csv'.format(toa_config_dict['RESULT_DIR'], xlib.get_toa_result_pipeline_dir(), pipeline_dataset_id, toa_config_dict['STATS_SUBDIR_NAME'], 'go', toa_config_dict['STATS_BASE_NAME'])
+        stats_file = f'{toa_config_dict["RESULT_DIR"]}/{xlib.get_toa_result_pipeline_dir()}/{pipeline_dataset_id}/{toa_config_dict["STATS_SUBDIR_NAME"]}/go-{toa_config_dict["STATS_BASE_NAME"]}.csv'
 
         # open the statistics file
         if stats_file.endswith('.gz'):
@@ -1021,7 +1106,7 @@ def form_view_go_data_frecuency():
 #-------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    print('This file contains the functions related to forms corresponding to TOA (Tree-oriented Annotation) menu items in console mode.')
+    print('This file contains the functions related to forms corresponding to TOA (Taxonomy-oriented Annotation) menu items in console mode.')
     sys.exit(0)
 
 #-------------------------------------------------------------------------------

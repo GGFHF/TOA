@@ -49,15 +49,18 @@ def main(argv):
     # get the dictionary with sequence identifications of the second FASTA file
     file_2_id_dict = get_file_2_id_dict(args.fasta_file_2)
 
-    # get the new-old identification relationship dictionary
-    id_relationship_dict = xlib.get_id_relationship_dict(args.relationship_file)
+    # get the TOA-transcriptome identification relationship dictionary
+    if args.toa_transcriptome_relationship_file == 'NONE':
+        toa_transcriptome_relationship_dict = {}
+    else:
+        toa_transcriptome_relationship_dict = xlib.get_id_relationship_dict(args.toa_transcriptome_relationship_file)
 
     # merge FASTA files with operation "1AND2" (sequences included in both files)
     if args.merger_operation ==  '1AND2':
-        merge_files_operation_1and2(args.fasta_file_1, file_2_id_dict, args.merged_file, id_relationship_dict)
+        merge_files_operation_1and2(args.fasta_file_1, file_2_id_dict, args.merged_file, toa_transcriptome_relationship_dict)
     # merge FASTA files with operation "1LESS2" (sequences in file 1 and not in file 2)
     elif args.merger_operation ==  '1LESS2':
-        merge_files_operation_1less2(args.fasta_file_1, file_2_id_dict, args.merged_file, id_relationship_dict)
+        merge_files_operation_1less2(args.fasta_file_1, file_2_id_dict, args.merged_file, toa_transcriptome_relationship_dict)
 
 #-------------------------------------------------------------------------------
 
@@ -68,17 +71,17 @@ def build_parser():
 
     # create the parser and add arguments
     description = 'Description: This program merges two FASTA files.'
-    text = '{0} v{1} - {2}\n\n{3}\n'.format(xlib.get_long_project_name(), xlib.get_project_version(), os.path.basename(__file__), description)
-    usage = '\r{0}\nUsage: {1} arguments'.format(text.ljust(len('usage:')), os.path.basename(__file__))
+    text = f'{xlib.get_long_project_name()} v{xlib.get_project_version()} - {os.path.basename(__file__)}\n\n{description}\n'
+    usage = f'\r{text.ljust(len("usage:"))}\nUsage: {os.path.basename(__file__)} arguments'
     parser = argparse.ArgumentParser(usage=usage)
     parser._optionals.title = 'Arguments'
     parser.add_argument('--file1', dest='fasta_file_1', help='First FASTA file path (mandatory).')
     parser.add_argument('--file2', dest='fasta_file_2', help='Second FASTA file path (mandatory).')
     parser.add_argument('--mfile', dest='merged_file', help='Merged FASTA file path (mandatory).')
-    parser.add_argument('--operation', dest='merger_operation', help='Merger operation (mandatory): {0}.'.format(xlib.get_merger_operation_code_list_text()))
-    parser.add_argument('--relationships', dest='relationship_file', help='CSV file path with new-old identification relationships or NONE; default: NONE.')
-    parser.add_argument('--verbose', dest='verbose', help='Additional job status info during the run: {0}; default: {1}.'.format(xlib.get_verbose_code_list_text(), xlib.Const.DEFAULT_VERBOSE))
-    parser.add_argument('--trace', dest='trace', help='Additional info useful to the developer team: {0}; default: {1}.'.format(xlib.get_trace_code_list_text(), xlib.Const.DEFAULT_TRACE))
+    parser.add_argument('--operation', dest='merger_operation', help=f'Merger operation (mandatory): {xlib.get_fasta_merger_operation_code_list_text()}.')
+    parser.add_argument('--relationships', dest='toa_transcriptome_relationship_file', help='CSV file path with TOA-transcriptome identification relationships or NONE; default: NONE.')
+    parser.add_argument('--verbose', dest='verbose', help=f'Additional job status info during the run: {xlib.get_verbose_code_list_text()}; default: {xlib.Const.DEFAULT_VERBOSE}.')
+    parser.add_argument('--trace', dest='trace', help=f'Additional info useful to the developer team: {xlib.get_trace_code_list_text()}; default: {xlib.Const.DEFAULT_TRACE}.')
 
     # return the paser
     return parser
@@ -98,7 +101,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The first FASTA file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.fasta_file_1):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.fasta_file_1))
+        xlib.Message.print('error', f'*** The file {args.fasta_file_1} does not exist.')
         OK = False
 
     # check "fasta_file_2"
@@ -106,7 +109,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The second FASTA file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.fasta_file_2):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.fasta_file_2))
+        xlib.Message.print('error', f'*** The file {args.fasta_file_2} does not exist.')
         OK = False
 
     # check "merged_file"
@@ -118,26 +121,26 @@ def check_args(args):
     if args.merger_operation is None:
         xlib.Message.print('error', '*** The merger operation is not indicated in the input arguments.')
         OK = False
-    elif not xlib.check_code(args.merger_operation, xlib.get_merger_operation_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** The merger operation has to be {0}.'.format(xlib.get_merger_operation_code_list_text()))
+    elif not xlib.check_code(args.merger_operation, xlib.get_fasta_merger_operation_code_list(), case_sensitive=False):
+        xlib.Message.print('error', f'*** The merger operation has to be {xlib.get_fasta_merger_operation_code_list_text()}.')
         OK = False
     else:
         args.merger_operation = args.merger_operation.upper()
 
-    # check "relationship_file"
-    if args.relationship_file is None:
-        args.relationship_file = 'NONE'
-    elif args.relationship_file.upper() == 'NONE':
-        args.relationship_file = args.relationship_file.upper()
-    elif not os.path.isfile(args.relationship_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.relationship_file))
+    # check "toa_transcriptome_relationship_file"
+    if args.toa_transcriptome_relationship_file is None:
+        args.toa_transcriptome_relationship_file = 'NONE'
+    elif args.toa_transcriptome_relationship_file.upper() == 'NONE':
+        args.toa_transcriptome_relationship_file = args.toa_transcriptome_relationship_file.upper()
+    elif not os.path.isfile(args.toa_transcriptome_relationship_file):
+        xlib.Message.print('error', f'*** The file {args.toa_transcriptome_relationship_file} does not exist.')
         OK = False
 
     # check "verbose"
     if args.verbose is None:
         args.verbose = xlib.Const.DEFAULT_VERBOSE
     elif not xlib.check_code(args.verbose, xlib.get_verbose_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** verbose has to be {0}.'.format(xlib.get_verbose_code_list_text()))
+        xlib.Message.print('error', f'*** verbose has to be {xlib.get_verbose_code_list_text()}.')
         OK = False
     if args.verbose.upper() == 'Y':
         xlib.Message.set_verbose_status(True)
@@ -146,7 +149,7 @@ def check_args(args):
     if args.trace is None:
         args.trace = xlib.Const.DEFAULT_TRACE
     elif not xlib.check_code(args.trace, xlib.get_trace_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** trace has to be {0}.'.format(xlib.get_trace_code_list_text()))
+        xlib.Message.print('error', f'*** trace has to be {xlib.get_trace_code_list_text()}.')
         OK = False
     if args.trace.upper() == 'Y':
         xlib.Message.set_trace_status(True)
@@ -214,7 +217,7 @@ def get_file_2_id_dict(fasta_file_2):
 
         # add 1 to sequence counter and print it
         seq_counter += 1
-        xlib.Message.print('verbose', '\r{0} sequences processed of the second FASTA file'.format(seq_counter))
+        xlib.Message.print('verbose', f'\r{seq_counter} sequences processed of the second FASTA file')
 
     xlib.Message.print('verbose', '\n')
 
@@ -226,8 +229,9 @@ def get_file_2_id_dict(fasta_file_2):
 
 #-------------------------------------------------------------------------------
 
-def merge_files_operation_1and2(fasta_file_1, file_2_id_dict, merged_file, id_relationship_dict):
+def merge_files_operation_1and2(fasta_file_1, file_2_id_dict, merged_file, toa_transcriptome_relationship_dict):
     '''
+    Merge FASTA files with operation "1AND2" (sequences included in both files).
     '''
 
     # initialize the sequence counters
@@ -280,17 +284,14 @@ def merge_files_operation_1and2(fasta_file_1, file_2_id_dict, merged_file, id_re
             # if the sequence identification is found, i. e. the sequence is in both FASTA files
             if found:
 
-                # get the sequence identification
-                if id_relationship_dict == {}:
-                    old_seq_id = seq_id
+                # get the transcript identification
+                if toa_transcriptome_relationship_dict == {}:
+                    transcript_seq_id = seq_id
                 else:
-                    try:
-                        old_seq_id = id_relationship_dict[seq_id]
-                    except Exception as e:
-                        raise xlib.ProgramException('L008', seq_id)
+                    (transcript_seq_id, nt_seq_id, aa_seq_id) = xlib.get_seq_ids(seq_id, toa_transcriptome_relationship_dict, {})
 
                 # write the header record
-                header_record = '>{0}\n'.format(old_seq_id)
+                header_record = f'>{transcript_seq_id}\n'
                 merged_file_id.write(header_record)
 
                 # add 1 to written sequence counter
@@ -318,10 +319,10 @@ def merge_files_operation_1and2(fasta_file_1, file_2_id_dict, merged_file, id_re
 
         # add 1 to read sequence count and print it
         read_seq_counter += 1
-        xlib.Message.print('verbose', '\r{0} sequences processed of the first FASTA file'.format(read_seq_counter))
+        xlib.Message.print('verbose', f'\r{read_seq_counter} sequences processed of the first FASTA file')
 
     xlib.Message.print('verbose', '\n')
-    xlib.Message.print('verbose', '{0} sequences written of the merged FASTA file\n'.format(written_seq_counter))
+    xlib.Message.print('verbose', f'{written_seq_counter} sequences written of the merged FASTA file\n')
 
     # close files
     fasta_file_1_id.close()
@@ -329,8 +330,9 @@ def merge_files_operation_1and2(fasta_file_1, file_2_id_dict, merged_file, id_re
 
 #-------------------------------------------------------------------------------
 
-def merge_files_operation_1less2(fasta_file_1, file_2_id_dict, merged_file, id_relationship_dict):
+def merge_files_operation_1less2(fasta_file_1, file_2_id_dict, merged_file, toa_transcriptome_relationship_dict):
     '''
+    Merge FASTA files with operation "1LESS2" (sequences in file 1 and not in file 2).
     '''
 
     # initialize the sequence counter
@@ -383,17 +385,14 @@ def merge_files_operation_1less2(fasta_file_1, file_2_id_dict, merged_file, id_r
             # if the sequence identification is not found in the FASTA file
             if not found:
 
-                # get the sequence identification
-                if id_relationship_dict == {}:
-                    old_seq_id = seq_id
+                # get the transcript identification
+                if toa_transcriptome_relationship_dict == {}:
+                    transcript_seq_id = seq_id
                 else:
-                    try:
-                        old_seq_id = id_relationship_dict[seq_id]
-                    except Exception as e:
-                        raise xlib.ProgramException('L008', seq_id)
+                    (transcript_seq_id, nt_seq_id, aa_seq_id) = xlib.get_seq_ids(seq_id, toa_transcriptome_relationship_dict, {})
 
                 # write the header record
-                header_record = '>{0}\n'.format(old_seq_id)
+                header_record = f'>{transcript_seq_id}\n'
                 merged_file_id.write(header_record)
 
                 # add 1 to written sequence counter
@@ -421,10 +420,10 @@ def merge_files_operation_1less2(fasta_file_1, file_2_id_dict, merged_file, id_r
 
         # add 1 to read sequence counter and print it
         read_seq_counter += 1
-        xlib.Message.print('verbose', '\r{0} sequences processed of the first FASTA file'.format(read_seq_counter))
+        xlib.Message.print('verbose', f'\r{read_seq_counter} sequences processed of the first FASTA file')
 
     xlib.Message.print('verbose', '\n')
-    xlib.Message.print('verbose', '{0} sequences written of the merged FASTA file\n'.format(written_seq_counter))
+    xlib.Message.print('verbose', f'{written_seq_counter} sequences written of the merged FASTA file\n')
 
     # close files
     fasta_file_1_id.close()

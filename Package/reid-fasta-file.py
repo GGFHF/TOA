@@ -47,7 +47,7 @@ def main(argv):
     check_args(args)
 
     # re-identify sequence identifications of a FASTA file
-    reidentify_seq_ids(args.input_fasta_file, args.output_fasta_file, args.relationship_file)
+    reidentify_seq_ids(args.input_fasta_file, args.sequence_type, args.output_fasta_file, args.relationship_file)
 
 #-------------------------------------------------------------------------------
 
@@ -58,15 +58,16 @@ def build_parser():
 
     # create the parser and add arguments
     description = 'Description: This program merges two FASTA files.'
-    text = '{0} v{1} - {2}\n\n{3}\n'.format(xlib.get_long_project_name(), xlib.get_project_version(), os.path.basename(__file__), description)
-    usage = '\r{0}\nUsage: {1} arguments'.format(text.ljust(len('usage:')), os.path.basename(__file__))
+    text = f'{xlib.get_long_project_name()} v{xlib.get_project_version()} - {os.path.basename(__file__)}\n\n{description}\n'
+    usage = f'\r{text.ljust(len("usage:"))}\nUsage: {os.path.basename(__file__)} arguments'
     parser = argparse.ArgumentParser(usage=usage)
     parser._optionals.title = 'Arguments'
     parser.add_argument('--fasta', dest='input_fasta_file', help='FASTA file path to be re-identificated (mandatory).')
+    parser.add_argument('--type', dest='sequence_type', help=f'type of FASTA sequence: {xlib.get_sequence_type_code_list_text()} (mandatory).')
     parser.add_argument('--out', dest='output_fasta_file', help='FASTA file path with sequences re-identificated (mandatory).')
     parser.add_argument('--relationships', dest='relationship_file', help='CSV file path with new-old identification relationships (mandatory).')
-    parser.add_argument('--verbose', dest='verbose', help='Additional job status info during the run: {0}; default: {1}.'.format(xlib.get_verbose_code_list_text(), xlib.Const.DEFAULT_VERBOSE))
-    parser.add_argument('--trace', dest='trace', help='Additional info useful to the developer team: {0}; default: {1}.'.format(xlib.get_trace_code_list_text(), xlib.Const.DEFAULT_TRACE))
+    parser.add_argument('--verbose', dest='verbose', help=f'Additional job status info during the run: {xlib.get_verbose_code_list_text()}; default: {xlib.Const.DEFAULT_VERBOSE}.')
+    parser.add_argument('--trace', dest='trace', help=f'Additional info useful to the developer team: {xlib.get_trace_code_list_text()}; default: {xlib.Const.DEFAULT_TRACE}.')
 
     # return the paser
     return parser
@@ -86,8 +87,18 @@ def check_args(args):
         xlib.Message.print('error', '*** The FASTA file to be re-identificated is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.input_fasta_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.input_fasta_file))
+        xlib.Message.print('error', f'*** The file {args.input_fasta_file} does not exist.')
         OK = False
+
+    # check "sequence_type"
+    if args.sequence_type is None:
+        xlib.Message.print('error', '*** The type of FASTA sequence is not indicated in the input arguments.')
+        OK = False
+    elif not xlib.check_code(args.sequence_type, xlib.get_sequence_type_code_list(), case_sensitive=False):
+        xlib.Message.print('error', f'*** The type of FASTA sequence has to be {xlib.get_sequence_type_code_list_text()}.')
+        OK = False
+    else:
+        args.sequence_type = args.sequence_type.upper()
 
     # check "output_fasta_file"
     if args.output_fasta_file is None:
@@ -103,7 +114,7 @@ def check_args(args):
     if args.verbose is None:
         args.verbose = xlib.Const.DEFAULT_VERBOSE
     elif not xlib.check_code(args.verbose, xlib.get_verbose_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** verbose has to be {0}.'.format(xlib.get_verbose_code_list_text()))
+        xlib.Message.print('error', f'*** verbose has to be {xlib.get_verbose_code_list_text()}.')
         OK = False
     if args.verbose.upper() == 'Y':
         xlib.Message.set_verbose_status(True)
@@ -112,7 +123,7 @@ def check_args(args):
     if args.trace is None:
         args.trace = xlib.Const.DEFAULT_TRACE
     elif not xlib.check_code(args.trace, xlib.get_trace_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** trace has to be {0}.'.format(xlib.get_trace_code_list_text()))
+        xlib.Message.print('error', f'*** trace has to be {xlib.get_trace_code_list_text()}.')
         OK = False
     if args.trace.upper() == 'Y':
         xlib.Message.set_trace_status(True)
@@ -123,7 +134,7 @@ def check_args(args):
 
 #-------------------------------------------------------------------------------
 
-def reidentify_seq_ids(input_fasta_file, output_fasta_file, relationship_file):
+def reidentify_seq_ids(input_fasta_file, sequence_type, output_fasta_file, relationship_file):
     '''
     Re-identify sequence identifications of a FASTA file.
     '''
@@ -170,18 +181,18 @@ def reidentify_seq_ids(input_fasta_file, output_fasta_file, relationship_file):
         # process the header record 
         if record.startswith('>'):
 
-            # extract the data 
+            # extract the data of the transcript/amino acid
             mo = re.search(pattern, record)
-            old_sequence_id = mo.group(1).strip()
+            x_sequence_id = mo.group(1).strip()
 
             # set the new identification
-            new_sequence_id = 'TOA{0:07d}'.format(seq_counter)
+            toa_sequence_id = f'TOA{sequence_type}{seq_counter:07d}'
 
-            # add the new-old identification relationship to the dictionary
-            id_relationship_dict[new_sequence_id] = old_sequence_id
+            # add the identification relationship to the dictionary
+            id_relationship_dict[toa_sequence_id] = x_sequence_id
 
             # write the header record
-            output_fasta_file_id.write('>{0}\n'.format(new_sequence_id))
+            output_fasta_file_id.write(f'>{toa_sequence_id}\n')
 
             # read the next record
             record = input_fasta_file_id.readline()
@@ -203,7 +214,7 @@ def reidentify_seq_ids(input_fasta_file, output_fasta_file, relationship_file):
 
         # add 1 to sequence counter and print it
         seq_counter += 1
-        xlib.Message.print('verbose', '\r{0} sequences processed of the input FASTA file'.format(seq_counter))
+        xlib.Message.print('verbose', f'\r{seq_counter} sequences processed of the input FASTA file')
 
     xlib.Message.print('verbose', '\n')
 
@@ -224,12 +235,15 @@ def reidentify_seq_ids(input_fasta_file, output_fasta_file, relationship_file):
             raise xlib.ProgramException('F003', relationship_file)
 
     # write header record
-    header_record = '#new_sequence_id;old_sequence_id\n'
+    if sequence_type == 'NT':
+        header_record = '#toa_sequence_id;transcript_sequence_id\n'
+    elif sequence_type == 'AA':
+        header_record = '#toa_sequence_id;peptide_sequence_id\n'
     relationship_file_id.write(header_record)
 
     # write relationship records
     for key in sorted(id_relationship_dict.keys()):
-        relationship_record = '"{0}";"{1}"\n'.format(key, id_relationship_dict[key])
+        relationship_record = f'"{key}";"{id_relationship_dict[key]}"\n'
         relationship_file_id.write(relationship_record)
 
     # close relationship file

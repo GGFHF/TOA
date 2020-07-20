@@ -74,19 +74,19 @@ def build_parser():
 
     # create the parser and add arguments
     description = 'Description: This program calculates the read counts per sample corresponding to each gene from a file with transcript read counts.'
-    text = '{0} v{1} - {2}\n\n{3}\n'.format(xlib.get_long_project_name(), xlib.get_project_version(), os.path.basename(__file__), description)
-    usage = '\r{0}\nUsage: {1} arguments'.format(text.ljust(len('usage:')), os.path.basename(__file__))
+    text = f'{xlib.get_long_project_name()} v{xlib.get_project_version()} - {os.path.basename(__file__)}\n\n{description}\n'
+    usage = f'\r{text.ljust(len("usage:"))}\nUsage: {os.path.basename(__file__)} arguments'
     parser = argparse.ArgumentParser(usage=usage)
     parser._optionals.title = 'Arguments'
     parser.add_argument('--db', dest='toa_database', help='Path of the TOA database (mandatory).')
     parser.add_argument('--species', dest='species_name', help='The scientific name of the species using underscore as separator, e.g. Quercus_suber (mandatory).')
     parser.add_argument('--gff', dest='gff_file', help='Path of the GFF file (mandatory).')
-    parser.add_argument('--format', dest='gff_format', help='The format of the transcript GFF file: {0}; default: {1}.'.format('GTF', 'GTF'))
+    parser.add_argument('--format', dest='gff_format', help='The format of the transcript GFF file: GTF; default: GTF.')
     parser.add_argument('--tc', dest='transcript_count_file', help='Path of the transcript read count file (mandatory).')
     parser.add_argument('--out-tc', dest='out_transcriptome_count_file', help='Path of the output transcript read count file (mandatory).')
     parser.add_argument('--out-gc', dest='out_gene_count_file', help='Path of the gene read count file (mandatory).')
-    parser.add_argument('--verbose', dest='verbose', help='Additional job status info during the run: {0}; default: {1}.'.format(xlib.get_verbose_code_list_text(), xlib.Const.DEFAULT_VERBOSE))
-    parser.add_argument('--trace', dest='trace', help='Additional info useful to the developer team: {0}; default: {1}.'.format(xlib.get_trace_code_list_text(), xlib.Const.DEFAULT_TRACE))
+    parser.add_argument('--verbose', dest='verbose', help=f'Additional job status info during the run: {xlib.get_verbose_code_list_text()}; default: {xlib.Const.DEFAULT_VERBOSE}.')
+    parser.add_argument('--trace', dest='trace', help=f'Additional info useful to the developer team: {xlib.get_trace_code_list_text()}; default: {xlib.Const.DEFAULT_TRACE}.')
     parser.add_argument('--tsi', dest='tsi_list', help='Sequence identification list to trace with format seq_id,seq_id_2,...,seq_id_n or NONE; default: NONE.')
 
     # return the paser
@@ -117,14 +117,14 @@ def check_args(args):
         xlib.Message.print('error', '*** The transcript GFF file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.gff_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.gff_file))
+        xlib.Message.print('error', f'*** The file {args.gff_file} does not exist.')
         OK = False
 
     # check "gff_format"
     if args.gff_file is None:
         args.gff_file = 'GTF'
     elif args.gff_format.upper() != 'GTF':
-        xlib.Message.print('error', '*** The format of the GFF file has to be {0}.'.format('GTF'))
+        xlib.Message.print('error', '*** The format of the GFF file has to be GTF.')
         OK = False
     else:
         args.gff_format = args.gff_format.upper()
@@ -134,7 +134,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The transcript read count file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.transcript_count_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.transcript_count_file))
+        xlib.Message.print('error', f'*** The file {args.transcript_count_file} does not exist.')
         OK = False
 
     # check "out_transcriptome_count_file"
@@ -151,7 +151,7 @@ def check_args(args):
     if args.verbose is None:
         args.verbose = xlib.Const.DEFAULT_VERBOSE
     elif not xlib.check_code(args.verbose, xlib.get_verbose_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** verbose has to be {0}.'.format(xlib.get_verbose_code_list_text()))
+        xlib.Message.print('error', f'*** verbose has to be {xlib.get_verbose_code_list_text()}.')
         OK = False
     if args.verbose.upper() == 'Y':
         xlib.Message.set_verbose_status(True)
@@ -160,7 +160,7 @@ def check_args(args):
     if args.trace is None:
         args.trace = xlib.Const.DEFAULT_TRACE
     elif not xlib.check_code(args.trace, xlib.get_trace_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** trace has to be {0}.'.format(xlib.get_trace_code_list_text()))
+        xlib.Message.print('error', f'*** trace has to be {xlib.get_trace_code_list_text()}.')
         OK = False
     if args.trace.upper() == 'Y':
         xlib.Message.set_trace_status(True)
@@ -255,7 +255,7 @@ def calculate_gene_counts(conn, species_name, gff_file, gff_format, transcript_c
                         transcript_feature_dict[transcript_gene_id] = genomic_features_dict[i].get('gene', xlib.get_na())
 
         # print record counter
-        xlib.Message.print('verbose', '\rtranscript GFF file: {0} processed records.'.format(record_counter))
+        xlib.Message.print('verbose', f'\rProcessed records of transcript GFF file: {record_counter}')
 
         # read the next record
         record = gff_file_id.readline()
@@ -347,11 +347,12 @@ def calculate_gene_counts(conn, species_name, gff_file, gff_format, transcript_c
                 gene_count_dict[gene] =  [x + y for x, y in zip(total_transcript_count_list, transcript_count_list)]
 
         # write the output transcript read count file
-        out_record = '{0}\t{1}\t{2}\n'.format(transcript_gene_id, gene, '\t'.join([str(x) for x in transcript_count_list]))
+        transcript_count_list_text = '\t'.join([str(x) for x in transcript_count_list])
+        out_record = f'{transcript_gene_id}\t{gene}\t{transcript_count_list_text}\n'
         out_transcriptome_count_file_id.write(out_record)
 
         # print record counter
-        xlib.Message.print('verbose', '\rtranscript read count file: {0} processed records.'.format(record_counter))
+        xlib.Message.print('verbose', f'\rProcessed records of transcript read count file: {record_counter}')
 
         # read the next record
         record = transcript_count_file_id.readline()
@@ -381,19 +382,20 @@ def calculate_gene_counts(conn, species_name, gff_file, gff_format, transcript_c
     for key in sorted (gene_count_dict.keys()):
 
         # write the gene read counts
-        out_record = '{0}\t{1}\n'.format(key, '\t'.join([str(x) for x in gene_count_dict[key]]))
+        gene_count_list_text = '\t'.join([str(x) for x in gene_count_dict[key]])
+        out_record = f'{key}\t{gene_count_list_text}\n'
         out_gene_count_file_id.write(out_record)
 
         # add 1 to record counter
         record_counter += 1
 
         # print record counter
-        xlib.Message.print('verbose', '\rgene read count file: {0} processed records.'.format(record_counter))
+        xlib.Message.print('verbose', f'\rProcessed records of gene read count file: {record_counter}')
 
     xlib.Message.print('verbose', '\n')
 
     # print OK message 
-    xlib.Message.print('info', 'The file {0} containing the gene read counts has been created.'.format(os.path.basename(out_gene_count_file)))
+    xlib.Message.print('info', f'The file {os.path.basename(out_gene_count_file)} containing the gene read counts is created.')
 
     # close the output gene read count file
     out_gene_count_file_id.close()

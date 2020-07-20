@@ -1,8 +1,19 @@
-CURRENT VERSION: 0.56
+CURRENT VERSION: 0.64
 
 ********************************************************************************
 
-Changes of v0.55 to v0.56 (February 2020)
+Changes in v0.64 (July 2020)
+
+* Annotation pipes incorporate DIAMOND, an alternative aligner to BLAST + faster but
+reporting fewer matches.
+
+* New process of merger of files of annotation pipelines.
+
+* Assignment of default database list according to the species in the creation of pipelines.
+
+********************************************************************************
+
+Changes in v0.56 (February 2020)
 
 * Update of URLs of BLAST databases to the new directory structure of the NCBI FTP server.
 

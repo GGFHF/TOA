@@ -45,18 +45,19 @@ def build_menu_main():
         clib.print_headers_with_environment('Main')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Configuration')
+        print( '    1. Configuration')
         print()
-        print('    2. Genomic databases')
+        print( '    2. Genomic databases')
         print()
-        print('    3. Annotation pipelines')
-        print('    4. Statistics')
+        print( '    3. Annotation pipelines')
         print()
-        print('    5. Logs')
+        print( '    4. Statistics')
         print()
-        print('    X. Exit {0}'.format(xlib.get_long_project_name()))
+        print( '    5. Logs')
+        print()
+        print(f'    X. Exit {xlib.get_short_project_name()}')
         print()
 
         # get the selected option
@@ -75,9 +76,9 @@ def build_menu_main():
             build_menu_logs()
         elif option == 'X':
             sure = ''
-            print('')
+            print( '')
             while sure not in ['Y', 'N']:
-                sure = input('Are you sure to exit {0}? (y or n): '.format(xlib.get_long_project_name())).upper()
+                sure = input(f'Are you sure to exit {xlib.get_short_project_name()}? (y or n): ').upper()
             if sure == 'Y':
                 break
 
@@ -96,17 +97,17 @@ def build_menu_toa_configuration():
         clib.print_headers_with_environment('Configuration')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Recreate {0} config file'.format(xlib.get_toa_name()))
-        print('    2. View {0} config file'.format(xlib.get_toa_name()))
+        print(f'    1. Recreate {xlib.get_toa_name()} config file')
+        print(f'    2. View {xlib.get_toa_name()} config file')
         print()
-        print('    3. Recreate {0} database'.format(xlib.get_toa_name()))
-        print('    4. Rebuild {0} database'.format(xlib.get_toa_name()))
+        print(f'    3. Recreate {xlib.get_toa_name()} database')
+        print(f'    4. Rebuild {xlib.get_toa_name()} database')
         print()
-        print('    5. Bioinfo software setup')
+        print( '    5. Bioinfo software installation')
         print()
-        print('    X. Return to menu Main')
+        print( '    X. Return to menu Main')
         print()
 
         # get the selected option
@@ -122,35 +123,36 @@ def build_menu_toa_configuration():
         elif option == '4':
             ctoa.form_manage_toa_database(xlib.get_toa_type_rebuild())
         elif option == '5':
-            build_menu_bioinfo_software_setup()
+            build_menu_bioinfo_software_installation()
         elif option == 'X':
             break
 
 #-------------------------------------------------------------------------------
 
-def build_menu_bioinfo_software_setup():
+def build_menu_bioinfo_software_installation():
     '''
-    Build the menu Bioinfo software setup.
+    Build the menu Bioinfo software installation.
     '''
 
     while True:
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('Bioinfo software setup')
+        clib.print_headers_with_environment('Bioinfo software installation')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. {0} (Bioconda infrastructure)'.format(xlib.get_miniconda3_name()))
+        print(f'    1. {xlib.get_miniconda3_name()} (Conda infrastructure)')
         print()
-        print('    2. {0}'.format(xlib.get_blastplus_name()))
-        print('    3. {0}'.format(xlib.get_entrez_direct_name()))
-        print('    4. {0}'.format(xlib.get_transdecoder_name()))
+        print(f'    2. {xlib.get_blastplus_name()}'.format())
+        print(f'    3. {xlib.get_diamond_name()}')
+        print(f'    4. {xlib.get_entrez_direct_name()}')
+        print(f'    5. {xlib.get_transdecoder_name()}')
         # -- print()
-        # -- print('    5. {0} & analysis packages'.format(xlib.get_r_name()))
+        # -- print(f'    X. {xlib.get_r_name()} & analysis packages')
         print()
-        print('    X. Return to menu Main')
+        print( '    X. Return to menu Main')
         print()
 
         # get the selected option
@@ -158,15 +160,17 @@ def build_menu_bioinfo_software_setup():
 
         # process the selected option
         if option == '1':
-            cbioinfoapp.form_setup_bioinfo_app(xlib.get_miniconda3_code())
+            cbioinfoapp.form_install_bioinfo_app(xlib.get_miniconda3_code())
         elif option == '2':
-            cbioinfoapp.form_setup_bioinfo_app(xlib.get_blastplus_code())
+            cbioinfoapp.form_install_bioinfo_app(xlib.get_blastplus_code())
         elif option == '3':
-            cbioinfoapp.form_setup_bioinfo_app(xlib.get_entrez_direct_code())
+            cbioinfoapp.form_install_bioinfo_app(xlib.get_diamond_code())
         elif option == '4':
-            cbioinfoapp.form_setup_bioinfo_app(xlib.get_transdecoder_code())
-        # -- elif option == '5':
-        # --     cbioinfoapp.form_setup_bioinfo_app(xlib.get_r_code())
+            cbioinfoapp.form_install_bioinfo_app(xlib.get_entrez_direct_code())
+        elif option == '5':
+            cbioinfoapp.form_install_bioinfo_app(xlib.get_transdecoder_code())
+        # -- elif option == 'X':
+        # --     cbioinfoapp.form_install_bioinfo_app(xlib.get_r_code())
         elif option == 'X':
             break
 
@@ -184,26 +188,27 @@ def build_menu_toa_databases():
         clib.print_headers_with_environment('Genomic databases')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. {0}'.format(xlib.get_toa_data_basic_data_name()))
+        print(f'    1. {xlib.get_toa_data_basic_data_name()}')
         print()
-        print('    2. {0}'.format(xlib.get_toa_data_gymno_01_name()))
-        print('    3. {0}'.format(xlib.get_toa_data_dicots_04_name()))
-        print('    4. {0}'.format(xlib.get_toa_data_monocots_04_name()))
+        print(f'    2. {xlib.get_toa_data_gymno_01_name()}')
+        print(f'    3. {xlib.get_toa_data_dicots_04_name()}')
+        print(f'    4. {xlib.get_toa_data_monocots_04_name()}')
         print()
-        print('    5. {0}'.format(xlib.get_toa_data_refseq_plant_name()))
-        print('    6. {0}'.format(xlib.get_toa_data_nt_name()))
-        print('    7. {0}'.format(xlib.get_toa_data_viridiplantae_nucleotide_gi_name()))
-        print('    8. {0}'.format(xlib.get_toa_data_nr_name()))
-        print('    9. {0}'.format(xlib.get_toa_data_viridiplantae_protein_gi_name()))
-        print('    A. {0}'.format(xlib.get_toa_data_gene_name()))
+        print(f'    5. {xlib.get_toa_data_refseq_plant_name()}')
+        # -- print(f'    x. {xlib.get_toa_data_taxonomy_name()}')
+        print(f'    6. {xlib.get_toa_data_nt_name()}')
+        # -- print(f'    x. {xlib.get_toa_data_viridiplantae_nucleotide_gi_name()}')
+        print(f'    7. {xlib.get_toa_data_nr_name()}')
+        # -- print(f'    x. {xlib.get_toa_data_viridiplantae_protein_gi_name()}')
+        print(f'    8. {xlib.get_toa_data_gene_name()}')
         print()
-        print('    B. {0}'.format(xlib.get_toa_data_interpro_name()))
+        print(f'    9. {xlib.get_toa_data_interpro_name()}')
         print()
-        print('    C. {0}'.format(xlib.get_toa_data_go_name()))
+        print(f'    A. {xlib.get_toa_data_go_name()}')
         print()
-        print('    X. Return to menu Main')
+        print( '    X. Return to menu Main')
         print()
 
         # get the selected option
@@ -220,19 +225,21 @@ def build_menu_toa_databases():
             build_menu_toa_monocots_04()
         elif option == '5':
             build_menu_toa_refseq_plant()
+        # -- elif option == 'X':
+        # --     build_menu_toa_taxonomy()
         elif option == '6':
             build_menu_toa_nt()
+        # -- elif option == 'X':
+        # --     build_menu_toa_nucleotide_gi()
         elif option == '7':
-            build_menu_toa_nucleotide_gi()
-        elif option == '8':
             build_menu_toa_nr()
-        elif option == '9':
-            build_menu_toa_protein_gi()
-        elif option == 'A':
+        # -- elif option == 'X':
+        # --     build_menu_toa_protein_gi()
+        elif option == '8':
             build_menu_toa_gene()
-        elif option == 'B':
+        elif option == '9':
             build_menu_toa_interpro()
-        elif option == 'C':
+        elif option == 'A':
             build_menu_toa_go()
         elif option == 'X':
             break
@@ -248,22 +255,22 @@ def build_menu_toa_basic_data():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_basic_data_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_basic_data_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Recreate genomic dataset file')
-        print('    2. Edit genomic file')
+        print( '    1. Recreate genomic dataset file')
+        print( '    2. Edit genomic file')
         print()
-        print('    3. Recreate species file')
-        print('    4. Edit species file')
+        print( '    3. Recreate species file')
+        print( '    4. Edit species file')
         print()
-        print('    5. Download other basic data')
+        print( '    5. Download other basic data')
         print()
-        print('    6. Load data into {0} database'.format(xlib.get_toa_name()))
+        print(f'    6. Load data into {xlib.get_toa_name()} database')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -296,17 +303,17 @@ def build_menu_toa_gymno_01():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_gymno_01_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_gymno_01_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Build proteome')
+        print( '    1. Build proteome')
         print()
-        print('    2. Download functional annotations from PLAZA server')
-        print('    3. Load data into {0} database'.format(xlib.get_toa_name()))
+        print( '    2. Download functional annotations from PLAZA server')
+        print(f'    3. Load data into {xlib.get_toa_name()} database')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -333,17 +340,17 @@ def build_menu_toa_dicots_04():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_dicots_04_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_dicots_04_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Build proteome')
+        print( '    1. Build proteome')
         print()
-        print('    2. Download functional annotations from PLAZA server')
-        print('    3. Load data into {0} database'.format(xlib.get_toa_name()))
+        print( '    2. Download functional annotations from PLAZA server')
+        print(f'    3. Load data into {xlib.get_toa_name()} database')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -370,17 +377,17 @@ def build_menu_toa_monocots_04():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_monocots_04_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_monocots_04_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Build proteome')
+        print( '    1. Build proteome')
         print()
-        print('    2. Download functional annotations from PLAZA server')
-        print('    3. Load data into {0} database'.format(xlib.get_toa_name()))
+        print( '    2. Download functional annotations from PLAZA server')
+        print(f'    3. Load data into {xlib.get_toa_name()} database')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -407,14 +414,14 @@ def build_menu_toa_refseq_plant():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_refseq_plant_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_refseq_plant_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Build proteome')
+        print( '    1. Build proteome')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -423,6 +430,36 @@ def build_menu_toa_refseq_plant():
         # process the selected option
         if option == '1':
             ctoa.form_manage_genomic_database(xlib.get_toa_type_build_proteome(), xlib.get_toa_data_refseq_plant_code())
+        elif option == 'X':
+            break
+
+#-------------------------------------------------------------------------------
+
+def build_menu_toa_taxonomy():
+    '''
+    Build the menu NCBI Taxonomy.
+    '''
+
+    while True:
+
+        # print headers
+        clib.clear_screen()
+        clib.print_headers_with_environment(xlib.get_toa_data_taxonomy_name())
+
+        # print the menu options
+        print( 'Options:')
+        print()
+        print( '    1. Download taxonomy data from NCBI server')
+        print()
+        print( '    X. Return to menu Genomic databases')
+        print()
+
+        # get the selected option
+        option = input('Input the selected option: ').upper()
+
+        # process the selected option
+        if option == '1':
+            ctoa.form_manage_genomic_database(xlib.get_toa_type_download_data(), xlib.get_toa_data_taxonomy_code())
         elif option == 'X':
             break
 
@@ -437,14 +474,14 @@ def build_menu_toa_nt():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_nt_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_nt_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Build BLAST database')
+        print( '    1. Build database for BLAST+')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -452,7 +489,7 @@ def build_menu_toa_nt():
 
         # process the selected option
         if option == '1':
-            ctoa.form_manage_genomic_database(xlib.get_toa_type_build_blastdb(), xlib.get_toa_data_nt_code())
+            ctoa.form_manage_genomic_database(xlib.get_toa_type_build_blastplus_db(), xlib.get_toa_data_nt_code())
         elif option == 'X':
             break
 
@@ -467,14 +504,14 @@ def build_menu_toa_nucleotide_gi():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_viridiplantae_nucleotide_gi_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_viridiplantae_nucleotide_gi_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Build identifier list using NCBI server')
+        print( '    1. Build identifier list using NCBI server')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -497,14 +534,15 @@ def build_menu_toa_nr():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_nr_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_nr_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Build BLAST database')
+        print( '    1. Build database for BLAST+')
+        print( '    2. Build database for DIAMOND')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -512,7 +550,9 @@ def build_menu_toa_nr():
 
         # process the selected option
         if option == '1':
-            ctoa.form_manage_genomic_database(xlib.get_toa_type_build_blastdb(), xlib.get_toa_data_nr_code())
+            ctoa.form_manage_genomic_database(xlib.get_toa_type_build_blastplus_db(), xlib.get_toa_data_nr_code())
+        elif option == '2':
+            ctoa.form_manage_genomic_database(xlib.get_toa_type_build_diamond_db(), xlib.get_toa_data_nr_code())
         elif option == 'X':
             break
 
@@ -527,14 +567,14 @@ def build_menu_toa_protein_gi():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_viridiplantae_protein_gi_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_viridiplantae_protein_gi_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Build identifier list using NCBI server')
+        print( '    1. Build identifier list using NCBI server')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -557,15 +597,15 @@ def build_menu_toa_gene():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_gene_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_gene_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Download functional annotations from NCBI server')
-        print('    2. Load data into {0} database'.format(xlib.get_toa_name()))
+        print( '    1. Download functional annotations from NCBI server')
+        print(f'    2. Load data into {xlib.get_toa_name()} database')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -590,15 +630,15 @@ def build_menu_toa_interpro():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_interpro_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_interpro_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Download functional annotations from InterPro server')
-        print('    2. Load data into {0} database'.format(xlib.get_toa_name()))
+        print( '    1. Download functional annotations from InterPro server')
+        print(f'    2. Load data into {xlib.get_toa_name()} database')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -623,15 +663,15 @@ def build_menu_toa_go():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_data_go_name()))
+        clib.print_headers_with_environment(xlib.get_toa_data_go_name())
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Download functional annotations from Gene Ontology server')
-        print('    2. Load data into {0} database'.format(xlib.get_toa_name()))
+        print( '    1. Download functional annotations from Gene Ontology server')
+        print(f'    2. Load data into {xlib.get_toa_name()} database')
         print()
-        print('    X. Return to menu Genomic databases')
+        print( '    X. Return to menu Genomic databases')
         print()
 
         # get the selected option
@@ -659,13 +699,14 @@ def build_menu_toa_pipelines():
         clib.print_headers_with_environment('Pipelines')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. {0} {1}'.format(xlib.get_toa_name(), xlib.get_toa_process_pipeline_nucleotide_name()))
+        print(f'    1. {xlib.get_toa_name()} {xlib.get_toa_process_pipeline_nucleotide_name()}')
+        print(f'    2. {xlib.get_toa_name()} {xlib.get_toa_process_pipeline_aminoacid_name()}')
         print()
-        print('    2. {0} {1}'.format(xlib.get_toa_name(), xlib.get_toa_process_pipeline_aminoacid_name()))
+        print(f'    3. Annotation merger of {xlib.get_toa_name()} pipelines')
         print()
-        print('    X. Return to menu Main')
+        print( '    X. Return to menu Main')
         print()
 
         # get the selected option
@@ -676,6 +717,8 @@ def build_menu_toa_pipelines():
             build_menu_toa_nucleotide_pipeline()
         elif option == '2':
             build_menu_toa_aminoacid_pipeline()
+        elif option == '3':
+            build_menu_toa_annotation_merger()
         elif option == 'X':
             break
 
@@ -690,18 +733,18 @@ def build_menu_toa_nucleotide_pipeline():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0}'.format(xlib.get_toa_process_pipeline_nucleotide_name()))
+        clib.print_headers_with_environment(f'{xlib.get_toa_name()} {xlib.get_toa_process_pipeline_nucleotide_name()}')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Recreate config file')
-        print('    2. Edit config file')
+        print( '    1. Recreate config file')
+        print( '    2. Edit config file')
         print()
-        print('    3. Run pipeline')
-        print('    4. Restart pipeline')
+        print( '    3. Run pipeline')
+        print( '    4. Restart pipeline')
         print()
-        print('    X. Return to menu Pipelines')
+        print( '    X. Return to menu Pipelines')
         print()
 
         # get the selected option
@@ -730,18 +773,18 @@ def build_menu_toa_aminoacid_pipeline():
 
         # print headers
         clib.clear_screen()
-        clib.print_headers_with_environment('{0} {1}'.format(xlib.get_toa_name(), xlib.get_toa_process_pipeline_aminoacid_name()))
+        clib.print_headers_with_environment(f'{xlib.get_toa_name()} {xlib.get_toa_process_pipeline_aminoacid_name()}')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Recreate config file')
-        print('    2. Edit config file')
+        print( '    1. Recreate config file')
+        print( '    2. Edit config file')
         print()
-        print('    3. Run pipeline')
-        print('    4. Restart pipeline')
+        print( '    3. Run pipeline')
+        print( '    4. Restart pipeline')
         print()
-        print('    X. Return to menu Pipelines')
+        print( '    X. Return to menu Pipelines')
         print()
 
         # get the selected option
@@ -761,6 +804,43 @@ def build_menu_toa_aminoacid_pipeline():
 
 #-------------------------------------------------------------------------------
 
+def build_menu_toa_annotation_merger():
+    '''
+    Build the menu annotation merger of TOA pipelines.
+    '''
+
+    while True:
+
+        # print headers
+        clib.clear_screen()
+        clib.print_headers_with_environment(f'Annotation merger of {xlib.get_toa_name()} pipelines')
+
+        # print the menu options
+        print( 'Options:')
+        print()
+        print( '    1. Recreate config file')
+        print( '    2. Edit config file')
+        print()
+        print( '    3. Run process')
+        print()
+        print( '    X. Return to menu Pipelines')
+        print()
+
+        # get the selected option
+        option = input('Input the selected option: ').upper()
+
+        # process the selected option
+        if option == '1':
+            ctoa.form_recreate_annotation_merger_config_file()
+        elif option == '2':
+            ctoa.form_edit_pipeline_config_file(xlib.get_toa_process_merge_annotations_code())
+        elif option == '3':
+            ctoa.form_run_pipeline_process(xlib.get_toa_process_merge_annotations_code())
+        elif option == 'X':
+            break
+
+#-------------------------------------------------------------------------------
+
 def build_menu_toa_stats():
     '''
     Build the menu Statistics.
@@ -773,24 +853,24 @@ def build_menu_toa_stats():
         clib.print_headers_with_environment('Statistics')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Alignment')
+        print( '    1. Alignment')
         print()
-        print('    2. Annotation datasets')
+        print( '    2. Annotation datasets')
         print()
-        print('    3. Species')
-        print('    4. Family')
-        print('    5. Phylum')
+        print( '    3. Species')
+        print( '    4. Family')
+        print( '    5. Phylum')
         print()
-        print('    6. EC')
-        print('    7. Gene Ontology')
-        print('    8. InterPro')
-        print('    9. KEGG')
-        print('    A. MapMan')
-        print('    B. MetaCyc')
+        print( '    6. EC')
+        print( '    7. Gene Ontology')
+        print( '    8. InterPro')
+        print( '    9. KEGG')
+        print( '    A. MapMan')
+        print( '    B. MetaCyc')
         print()
-        print('    X. Return to menu Main')
+        print( '    X. Return to menu Main')
         print()
 
         # get the selected option
@@ -836,11 +916,11 @@ def build_menu_alignment_stats():
         clib.print_headers_with_environment('Statistics - Alignment')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. # HITs per # HSPs data')
+        print( '    1. # HITs per # HSPs data')
         print()
-        print('    X. Return to menu Statistics')
+        print( '    X. Return to menu Statistics')
         print()
 
         # get the selected option
@@ -866,11 +946,11 @@ def build_menu_annotation_dataset_stats():
         clib.print_headers_with_environment('Statistics - Annotation datases')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Frecuency distribution data')
+        print( '    1. Frecuency distribution data')
         print()
-        print('    X. Return to menu Statistics')
+        print( '    X. Return to menu Statistics')
         print()
 
         # get the selected option
@@ -896,11 +976,11 @@ def build_menu_species_stats():
         clib.print_headers_with_environment('Statistics - Species')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Frecuency distribution data')
+        print( '    1. Frecuency distribution data')
         print()
-        print('    X. Return to menu Statistics')
+        print( '    X. Return to menu Statistics')
         print()
 
         # get the selected option
@@ -926,11 +1006,11 @@ def build_menu_family_stats():
         clib.print_headers_with_environment('Statistics - Family')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Frecuency distribution data')
+        print( '    1. Frecuency distribution data')
         print()
-        print('    X. Return to menu Statistics')
+        print( '    X. Return to menu Statistics')
         print()
 
         # get the selected option
@@ -956,11 +1036,11 @@ def build_menu_phylum_stats():
         clib.print_headers_with_environment('Statistics - Phylum')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Frecuency distribution data')
+        print( '    1. Frecuency distribution data')
         print()
-        print('    X. Return to menu Statistics')
+        print( '    X. Return to menu Statistics')
         print()
 
         # get the selected option
@@ -986,12 +1066,12 @@ def build_menu_ec_stats():
         clib.print_headers_with_environment('Statistics - EC')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Frecuency distribution data')
-        print('    2. # sequences per # ids data')
+        print( '    1. Frecuency distribution data')
+        print( '    2. # sequences per # ids data')
         print()
-        print('    X. Return to menu Statistics')
+        print( '    X. Return to menu Statistics')
         print()
 
         # get the selected option
@@ -1019,13 +1099,13 @@ def build_menu_go_stats():
         clib.print_headers_with_environment('Statistics - Gene Ontology')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Frecuency distribution data per term')
-        print('    2. Frecuency distribution data per namespace')
-        print('    3. # sequences per # terms data')
+        print( '    1. Frecuency distribution data per term')
+        print( '    2. Frecuency distribution data per namespace')
+        print( '    3. # sequences per # terms data')
         print()
-        print('    X. Return to menu Statistics')
+        print( '    X. Return to menu Statistics')
         print()
 
         # get the selected option
@@ -1055,12 +1135,12 @@ def build_menu_interpro_stats():
         clib.print_headers_with_environment('Statistics - InterPro')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Frecuency distribution data')
-        print('    2. # sequences per # ids data')
+        print( '    1. Frecuency distribution data')
+        print( '    2. # sequences per # ids data')
         print()
-        print('    X. Return to menu Statistics')
+        print( '    X. Return to menu Statistics')
         print()
 
         # get the selected option
@@ -1088,12 +1168,12 @@ def build_menu_kegg_stats():
         clib.print_headers_with_environment('Statistics - KEGG')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Frecuency distribution data')
-        print('    2. # sequences per # ids data')
+        print( '    1. Frecuency distribution data')
+        print( '    2. # sequences per # ids data')
         print()
-        print('    X. Return to menu Statistics')
+        print( '    X. Return to menu Statistics')
         print()
 
         # get the selected option
@@ -1121,12 +1201,12 @@ def build_menu_mapman_stats():
         clib.print_headers_with_environment('Statistics - Mapman')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Frecuency distribution data')
-        print('    2. # sequences per # ids data')
+        print( '    1. Frecuency distribution data')
+        print( '    2. # sequences per # ids data')
         print()
-        print('    X. Return to menu Statistics')
+        print( '    X. Return to menu Statistics')
         print()
 
         # get the selected option
@@ -1154,12 +1234,12 @@ def build_menu_metacyc_stats():
         clib.print_headers_with_environment('Statistics - MetaCyc')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. Frecuency distribution data')
-        print('    2. # sequences per # ids data')
+        print( '    1. Frecuency distribution data')
+        print( '    2. # sequences per # ids data')
         print()
-        print('    X. Return to menu Statistics')
+        print( '    X. Return to menu Statistics')
         print()
 
         # get the selected option
@@ -1187,15 +1267,15 @@ def build_menu_logs():
         clib.print_headers_with_environment('Cluster logs')
 
         # print the menu options
-        print('Options:')
+        print( 'Options:')
         print()
-        print('    1. List submission logs')
-        print('    2. View a submission log')
+        print( '    1. List submission logs')
+        print( '    2. View a submission log')
         print()
-        print('    3. List result logs')
-        print('    4. View a result log')
+        print( '    3. List result logs')
+        print( '    4. View a result log')
         print()
-        print('    X. Return to menu Logs')
+        print( '    X. Return to menu Logs')
         print()
 
         # get the selected option
@@ -1216,7 +1296,7 @@ def build_menu_logs():
 #-------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    print('This file contains the functions related to menus in console mode.')
+    print( 'This file contains the functions related to menus in console mode.')
     sys.exit(0)
 
 #-------------------------------------------------------------------------------

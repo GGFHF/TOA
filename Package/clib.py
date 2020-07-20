@@ -49,7 +49,7 @@ def view_file(file, text):
         with open(file, mode='r', encoding='iso-8859-1', newline='\n') as file_id:
             print(file_id.read())
     except Exception as e:
-        print('*** ERROR: The file {0} can not be read.'.format(file))
+        print(f'*** ERROR: The file {file} can not be read.')
         OK = False
     else:
         print('*' * 20 + '*' * (len(file) + 6) + '*' * 20)
@@ -78,11 +78,11 @@ def print_headers_without_environment(process_name):
     '''
 
     # print the project name, version and the process name
-    title = '{0} v {1} - {2}'.format(xlib.get_long_project_name(), xlib.get_project_version(), process_name)
+    title = f'{xlib.get_long_project_name()} v {xlib.get_project_version()} - {process_name}'
     line = '-' * len(title)
-    print('+-{0}-+'.format(line))
-    print('| {0} |'.format(title))
-    print('+-{0}-+'.format(line))
+    print(f'+-{line}-+')
+    print(f'| {title} |')
+    print(f'+-{line}-+')
     print()
 
 #-------------------------------------------------------------------------------
@@ -93,11 +93,11 @@ def print_headers_with_environment(process_name):
     '''
 
     # print the project name, version and the process name
-    title = '{0} v {1} - {2}'.format(xlib.get_long_project_name(), xlib.get_project_version(), process_name)
+    title = f'{xlib.get_long_project_name()} v {xlib.get_project_version()} - {process_name}'
     line = '-' * len(title)
-    print('+-{0}-+'.format(line))
-    print('| {0} |'.format(title))
-    print('+-{0}-+'.format(line))
+    print(f'+-{line}-+')
+    print(f'| {title} |')
+    print(f'+-{line}-+')
     print()
 
 #-------------------------------------------------------------------------------
@@ -121,7 +121,7 @@ def confirm_action(action):
 #-------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    print('This source contains the general functions and classes used in {0} software package used in console mode.'.format(xlib.get_long_project_name()))
+    print(f'This source contains the general functions and classes used in {xlib.get_long_project_name()} software package used in console mode.')
     sys.exit(0)
 
 #-------------------------------------------------------------------------------

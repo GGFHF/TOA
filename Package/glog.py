@@ -186,7 +186,7 @@ class FormViewSubmissionLogs(tkinter.Frame):
         OK = self.check_inputs()
         if not OK:
             message = 'Some input values are not OK.'
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # get the submission process dictionary
         submission_process_dict = xlib.get_submission_process_dict()
@@ -210,20 +210,20 @@ class FormViewSubmissionLogs(tkinter.Frame):
                         yymmdd = mo.group(2)
                         hhmmss = mo.group(3)
                         process_text = submission_process_dict[submission_process_id]['text']
-                        date = '20{0}-{1}-{2}'.format(yymmdd[:2], yymmdd[2:4], yymmdd[4:])
-                        time = '{0}:{1}:{2}'.format(hhmmss[:2], hhmmss[2:4], hhmmss[4:])
-                    except Exception as e:
+                        date = f'20{yymmdd[:2]}-{yymmdd[2:4]}-{yymmdd[4:]}'
+                        time = f'{hhmmss[:2]}:{hhmmss[2:4]}:{hhmmss[4:]}'
+                    except:
                         process_text = 'unknown process'
                         date = '0000-00-00'
                         time = '00:00:00'
-                    key = '{0}-{1}'.format(process_text, run_id)
+                    key = f'{process_text}-{run_id}'
                     log_dict[key] = {'process_text': process_text, 'run_id': run_id, 'date': date, 'time': time}
 
         # check if there are any submission logs
         if OK:
             if log_dict == {}:
                 message = 'There is not any submission process log.'
-                tkinter.messagebox.showwarning('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+                tkinter.messagebox.showwarning(f'{xlib.get_short_project_name()} - {self.head}', message)
                 OK = False
 
         # build the data list
@@ -288,8 +288,8 @@ class FormViewResultLogs(tkinter.Frame):
         self.head = 'Logs - View result logs'
 
         # create the wrappers to track changes in the inputs
-        self.wrapper_experiment_id = tkinter.StringVar()
-        self.wrapper_experiment_id.trace('w', self.check_inputs)
+        self.wrapper_process_type = tkinter.StringVar()
+        self.wrapper_process_type.trace('w', self.check_inputs)
 
         # build the graphical user interface
         self.build_gui()
@@ -311,16 +311,16 @@ class FormViewResultLogs(tkinter.Frame):
         # assign the text to the label of the current process name
         self.main.label_process['text'] = self.head
 
-        # create "label_experiment_id" and register it with the grid geometry manager
-        self.label_experiment_id = tkinter.Label(self, text='Experiment/process')
-        self.label_experiment_id.grid(row=0, column=0, padx=(15,5), pady=(75,5), sticky='e')
+        # create "label_process_type" and register it with the grid geometry manager
+        self.label_process_type = tkinter.Label(self, text='Process type')
+        self.label_process_type.grid(row=0, column=0, padx=(15,5), pady=(75,5), sticky='e')
 
-        # create "combobox_experiment_id" and register it with the grid geometry manager
-        self.combobox_experiment_id = tkinter.ttk.Combobox(self, width=30, height=4, state='readonly', textvariable=self.wrapper_experiment_id)
-        self.combobox_experiment_id.grid(row=0, column=1, padx=(5,5), pady=(75,5), sticky='w')
+        # create "combobox_process_type" and register it with the grid geometry manager
+        self.combobox_process_type = tkinter.ttk.Combobox(self, width=30, height=4, state='readonly', textvariable=self.wrapper_process_type)
+        self.combobox_process_type.grid(row=0, column=1, padx=(5,5), pady=(75,5), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(65+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*(75+xlib.get_os_size_fix()))
         self.label_fit.grid(row=1, column=2, padx=(0,0), pady=(45,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -332,7 +332,7 @@ class FormViewResultLogs(tkinter.Frame):
         self.button_close.grid(row=1, column=4, padx=(5,5), pady=(45,5), sticky='w')
 
         # link a handler to events
-        self.combobox_experiment_id.bind('<<ComboboxSelected>>', self.combobox_experiment_id_selected_item)
+        self.combobox_process_type.bind('<<ComboboxSelected>>', self.combobox_process_type_selected_item)
 
     #---------------
 
@@ -342,43 +342,43 @@ class FormViewResultLogs(tkinter.Frame):
         '''
 
         # populate data in comboboxes
-        self.populate_combobox_experiment_id()
+        self.populate_combobox_process_type()
 
     #---------------
 
-    def populate_combobox_experiment_id(self):
+    def populate_combobox_process_type(self):
         '''
-        Populate data in "combobox_experiment_id".
+        Populate data in "combobox_process_type".
         '''
 
         # clear the value selected in the combobox
-        self.wrapper_experiment_id.set('')
+        self.wrapper_process_type.set('')
 
-        # initialize the experiment identification list
-        experiment_id_list = []
+        # initialize the process type list
+        process_type_list = []
 
         # get the dictionary of TOA configuration.
         toa_config_dict = xtoa.get_toa_config_dict()
 
-        # get the experiment identifications
+        # get the process type list
         subdir_list = [subdir for subdir in os.listdir(toa_config_dict['RESULT_DIR']) if os.path.isdir(os.path.join(toa_config_dict['RESULT_DIR'], subdir))]
         for subdir in subdir_list:
-            experiment_id_list.append(subdir)
+            process_type_list.append(subdir)
 
-        # check if there are any experimment identifications
-        if experiment_id_list == []:
-            message = 'There is not any experiment/process run.'
-            tkinter.messagebox.showwarning('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+        # check if there are any process type
+        if process_type_list == []:
+            message = 'There is not any run.'
+            tkinter.messagebox.showwarning(f'{xlib.get_short_project_name()} - {self.head}', message)
             return
 
-        # load the names of clusters which are running in the combobox
-        self.combobox_experiment_id['values'] = experiment_id_list
+        # load the names of process types
+        self.combobox_process_type['values'] = sorted(process_type_list)
 
     #---------------
 
-    def combobox_experiment_id_selected_item(self, event=None):
+    def combobox_process_type_selected_item(self, event=None):
         '''
-        Process the event when an item of "combobox_experiment_id" has been selected
+        Process the event when an item of "combobox_process_type" has been selected
         '''
 
         pass
@@ -394,7 +394,7 @@ class FormViewResultLogs(tkinter.Frame):
         OK = True
 
         # check if "button_execute" has to be enabled or disabled
-        if self.wrapper_experiment_id.get() != '':
+        if self.wrapper_process_type.get() != '':
             self.button_execute['state'] = 'enable'
         else:
             self.button_execute['state'] = 'disabled'
@@ -413,16 +413,16 @@ class FormViewResultLogs(tkinter.Frame):
         OK = self.check_inputs()
         if not OK:
             message = 'Some input values are not OK.'
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # get the dictionary of TOA configuration.
         if OK:
             toa_config_dict = xtoa.get_toa_config_dict()
 
-        # get the run dictionary of the experiment
+        # get the run dictionary
         if OK:
-            experiment_dir = '{0}/{1}'.format(toa_config_dict['RESULT_DIR'], self.wrapper_experiment_id.get())
-            subdir_list = [subdir for subdir in os.listdir(experiment_dir) if os.path.isdir(os.path.join(experiment_dir, subdir))]
+            process_type_dir = f'{toa_config_dict["RESULT_DIR"]}/{self.wrapper_process_type.get()}'
+            subdir_list = [subdir for subdir in os.listdir(process_type_dir) if os.path.isdir(os.path.join(process_type_dir, subdir))]
             result_dataset_dict = {}
             for subdir in subdir_list:
                 result_dataset_id = subdir
@@ -432,78 +432,123 @@ class FormViewResultLogs(tkinter.Frame):
                     bioinfo_app_code = mo.group(1).strip()
                     yymmdd = mo.group(2)
                     hhmmss = mo.group(3)
-                    date = '20{0}-{1}-{2}'.format(yymmdd[:2], yymmdd[2:4], yymmdd[4:])
-                    time = '{0}:{1}:{2}'.format(hhmmss[:2], hhmmss[2:4], hhmmss[4:])
-                except Exception as e:
+                    date = f'20{yymmdd[:2]}-{yymmdd[2:4]}-{yymmdd[4:]}'
+                    time = f'{hhmmss[:2]}:{hhmmss[2:4]}:{hhmmss[4:]}'
+                except:
                     bioinfo_app_code = 'xxx'
                     date = '0000-00-00'
                     time = '00:00:00'
+
                 if result_dataset_id.startswith(xlib.get_blastplus_code()+'-'):
                     bioinfo_app_name = xlib.get_blastplus_name()
+
+                elif result_dataset_id.startswith(xlib.get_diamond_code()+'-'):
+                    bioinfo_app_name = xlib.get_diamond_name()
+
                 elif result_dataset_id.startswith(xlib.get_entrez_direct_code()+'-'):
                     bioinfo_app_name = xlib.get_entrez_direct_name()
+
                 elif result_dataset_id.startswith(xlib.get_miniconda3_code()+'-'):
                     bioinfo_app_name = xlib.get_miniconda3_name()
+
                 elif result_dataset_id.startswith(xlib.get_r_code()+'-'):
                     bioinfo_app_name = xlib.get_r_name()
-                elif result_dataset_id.startswith(xlib.get_toa_process_blastdb_nr_code()+'-'):
-                    bioinfo_app_name = xlib.get_toa_process_blastdb_nr_name()
-                elif result_dataset_id.startswith(xlib.get_toa_process_blastdb_nt_code()+'-'):
-                    bioinfo_app_name = xlib.get_toa_process_blastdb_nt_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_download_basic_data_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_download_basic_data_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_download_dicots_04_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_download_dicots_04_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_download_gene_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_download_gene_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_download_go_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_download_go_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_download_gymno_01_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_download_gymno_01_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_download_interpro_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_download_interpro_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_download_monocots_04_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_download_monocots_04_name()
+
+                elif result_dataset_id.startswith(xlib.get_toa_process_download_taxonomy_code()+'-'):
+                    bioinfo_app_name = xlib.get_toa_process_download_taxonomy_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_gilist_viridiplantae_nucleotide_gi_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_gilist_viridiplantae_nucleotide_gi_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_gilist_viridiplantae_protein_gi_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_gilist_viridiplantae_protein_gi_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_load_basic_data_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_load_basic_data_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_load_dicots_04_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_load_dicots_04_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_load_gene_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_load_gene_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_load_go_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_load_go_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_load_gymno_01_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_load_gymno_01_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_load_interpro_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_load_interpro_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_load_monocots_04_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_load_monocots_04_name()
+
+                elif result_dataset_id.startswith(xlib.get_toa_process_merge_annotations_code()+'-'):
+                    bioinfo_app_name = xlib.get_toa_process_merge_annotations_name()
+
+                elif result_dataset_id.startswith(xlib.get_toa_process_nr_blastplus_db_code()+'-'):
+                    bioinfo_app_name = xlib.get_toa_process_nr_blastplus_db_name()
+
+                elif result_dataset_id.startswith(xlib.get_toa_process_nr_diamond_db_code()+'-'):
+                    bioinfo_app_name = xlib.get_toa_process_nr_diamond_db_name()
+
+                elif result_dataset_id.startswith(xlib.get_toa_process_nt_blastplus_db_code()+'-'):
+                    bioinfo_app_name = xlib.get_toa_process_nt_blastplus_db_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_pipeline_aminoacid_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_pipeline_aminoacid_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_pipeline_nucleotide_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_pipeline_nucleotide_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_proteome_dicots_04_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_proteome_dicots_04_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_proteome_gymno_01_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_proteome_gymno_01_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_proteome_monocots_04_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_proteome_monocots_04_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_proteome_refseq_plant_code()+'-'):
                     bioinfo_app_name = xlib.get_toa_process_proteome_refseq_plant_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_rebuild_toa_database_code()+'-'):
                     bioinfo_app_name = xlib.get_get_toa_process_rebuild_toa_database_name()
+
                 elif result_dataset_id.startswith(xlib.get_toa_process_recreate_toa_database_code()+'-'):
                     bioinfo_app_name = xlib.get_get_toa_process_recreate_toa_database_name()
+
                 elif result_dataset_id.startswith(xlib.get_transdecoder_code()+'-'):
                     bioinfo_app_name = xlib.get_transdecoder_name()
+
                 else:
                     bioinfo_app_name = 'xxx'
-                status_ok = os.path.isfile(xlib.get_status_ok(os.path.join(experiment_dir, subdir)))
-                status_wrong = os.path.isfile(xlib.get_status_wrong(os.path.join(experiment_dir, subdir)))
+
+                status_ok = os.path.isfile(xlib.get_status_ok(os.path.join(process_type_dir, subdir)))
+                status_wrong = os.path.isfile(xlib.get_status_wrong(os.path.join(process_type_dir, subdir)))
                 if status_ok and not status_wrong:
                     status = 'OK'
                 elif not status_ok and status_wrong:
@@ -512,23 +557,23 @@ class FormViewResultLogs(tkinter.Frame):
                     status = 'not finished'
                 elif status_ok and status_wrong:
                     status = 'undetermined'
-                key = '{0}-{1}'.format(bioinfo_app_name, result_dataset_id)
-                result_dataset_dict[key] = {'experiment_id': self.wrapper_experiment_id.get(), 'bioinfo_app': bioinfo_app_name, 'result_dataset_id': result_dataset_id, 'date': date, 'time': time, 'status': status}
+                key = f'{bioinfo_app_name}-{result_dataset_id}'
+                result_dataset_dict[key] = {'process_type': self.wrapper_process_type.get(), 'bioinfo_app': bioinfo_app_name, 'result_dataset_id': result_dataset_id, 'date': date, 'time': time, 'status': status}
 
         # check if there are any nodes running
         if OK:
             if result_dataset_dict == {}:
                 message = 'There is not any run.'
-                tkinter.messagebox.showwarning('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+                tkinter.messagebox.showwarning(f'{xlib.get_short_project_name()} - {self.head}', message)
 
         # build the data list
         if OK:
-            data_list = ['experiment_id', 'bioinfo_app', 'result_dataset_id', 'date', 'time', 'status']
+            data_list = ['process_type', 'bioinfo_app', 'result_dataset_id', 'date', 'time', 'status']
 
         # build the data dictionary
         if OK:
             data_dict = {}
-            data_dict['experiment_id']= {'text': 'Experiment id./Process', 'width': 180, 'alignment': 'left'}
+            data_dict['process_type']= {'text': 'Process type', 'width': 180, 'alignment': 'left'}
             data_dict['bioinfo_app'] = {'text': 'Bioinfo app / Utility', 'width': 340, 'alignment': 'left'}
             data_dict['result_dataset_id'] = {'text': 'Result dataset', 'width': 225, 'alignment': 'left'}
             data_dict['date'] = {'text': 'Date', 'width': 95, 'alignment': 'right'}
@@ -537,7 +582,7 @@ class FormViewResultLogs(tkinter.Frame):
 
         # create the dialog Table to show the nodes running
         if OK:
-            dialog_table = gdialogs.DialogTable(self, 'Experiment/Process runs in {0}/{1}'.format(xlib.get_result_dir(), self.wrapper_experiment_id.get()), 400, 1030, data_list, data_dict, result_dataset_dict, sorted(result_dataset_dict.keys()), 'view_result_logs', ['revisar'])
+            dialog_table = gdialogs.DialogTable(self, f'Runs in {xlib.get_result_dir()}/{self.wrapper_process_type.get()}', 400, 1030, data_list, data_dict, result_dataset_dict, sorted(result_dataset_dict.keys()), 'view_result_logs', ['revisar'])
             self.wait_window(dialog_table)
 
         # close the form

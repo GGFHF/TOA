@@ -45,11 +45,20 @@ def main(argv):
     args = parser.parse_args()
     check_args(args)
 
-    # get the new-old identification relationship dictionary
-    id_relationship_dict = xlib.get_id_relationship_dict(args.relationship_file)
+    # get the TOA-transcriptome identification relationship dictionary
+    if args.toa_transcriptome_relationship_file == 'NONE':
+        toa_transcriptome_relationship_dict = {}
+    else:
+        toa_transcriptome_relationship_dict = xlib.get_id_relationship_dict(args.toa_transcriptome_relationship_file)
+
+    # get the TOA-TransDecoder identification relationship dictionary
+    if args.toa_transdecoder_relationship_file == 'NONE':
+        toa_transdecoder_relationship_dict = {}
+    else:
+        toa_transdecoder_relationship_dict = xlib.get_id_relationship_dict(args.toa_transdecoder_relationship_file)
 
     # merge XML file
-    merge_files(args.xml_file_list, id_relationship_dict, args.merged_file)
+    merge_files(args.xml_file_list, toa_transcriptome_relationship_dict, toa_transdecoder_relationship_dict, args.merged_file)
 
 #-------------------------------------------------------------------------------
 
@@ -60,15 +69,16 @@ def build_parser():
 
     # create the parser and add arguments
     description = 'Description: This program merges several XML files.'
-    text = '{0} v{1} - {2}\n\n{3}\n'.format(xlib.get_long_project_name(), xlib.get_project_version(), os.path.basename(__file__), description)
-    usage = '\r{0}\nUsage: {1} arguments'.format(text.ljust(len('usage:')), os.path.basename(__file__))
+    text = f'{xlib.get_long_project_name()} v{xlib.get_project_version()} - {os.path.basename(__file__)}\n\n{description}\n'
+    usage = f'\r{text.ljust(len("usage:"))}\nUsage: {os.path.basename(__file__)} arguments'
     parser = argparse.ArgumentParser(usage=usage)
     parser._optionals.title = 'Arguments'
     parser.add_argument('--list', dest='xml_file_list', help='List of XML file paths with the following format: file1,file2,...,filen (mandatory).')
-    parser.add_argument('--relationships', dest='relationship_file', help='CSV file path with new-old identification relationships or NONE; default: NONE.')
+    parser.add_argument('--relationships', dest='toa_transcriptome_relationship_file', help='CSV file path with TOA-transcriptome identification relationships or NONE; default: NONE.')
+    parser.add_argument('--relationships2', dest='toa_transdecoder_relationship_file', help='CSV file path with TOA-TransDecoder identification relationships or NONE (mandatory)')
     parser.add_argument('--mfile', dest='merged_file', help='Merged XML file path (mandatory).')
-    parser.add_argument('--verbose', dest='verbose', help='Additional job status info during the run: {0}; default: {1}.'.format(xlib.get_verbose_code_list_text(), xlib.Const.DEFAULT_VERBOSE))
-    parser.add_argument('--trace', dest='trace', help='Additional info useful to the developer team: {0}; default: {1}.'.format(xlib.get_trace_code_list_text(), xlib.Const.DEFAULT_TRACE))
+    parser.add_argument('--verbose', dest='verbose', help=f'Additional job status info during the run: {xlib.get_verbose_code_list_text()}; default: {xlib.Const.DEFAULT_VERBOSE}.')
+    parser.add_argument('--trace', dest='trace', help=f'Additional info useful to the developer team: {xlib.get_trace_code_list_text()}; default: {xlib.Const.DEFAULT_TRACE}.')
 
     # return the paser
     return parser
@@ -96,18 +106,30 @@ def check_args(args):
         for i in range(len(xml_file_list)):
             xml_file_list[i] = xml_file_list[i].strip()
             if not os.path.isfile(xml_file_list[i]):
-                xlib.Message.print('error', '*** The file {0} does not exist.'.format(xml_file_list[i].strip()))
+                xlib.Message.print('error', f'*** The file {xml_file_list[i].strip()} does not exist.')
                 OK = False
         # set the argument value
         args.xml_file_list = xml_file_list
 
-    # check "relationship_file"
-    if args.relationship_file is None:
-        args.relationship_file = 'NONE'
-    elif args.relationship_file.upper() == 'NONE':
-        args.relationship_file = args.relationship_file.upper()
-    elif not os.path.isfile(args.relationship_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.relationship_file))
+    # check "toa_transcriptome_relationship_file"
+    if args.toa_transcriptome_relationship_file is None:
+        args.toa_transcriptome_relationship_file = 'NONE'
+    elif args.toa_transcriptome_relationship_file.upper() == 'NONE':
+        args.toa_transcriptome_relationship_file = args.toa_transcriptome_relationship_file.upper()
+    elif not os.path.isfile(args.toa_transcriptome_relationship_file):
+        xlib.Message.print('error', f'*** The file {args.toa_transcriptome_relationship_file} does not exist.')
+        OK = False
+
+    # check "toa_transdecoder_relationship_file"
+    if args.toa_transdecoder_relationship_file is None:
+        args.toa_transdecoder_relationship_file = 'NONE'
+    elif args.toa_transdecoder_relationship_file.upper() == 'NONE':
+        args.toa_transdecoder_relationship_file = args.toa_transdecoder_relationship_file.upper()
+    elif args.toa_transdecoder_relationship_file.upper() != 'NONE' and args.toa_transcriptome_relationship_file.upper() == 'NONE':
+        xlib.Message.print('error', '*** The TOA-TransDecoder identification relationships file has to be NONE when TOA-transcriptome identification relationships file is NONE.')
+        OK = False
+    elif not os.path.isfile(args.toa_transdecoder_relationship_file):
+        xlib.Message.print('error', f'*** The file {args.toa_transdecoder_relationship_file} does not exist.')
         OK = False
 
     # check "merged_file"
@@ -119,7 +141,7 @@ def check_args(args):
     if args.verbose is None:
         args.verbose = xlib.Const.DEFAULT_VERBOSE
     elif not xlib.check_code(args.verbose, xlib.get_verbose_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** verbose has to be {0}.'.format(xlib.get_verbose_code_list_text()))
+        xlib.Message.print('error', f'*** verbose has to be {xlib.get_verbose_code_list_text()}.')
         OK = False
     if args.verbose.upper() == 'Y':
         xlib.Message.set_verbose_status(True)
@@ -128,7 +150,7 @@ def check_args(args):
     if args.trace is None:
         args.trace = xlib.Const.DEFAULT_TRACE
     elif not xlib.check_code(args.trace, xlib.get_trace_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** trace has to be {0}.'.format(xlib.get_trace_code_list_text()))
+        xlib.Message.print('error', f'*** trace has to be {xlib.get_trace_code_list_text()}.')
         OK = False
     if args.trace.upper() == 'Y':
         xlib.Message.set_trace_status(True)
@@ -139,7 +161,7 @@ def check_args(args):
 
 #-------------------------------------------------------------------------------
 
-def merge_files(xml_file_list, id_relationship_dict, merged_file):
+def merge_files(xml_file_list, toa_transcriptome_relationship_dict, toa_transdecoder_relationship_dict, merged_file):
     '''
     '''
     # open the merged XML file
@@ -171,7 +193,7 @@ def merge_files(xml_file_list, id_relationship_dict, merged_file):
                 xml_file_id = open(xml_file_list[i], mode='r', encoding='iso-8859-1')
             except Exception as e:
                 raise xlib.ProgramException('F001', xml_file_list[i])
-        xlib.Message.print('verbose', 'Reading fhe file {0} ...\n'.format(os.path.basename(xml_file_list[i])))
+        xlib.Message.print('verbose', f'Reading the file {os.path.basename(xml_file_list[i])} ...\n')
 
         # read the first record
         record = xml_file_id.readline()
@@ -185,19 +207,16 @@ def merge_files(xml_file_list, id_relationship_dict, merged_file):
                 # get the sequence identification
                 start = record.find('>')
                 end = record.find('</')
-                new_seq_id = record[start + 1:end]
+                seq_id = record[start + 1:end]
 
-                # get the original sequence identification
-                if id_relationship_dict == {}:
-                    old_seq_id = new_seq_id
+                # get the transcript sequence identification
+                if toa_transcriptome_relationship_dict == {}:
+                    transcript_seq_id = seq_id
                 else:
-                    try:
-                        old_seq_id = id_relationship_dict[new_seq_id]
-                    except Exception as e:
-                        raise xlib.ProgramException('L008', new_seq_id)
+                    (transcript_seq_id, nt_seq_id, aa_seq_id) = xlib.get_seq_ids(seq_id, toa_transcriptome_relationship_dict, toa_transdecoder_relationship_dict)
 
                 # set the record with the original sequence identification
-                record = '  <BlastOutput_query-def>{0}</BlastOutput_query-def>\n'.format(old_seq_id)
+                record = f'  <BlastOutput_query-def>{transcript_seq_id}</BlastOutput_query-def>\n'
 
             # when the tag is Iteration_query-def
             elif record.strip().startswith('<Iteration_query-def>'):
@@ -205,19 +224,16 @@ def merge_files(xml_file_list, id_relationship_dict, merged_file):
                 # get the sequence identification
                 start = record.find('>')
                 end = record.find('</')
-                new_seq_id = record[start + 1:end]
+                seq_id = record[start + 1:end]
 
-                # get the original sequence identification
-                if id_relationship_dict == {}:
-                    old_seq_id = new_seq_id
+                # get the transcript sequence identification
+                if toa_transcriptome_relationship_dict == {}:
+                    transcript_seq_id = seq_id
                 else:
-                    try:
-                        old_seq_id = id_relationship_dict[new_seq_id]
-                    except Exception as e:
-                        raise xlib.ProgramException('L008', new_seq_id)
+                    (transcript_seq_id, nt_seq_id, aa_seq_id) = xlib.get_seq_ids(seq_id, toa_transcriptome_relationship_dict, toa_transdecoder_relationship_dict)
 
                 # set the record with the original sequence identification
-                record = '  <Iteration_query-def>{0}</Iteration_query-def>\n'.format(old_seq_id)
+                record = f'  <Iteration_query-def>{transcript_seq_id}</Iteration_query-def>\n'
 
             # write the record in the merged XML file
             if record.strip().startswith('<?xml') or record.strip().startswith('<!DOCTYPE') or record.strip().startswith('<BlastOutput') or record.strip().startswith('</BlastOutput_param>') or record.strip().startswith('<Parameters') or record.strip().startswith('</Parameters>'):
@@ -231,8 +247,8 @@ def merge_files(xml_file_list, id_relationship_dict, merged_file):
                 else:
                     pass
             elif record.strip().startswith('<Iteration_iter-num>'):
-                merged_file_id.write('  <Iteration_iter-num>{0}</Iteration_iter-num>\n'.format(query_number))
-                merged_file_id.write('  <Iteration_query-ID>Query_{0}</Iteration_query-ID>>\n'.format(query_number))
+                merged_file_id.write(f'  <Iteration_iter-num>{query_number}</Iteration_iter-num>\n')
+                merged_file_id.write(f'  <Iteration_query-ID>Query_{query_number}</Iteration_query-ID>>\n')
                 query_number += 1
             elif record.strip().startswith('<Iteration_query-ID>'):
                 pass
@@ -247,7 +263,7 @@ def merge_files(xml_file_list, id_relationship_dict, merged_file):
 
     # close the merged XML file
     merged_file_id.close()
-    xlib.Message.print('verbose', 'The file {0} is created\n'.format(os.path.basename(merged_file)))
+    xlib.Message.print('verbose', f'The file {os.path.basename(merged_file)} is created\n')
 
 #-------------------------------------------------------------------------------
 

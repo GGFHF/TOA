@@ -59,7 +59,7 @@ def rebuild_database(conn):
     try:
         conn.execute(sentence)
     except Exception as e:
-        xlib.Message.print('error', '*** WARNING: {0}'.format(e))
+        xlib.Message.print('error', f'*** WARNING: {e}')
         OK = False
 
     # return the control variable
@@ -134,11 +134,11 @@ def insert_blast_row(conn, row_dict):
     Insert a row into table "blast"
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO blast
                     (dataset_id, iteration_iter_num, iteration_query_def, hit_num, hit_id, hit_def, hit_accession, hsp_num, hsp_evalue, hsp_identity, hsp_positive, hsp_gaps, hsp_align_len, hsp_qseq)
-                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}')
-                '''.format(row_dict['dataset_id'], row_dict['iteration_iter_num'], row_dict['iteration_query_def'], row_dict['hit_num'], row_dict['hit_id'], row_dict['hit_def'], row_dict['hit_accession'], row_dict['hsp_num'], row_dict['hsp_evalue'], row_dict['hsp_identity'], row_dict['hsp_positive'], row_dict['hsp_gaps'], row_dict['hsp_align_len'], row_dict['hsp_qseq'])
+                    VALUES ('{row_dict["dataset_id"]}', '{row_dict["iteration_iter_num"]}', '{row_dict["iteration_query_def"]}', '{row_dict["hit_num"]}', '{row_dict["hit_id"]}', '{row_dict["hit_def"]}', '{row_dict["hit_accession"]}', '{row_dict["hsp_num"]}', '{row_dict["hsp_evalue"]}', '{row_dict["hsp_identity"]}', '{row_dict["hsp_positive"]}', '{row_dict["hsp_gaps"]}', '{row_dict["hsp_align_len"]}', '{row_dict["hsp_qseq"]}')
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -151,10 +151,10 @@ def delete_blast_rows(conn, dataset_id):
     Delete rows from table "blast" corresponding to the dataset identification
     '''
     
-    sentence = '''
+    sentence = f'''
                 DELETE FROM blast
-                    WHERE dataset_id = '{0}';
-                '''.format(dataset_id)
+                    WHERE dataset_id = '{dataset_id}';
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -162,9 +162,10 @@ def delete_blast_rows(conn, dataset_id):
 
 #-------------------------------------------------------------------------------
 
-def get_blast_dict(conn, dataset_id, seq_id):
+def get_blast_dict(conn, dataset_id, x_seq_id):
     '''
-    Get a dictionary of data alignments corresponding to rows with a dataset identification and a sequence identification from the table "blast"
+    Get a dictionary of data alignments corresponding to rows with a dataset identification and a sequence identification
+    (nt_seq_id in nucleotide pipeline or aa_seq_id in amino acid pipeline) from the table "blast"
     '''
 
     # initialize the blast dictionary
@@ -173,13 +174,13 @@ def get_blast_dict(conn, dataset_id, seq_id):
     # initialize the dictionary key
     key = 0
 
-    # select rows from the table "blast" corresponding to the iteration_query_def (seq_id)
-    sentence = '''
-               SELECT iteration_iter_num, hit_num, hit_id, hit_def, hit_accession, hsp_num, hsp_evalue, hsp_identity, hsp_positive, hsp_gaps, hsp_align_len, hsp_qseq
-                   FROM blast
-                   WHERE dataset_id = '{0}'
-                     AND iteration_query_def = '{1}';
-               '''.format(dataset_id, seq_id)
+    # select rows from the table "blast" corresponding to the iteration_query_def
+    sentence = f'''
+                SELECT iteration_iter_num, hit_num, hit_id, hit_def, hit_accession, hsp_num, hsp_evalue, hsp_identity, hsp_positive, hsp_gaps, hsp_align_len, hsp_qseq
+                    FROM blast
+                   WHERE dataset_id = '{dataset_id}'
+                      AND iteration_query_def = '{x_seq_id}';
+                '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -252,11 +253,11 @@ def insert_datasets_row(conn, row_dict):
     Insert a row into table "datasets"
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO datasets
                     (dataset_id, dataset_name, repository_id, ftp_adress)
-                    VALUES ('{0}', '{1}', '{2}', '{3}');
-                '''.format(row_dict['dataset_id'], row_dict['dataset_name'], row_dict['repository_id'], row_dict['ftp_adress'])
+                    VALUES ('{row_dict["dataset_id"]}', '{row_dict["dataset_name"]}', '{row_dict["repository_id"]}', '{row_dict["ftp_adress"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -322,11 +323,11 @@ def is_dataset_id_found(conn, dataset_id):
     is_found = False
 
     # select rows from the table "datasets"
-    sentence = '''
-               SELECT dataset_id
-                   FROM datasets
-                   WHERE dataset_id = '{0}';
-               '''.format(dataset_id)
+    sentence = f'''
+                SELECT dataset_id
+                    FROM datasets
+                    WHERE dataset_id = '{dataset_id}';
+                '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -452,11 +453,11 @@ def insert_ec_ids_row(conn, row_dict):
     Insert a row into table "ec_ids"
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO ec_ids
                     (ec_id, desc)
-                    VALUES ('{0}', '{1}');
-                '''.format(row_dict['ec_id'], row_dict['desc'])
+                    VALUES ('{row_dict["ec_id"]}', '{row_dict["desc"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -589,11 +590,11 @@ def insert_genomic_features_row(conn, row_dict):
     Insert a row into table "genomic_features".
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO genomic_features
                     (species_name, seq_id, start, end, type, gene_id, genbank_id, gene, protein_id, transcript_id, product)
-                    VALUES ('{0}', '{1}', {2}, {3}, '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}');
-                '''.format(row_dict['species_name'], row_dict['seq_id'], row_dict['start'], row_dict['end'], row_dict['type'], row_dict['gene_id'], row_dict['genbank_id'], row_dict['gene'], row_dict['protein_id'], row_dict['transcript_id'], row_dict['product'])
+                    VALUES ('{row_dict["species_name"]}', '{row_dict["seq_id"]}', {row_dict["start"]}, {row_dict["end"]}, '{row_dict["type"]}', '{row_dict["gene_id"]}', '{row_dict["genbank_id"]}', '{row_dict["gene"]}', '{row_dict["protein_id"]}', '{row_dict["transcript_id"]}', '{row_dict["product"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -606,10 +607,10 @@ def delete_genomic_features_rows(conn, species_name):
     Delete rows from table "genomic_features" corresponding to the species.
     '''
     
-    sentence = '''
+    sentence = f'''
                 DELETE FROM genomic_features
-                    WHERE species_name = '{0}';
-                '''.format(species_name)
+                    WHERE species_name = '{species_name}';
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -629,14 +630,14 @@ def get_genomic_features_dict(conn, species_name, transcript_seq_id, transcript_
     key = 0
 
     # select rows from the table "genomic_features"
-    sentence = '''
-               SELECT start, end, type, gene_id, genbank_id, gene, protein_id, transcript_id, product
-                   FROM genomic_features
-                   WHERE species_name = "{0}"
-                     AND seq_id = "{1}"
-                     AND start <= {2}
-                     AND end >= {3};
-               '''.format(species_name, transcript_seq_id, transcript_start, transcript_end)
+    sentence = f'''
+                SELECT start, end, type, gene_id, genbank_id, gene, protein_id, transcript_id, product
+                    FROM genomic_features
+                    WHERE species_name = '{species_name}'
+                      AND seq_id = '{transcript_seq_id}'
+                      AND start <= {transcript_start}
+                      AND end >= {transcript_end};
+                '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -680,13 +681,13 @@ def check_genomic_features(conn, species_name):
     if control == 1:
 
         # select the row number
-        sentence = '''
-                   SELECT EXISTS
-                       (SELECT 1
-                           FROM genomic_feature
-                           where  species_name = '{0}';
-                           LIMIT 1);
-                   '''.format(species_name)
+        sentence = f'''
+                    SELECT EXISTS
+                        (SELECT 1
+                            FROM genomic_feature
+                            where  species_name = '{species_name}';
+                            LIMIT 1);
+                    '''
         try:
             rows = conn.execute(sentence)
         except Exception as e:
@@ -758,11 +759,11 @@ def insert_go_ontology_row(conn, row_dict):
     Insert a row into table "go_ontology".
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO go_ontology
                     (go_id, go_name, namespace)
-                    VALUES ('{0}', '{1}', '{2}');
-                '''.format(row_dict['go_id'], row_dict['go_name'], row_dict['namespace'])
+                    VALUES ('{row_dict["go_id"]}', '{row_dict["go_name"]}', '{row_dict["namespace"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -830,15 +831,15 @@ def get_go_ontology_dict(conn, go_id_list):
     # select rows from the table "go_ontology"
     if go_id_list == []:
         sentence = '''
-                    SELECT DISTINCT go_id, go_name, namespace
-                        FROM go_ontology;
-                    '''
+                   SELECT DISTINCT go_id, go_name, namespace
+                       FROM go_ontology;
+                   '''
     else:
-        sentence = '''
+        sentence = f'''
                     SELECT DISTINCT go_id, go_name, namespace
                         FROM go_ontology
-                        WHERE go_id in ({0});
-                    '''.format(xlib.join_string_list_to_string(go_id_list))
+                        WHERE go_id in ({xlib.join_string_list_to_string(go_id_list)});
+                    '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -911,11 +912,11 @@ def insert_go_cross_references_row(conn, row_dict):
     Insert a row into table "go_cross_references".
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO go_cross_references
                     (go_id, go_term, external_db, external_id, external_desc)
-                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}');
-                '''.format(row_dict['go_id'], row_dict['go_term'], row_dict['external_db'], row_dict['external_id'], row_dict['external_desc'])
+                    VALUES ('{row_dict["go_id"]}', '{row_dict["go_term"]}', '{row_dict["external_db"]}', '{row_dict["external_id"]}', '{row_dict["external_desc"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -985,18 +986,18 @@ def get_cross_references_dict(conn, go_id_list, external_db):
 
     # select rows from the table "go_cross_references"
     if external_db == 'all':
-        sentence = '''
-                   SELECT DISTINCT go_id, go_term, external_db, external_id, external_desc
-                       FROM go_cross_references
-                       WHERE go_id in ({0});
-                   '''.format(xlib.join_string_list_to_string(go_id_list))
+        sentence = f'''
+                    SELECT DISTINCT go_id, go_term, external_db, external_id, external_desc
+                        FROM go_cross_references
+                        WHERE go_id in ({xlib.join_string_list_to_string(go_id_list)});
+                    '''
     else:
-        sentence = '''
-                   SELECT DISTINCT go_id, go_term, external_db, external_id, external_desc
-                       FROM go_cross_references
-                       WHERE go_id in ({0})
-                         AND external_db = '{1}';
-                   '''.format(xlib.join_string_list_to_string(go_id_list), external_db)
+        sentence = f'''
+                    SELECT DISTINCT go_id, go_term, external_db, external_id, external_desc
+                        FROM go_cross_references
+                        WHERE go_id in ({xlib.join_string_list_to_string(go_id_list)})
+                          AND external_db = '{external_db}';
+                    '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -1085,11 +1086,11 @@ def insert_interpro_interpro2go_row(conn, row_dict):
     Insert a row into table "interpro_interpro2go".
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO interpro_interpro2go
                     (interpro_id, interpro_desc, go_desc, go_id)
-                    VALUES ('{0}', '{1}', '{2}', '{3}');
-                '''.format(row_dict['interpro_id'], row_dict['interpro_desc'], row_dict['go_desc'], row_dict['go_id'])
+                    VALUES ('{row_dict["interpro_id"]}', '{row_dict["interpro_desc"]}', '{row_dict["go_desc"]}', '{row_dict["go_id"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -1158,12 +1159,12 @@ def get_interpro2go_dict(conn, interpro_id):
     key = 0
 
     # select rows from the table "interpro_interpro2go"
-    sentence = '''
-               SELECT DISTINCT go_id, go_desc
-                   FROM interpro_interpro2go
-                   WHERE interpro_id = '{0}'
-                   ORDER BY go_id;
-               '''.format(interpro_id)
+    sentence = f'''
+                SELECT DISTINCT go_id, go_desc
+                    FROM interpro_interpro2go
+                    WHERE interpro_id = '{interpro_id}'
+                    ORDER BY go_id;
+                '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -1237,11 +1238,11 @@ def insert_ncbi_gene2go_row(conn, row_dict):
     Insert a row into table "ncbi_gene2go".
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO ncbi_gene2go
                     (gene_id, go_id, evidence, go_term, category)
-                    VALUES ({0}, '{1}', '{2}', '{3}', '{4}');
-                '''.format(row_dict['gene_id'], row_dict['go_id'], row_dict['evidence'], row_dict['go_term'], row_dict['category'])
+                    VALUES ({row_dict["gene_id"]}, '{row_dict["go_id"]}', '{row_dict["evidence"]}', '{row_dict["go_term"]}', '{row_dict["category"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -1310,11 +1311,11 @@ def get_gene2go_dict(conn, gene_id):
     key = 0
 
     # select rows from the table "ncbi_gene2go"
-    sentence = '''
-               SELECT DISTINCT gene_id, go_id, evidence, go_term, category
-                   FROM ncbi_gene2go
-                   WHERE gene_id = '{0}';
-               '''.format(gene_id)
+    sentence = f'''
+                SELECT DISTINCT gene_id, go_id, evidence, go_term, category
+                    FROM ncbi_gene2go
+                    WHERE gene_id = '{gene_id}';
+                '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -1386,11 +1387,11 @@ def insert_kegg_ids_row(conn, row_dict):
     Insert a row into table "kegg_ids"
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO kegg_ids
                     (kegg_id, desc, ec_id)
-                    VALUES ('{0}', '{1}', '{2}');
-                '''.format(row_dict['kegg_id'], row_dict['desc'], row_dict['ec_id'])
+                    VALUES ('{row_dict["kegg_id"]}', '{row_dict["desc"]}', '{row_dict["ec_id"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -1533,11 +1534,11 @@ def insert_ncbi_gene2refseq_row(conn, row_dict):
     Insert a row into table "ncbi_gene2refseq".
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO ncbi_gene2refseq
                     (gene_id, status, rna_nucleotide_accession, protein_accession, genomic_nucleotide_accession, gene_symbol)
-                    VALUES ({0}, '{1}', '{2}', '{3}', '{4}', '{5}');
-                '''.format(row_dict['gene_id'], row_dict['status'], row_dict['rna_nucleotide_accession'], row_dict['protein_accession'], row_dict['genomic_nucleotide_accession'], row_dict['gene_symbol'])
+                    VALUES ({row_dict["gene_id"]}, '{row_dict["status"]}', '{row_dict["rna_nucleotide_accession"]}', '{row_dict["protein_accession"]}', '{row_dict["genomic_nucleotide_accession"]}', '{row_dict["gene_symbol"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -1606,11 +1607,11 @@ def get_gene2refseq_dict(conn, protein_accession):
     key = 0
 
     # select rows from the table "ncbi_gene2refseq"
-    sentence = '''
-               SELECT DISTINCT gene_id, status, rna_nucleotide_accession, genomic_nucleotide_accession, gene_symbol
-                   FROM ncbi_gene2refseq
-                   WHERE protein_accession = '{0}';
-               '''.format(protein_accession)
+    sentence = f'''
+                SELECT DISTINCT gene_id, status, rna_nucleotide_accession, genomic_nucleotide_accession, gene_symbol
+                    FROM ncbi_gene2refseq
+                    WHERE protein_accession = '{protein_accession}';
+                '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -1669,11 +1670,11 @@ def insert_plaza_gene_description_row(conn, row_dict):
     Insert a row into table "plaza_gene_description".
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO plaza_gene_description
                     (dataset_id, gene_id, plaza_species_id, desc_type, desc)
-                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}');
-                '''.format(row_dict['dataset_id'], row_dict['gene_id'], row_dict['plaza_species_id'], row_dict['desc_type'], row_dict['desc'])
+                    VALUES ('{row_dict["dataset_id"]}', '{row_dict["gene_id"]}', '{row_dict["plaza_species_id"]}', '{row_dict["desc_type"]}', '{row_dict["desc"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -1687,16 +1688,16 @@ def delete_plaza_gene_description_rows(conn, dataset_id, species_id):
     '''
     
     if species_id == 'all':
-        sentence = '''
-                   DELETE FROM plaza_gene_description
-                       WHERE dataset_id = '{0}';
-                   '''.format(dataset_id)
+        sentence = f'''
+                    DELETE FROM plaza_gene_description
+                        WHERE dataset_id = '{dataset_id}';
+                    '''
     else:
-        sentence = '''
-                   DELETE FROM plaza_gene_description
-                       WHERE dataset_id = '{0}'
-                         AND plaza_species_id = '{1}';
-                   '''.format(dataset_id, species_id)
+        sentence = f'''
+                    DELETE FROM plaza_gene_description
+                        WHERE dataset_id = '{dataset_id}'
+                          AND plaza_species_id = '{species_id}';
+                    '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -1732,13 +1733,13 @@ def check_plaza_gene_description(conn, dataset_id):
     if control == 1:
 
         # select the row number
-        sentence = '''
-                   SELECT EXISTS
-                       (SELECT 1
-                           FROM plaza_gene_description
-                           where  dataset_id = '{0}'
-                           LIMIT 1);
-                   '''.format(dataset_id)
+        sentence = f'''
+                    SELECT EXISTS
+                        (SELECT 1
+                            FROM plaza_gene_description
+                            where  dataset_id = '{dataset_id}'
+                            LIMIT 1);
+                    '''
         try:
             rows = conn.execute(sentence)
         except Exception as e:
@@ -1765,18 +1766,18 @@ def get_gene_description_dict(conn, dataset_id, gene_id):
     # select rows from the table "plaza_gene_description"
     
     if gene_id == 'all':
-        sentence = '''
-                   SELECT DISTINCT gene_id, plaza_species_id, desc_type, desc 
-                       FROM plaza_gene_description
-                       WHERE dataset_id = '{0}';
-                   '''.format(dataset_id)
+        sentence = f'''
+                    SELECT DISTINCT gene_id, plaza_species_id, desc_type, desc 
+                        FROM plaza_gene_description
+                        WHERE dataset_id = '{dataset_id}';
+                    '''
     else:
-        sentence = '''
-                   SELECT DISTINCT gene_id, plaza_species_id, desc_type, desc 
-                       FROM plaza_gene_description
-                       WHERE dataset_id = '{0}'
-                         AND gene_id = '{1}';
-                   '''.format(dataset_id, gene_id)
+        sentence = f'''
+                    SELECT DISTINCT gene_id, plaza_species_id, desc_type, desc 
+                        FROM plaza_gene_description
+                        WHERE dataset_id = '{dataset_id}'
+                          AND gene_id = '{gene_id}';
+                    '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -1836,11 +1837,11 @@ def insert_plaza_go_row(conn, row_dict):
     Insert a row into table "plaza_go".
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO plaza_go
                     (dataset_id, id, plaza_species_id, gene_id, go_id, evidence, desc)
-                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}');
-                '''.format(row_dict['dataset_id'], row_dict['id'], row_dict['plaza_species_id'], row_dict['gene_id'], row_dict['go_id'], row_dict['evidence'], row_dict['desc'])
+                    VALUES ('{row_dict["dataset_id"]}', '{row_dict["id"]}', '{row_dict["plaza_species_id"]}', '{row_dict["gene_id"]}', '{row_dict["go_id"]}', '{row_dict["evidence"]}', '{row_dict["desc"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -1854,16 +1855,16 @@ def delete_plaza_go_rows(conn, dataset_id, species_id):
     '''
     
     if species_id == 'all':
-        sentence = '''
-                   DELETE FROM plaza_go
-                       WHERE dataset_id = '{0}';
-                   '''.format(dataset_id)
+        sentence = f'''
+                    DELETE FROM plaza_go
+                        WHERE dataset_id = '{dataset_id}';
+                    '''
     else:
-        sentence = '''
-                   DELETE FROM plaza_go
-                       WHERE dataset_id = '{0}'
-                         AND plaza_species_id = '{1}';
-                   '''.format(dataset_id, species_id)
+        sentence = f'''
+                    DELETE FROM plaza_go
+                        WHERE dataset_id = '{dataset_id}'
+                          AND plaza_species_id = '{species_id}';
+                    '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -1899,13 +1900,13 @@ def check_plaza_go(conn, dataset_id):
     if control == 1:
 
         # select the row number
-        sentence = '''
-                   SELECT EXISTS
-                       (SELECT 1
-                           FROM plaza_go
-                           where  dataset_id = '{0}'
-                           LIMIT 1);
-                   '''.format(dataset_id)
+        sentence = f'''
+                    SELECT EXISTS
+                        (SELECT 1
+                            FROM plaza_go
+                            where  dataset_id = '{dataset_id}'
+                            LIMIT 1);
+                    '''
         try:
             rows = conn.execute(sentence)
         except Exception as e:
@@ -1934,12 +1935,12 @@ def get_go_dict(conn, dataset_id, gene_id):
     key = 0
 
     # select rows from the table "plaza_go"
-    sentence = '''
-               SELECT DISTINCT plaza_species_id, go_id, evidence, desc 
-                   FROM plaza_go
-                   WHERE dataset_id = '{0}'
-                     AND gene_id = '{1}';
-               '''.format(dataset_id, gene_id)
+    sentence = f'''
+                SELECT DISTINCT plaza_species_id, go_id, evidence, desc 
+                    FROM plaza_go
+                    WHERE dataset_id = '{dataset_id}'
+                      AND gene_id = '{gene_id}';
+                '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -2004,11 +2005,11 @@ def insert_plaza_interpro_row(conn, row_dict):
     Insert a row into table "plaza_interpro".
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO plaza_interpro
                     (dataset_id, id, motif_id, plaza_species_id, gene_id, start, stop, score, source, domain_id, desc)
-                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', {5}, {6}, {7}, '{8}', '{9}', '{10}');
-                '''.format(row_dict['dataset_id'], row_dict['id'], row_dict['motif_id'], row_dict['plaza_species_id'], row_dict['gene_id'], row_dict['start'], row_dict['stop'], row_dict['score'], row_dict['source'], row_dict['domain_id'], row_dict['desc'])
+                    VALUES ('{row_dict["dataset_id"]}', '{row_dict["id"]}', '{row_dict["motif_id"]}', '{row_dict["plaza_species_id"]}', '{row_dict["gene_id"]}', {row_dict["start"]}, {row_dict["stop"]}, {row_dict["score"]}, '{row_dict["source"]}', '{row_dict["domain_id"]}', '{row_dict["desc"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -2022,16 +2023,16 @@ def delete_plaza_interpro_rows(conn, dataset_id, species_id):
     '''
     
     if species_id == 'all':
-        sentence = '''
-                   DELETE FROM plaza_interpro
-                       WHERE dataset_id = '{0}';
-                   '''.format(dataset_id)
+        sentence = f'''
+                    DELETE FROM plaza_interpro
+                        WHERE dataset_id = '{dataset_id}';
+                    '''
     else:
-        sentence = '''
-                   DELETE FROM plaza_interpro
-                       WHERE dataset_id = '{0}'
-                         AND plaza_species_id = '{1}';
-                   '''.format(dataset_id, species_id)
+        sentence = f'''
+                    DELETE FROM plaza_interpro
+                        WHERE dataset_id = '{dataset_id}'
+                          AND plaza_species_id = '{species_id}';
+                    '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -2067,13 +2068,13 @@ def check_plaza_interpro(conn, dataset_id):
     if control == 1:
 
         # select the row number
-        sentence = '''
-                   SELECT EXISTS
-                       (SELECT 1
-                           FROM plaza_interpro
-                           where  dataset_id = '{0}'
-                           LIMIT 1);
-                   '''.format(dataset_id)
+        sentence = f'''
+                    SELECT EXISTS
+                        (SELECT 1
+                            FROM plaza_interpro
+                            where  dataset_id = '{dataset_id}'
+                            LIMIT 1);
+                    '''
         try:
             rows = conn.execute(sentence)
         except Exception as e:
@@ -2101,12 +2102,12 @@ def get_interpro_dict(conn, dataset_id, gene_id):
     key = 0
 
     # select rows from the table "plaza_interpro"
-    sentence = '''
-               SELECT DISTINCT plaza_species_id, motif_id, desc
-                   FROM plaza_interpro
-                   WHERE dataset_id = '{0}'
-                     AND gene_id = '{1}';
-               '''.format(dataset_id, gene_id)
+    sentence = f'''
+                SELECT DISTINCT plaza_species_id, motif_id, desc
+                    FROM plaza_interpro
+                    WHERE dataset_id = '{dataset_id}'
+                      AND gene_id = '{gene_id}';
+                '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -2165,11 +2166,11 @@ def insert_plaza_mapman_row(conn, row_dict):
     Insert a row into table "plaza_mapman".
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO plaza_mapman
                     (dataset_id, plaza_species_id, gene_id, mapman_id, desc)
-                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}');
-                '''.format(row_dict['dataset_id'], row_dict['plaza_species_id'], row_dict['gene_id'], row_dict['mapman_id'], row_dict['desc'])
+                    VALUES ('{row_dict["dataset_id"]}', '{row_dict["plaza_species_id"]}', '{row_dict["gene_id"]}', '{row_dict["mapman_id"]}', '{row_dict["desc"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -2183,16 +2184,16 @@ def delete_plaza_mapman_rows(conn, dataset_id, species_id):
     '''
     
     if species_id == 'all':
-        sentence = '''
-                   DELETE FROM plaza_mapman
-                       WHERE dataset_id = '{0}';
-                   '''.format(dataset_id)
+        sentence = f'''
+                    DELETE FROM plaza_mapman
+                        WHERE dataset_id = '{dataset_id}';
+                    '''
     else:
-        sentence = '''
-                   DELETE FROM plaza_mapman
-                       WHERE dataset_id = '{0}'
-                         AND plaza_species_id = '{1}';
-                   '''.format(dataset_id, species_id)
+        sentence = f'''
+                    DELETE FROM plaza_mapman
+                        WHERE dataset_id = '{dataset_id}'
+                          AND plaza_species_id = '{species_id}';
+                    '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -2228,13 +2229,13 @@ def check_plaza_mapman(conn, dataset_id):
     if control == 1 and dataset_id == 'gymno_01':
 
         # select the row number
-        sentence = '''
-                   SELECT EXISTS
-                       (SELECT 1
-                           FROM plaza_mapman
-                           where  dataset_id = '{0}'
-                           LIMIT 1);
-                   '''.format(dataset_id)
+        sentence = f'''
+                    SELECT EXISTS
+                        (SELECT 1
+                            FROM plaza_mapman
+                            where  dataset_id = '{dataset_id}'
+                            LIMIT 1);
+                    '''
         try:
             rows = conn.execute(sentence)
         except Exception as e:
@@ -2263,12 +2264,12 @@ def get_mapman_dict(conn, dataset_id, gene_id):
     key = 0
 
     # select rows from the table "plaza_mapman"
-    sentence = '''
-               SELECT DISTINCT plaza_species_id, mapman_id, desc 
-                   FROM plaza_mapman
-                   WHERE dataset_id = '{0}'
-                     AND gene_id = '{1}';
-               '''.format(dataset_id, gene_id)
+    sentence = f'''
+                SELECT DISTINCT plaza_species_id, mapman_id, desc 
+                    FROM plaza_mapman
+                    WHERE dataset_id = '{dataset_id}'
+                      AND gene_id = '{gene_id}';
+                '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -2344,11 +2345,11 @@ def insert_species_row(conn, row_dict):
     Insert a row into table "species".
     '''
 
-    sentence = '''
+    sentence = f'''
                 INSERT INTO species
                     (species_name, family_name, phylum_name, kingdom_name, superkingdom_name, tax_id, plaza_species_id)
-                    VALUES ('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}');
-                '''.format(row_dict['species_name'], row_dict['family_name'], row_dict['phylum_name'], row_dict['kingdom_name'], row_dict['superkingdom_name'], row_dict['tax_id'], row_dict['plaza_species_id'])
+                    VALUES ('{row_dict["species_name"]}', '{row_dict["family_name"]}', '{row_dict["phylum_name"]}', '{row_dict["kingdom_name"]}', '{row_dict["superkingdom_name"]}', '{row_dict["tax_id"]}', '{row_dict["plaza_species_id"]}');
+                '''
     try:
         conn.execute(sentence)
     except Exception as e:
@@ -2414,11 +2415,11 @@ def get_plaza_species_id_list(conn):
     plaza_species_id_list = []
 
     # select the PLAZA species identification from the table "species"
-    sentence = '''
-               SELECT plaza_species_id
-                   FROM species
-                   WHERE plaza_species_id <> "{0}";
-               '''.format(xlib.get_na())
+    sentence = f'''
+                SELECT plaza_species_id
+                    FROM species
+                    WHERE plaza_species_id <> "{xlib.get_na()}";
+                '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:
@@ -2470,11 +2471,11 @@ def get_plaza_species_dict(conn):
     plaza_species_dict = {}
 
     # select rows from the table "species"
-    sentence = '''
-               SELECT species_name, family_name, phylum_name, kingdom_name, superkingdom_name, tax_id, plaza_species_id
-                   FROM species
-                   WHERE plaza_species_id <> "{0}";
-               '''.format(xlib.get_na())
+    sentence = f'''
+                SELECT species_name, family_name, phylum_name, kingdom_name, superkingdom_name, tax_id, plaza_species_id
+                    FROM species
+                    WHERE plaza_species_id <> "{xlib.get_na()}";
+                '''
     try:
         rows = conn.execute(sentence)
     except Exception as e:

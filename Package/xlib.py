@@ -32,6 +32,7 @@ import requests
 import subprocess
 import sys
 
+import gzip
 import xsqlite
 
 #-------------------------------------------------------------------------------
@@ -50,7 +51,7 @@ def get_long_project_name():
     Get the project name.
     '''
 
-    return 'TOA (Tree-oriented Annotation)'
+    return 'TOA (Taxonomy-oriented Annotation)'
 
 #-------------------------------------------------------------------------------
     
@@ -68,7 +69,7 @@ def get_project_version():
     Get the project version.
     '''
 
-    return '0.56'
+    return '0.64'
 
 #-------------------------------------------------------------------------------
     
@@ -153,6 +154,26 @@ def get_separator():
 
 #-------------------------------------------------------------------------------
 
+def get_time_output_format(separator=True):
+    '''
+    Get the format of the command time.
+    '''
+
+    # set the format
+    format = 'Elapsed real time (s): %e\\n' + \
+             'CPU time in kernel mode (s): %S\\n' + \
+             'CPU time in user mode (s): %U\\n' + \
+             'Percentage of CPU: %P\\n' + \
+             'Maximum resident set size(Kb): %M\\n' + \
+             'Average total memory use (Kb):%K'
+    if separator:
+       format = '$SEP\\n' + format
+
+    # return the format
+    return format
+
+#-------------------------------------------------------------------------------
+
 def get_config_dir():
     '''
     Get the configuration directory.
@@ -189,6 +210,15 @@ def get_log_dir():
 
 #-------------------------------------------------------------------------------
 
+def get_docker_toa_dir():
+    '''
+    Get the directory where TOA is installed in a Docker machine.
+    '''
+
+    return '/Docker/TOA'
+
+#-------------------------------------------------------------------------------
+
 def get_current_run_dir(result_dir, group, process):
     '''
     Get the run directory of a process.
@@ -198,10 +228,10 @@ def get_current_run_dir(result_dir, group, process):
     now = datetime.datetime.now()
     date = datetime.datetime.strftime(now, '%y%m%d')
     time = datetime.datetime.strftime(now, '%H%M%S')
-    run_id = '{0}-{1}-{2}'.format(process, date, time)
+    run_id = f'{process}-{date}-{time}'
 
     # set the current run directory
-    current_run_dir = '{0}/{1}/{2}'.format(result_dir, group, run_id)
+    current_run_dir = f'{result_dir}/{group}/{run_id}'
 
     # return the run directory
     return current_run_dir
@@ -214,7 +244,7 @@ def get_status_dir(current_run_dir):
     '''
 
     # set the status directory
-    status_dir = '{0}/status'.format(current_run_dir)
+    status_dir = f'{current_run_dir}/status'
 
     # return the status directory
     return status_dir
@@ -227,7 +257,7 @@ def get_status_ok(current_run_dir):
     '''
 
     # set the OK status file
-    ok_status = '{0}/status/script.ok'.format(current_run_dir)
+    ok_status = f'{current_run_dir}/status/script.ok'
 
     # return the OK status file
     return ok_status
@@ -240,7 +270,7 @@ def get_status_wrong(current_run_dir):
     '''
 
     # set the WRONG status file
-    wrong_status = '{0}/status/script.wrong'.format(current_run_dir)
+    wrong_status = f'{current_run_dir}/status/script.wrong'
 
     # return the WRONG status file
     return wrong_status
@@ -264,7 +294,7 @@ def get_submission_log_file(function_name):
     now = datetime.datetime.now()
     date = datetime.datetime.strftime(now, '%y%m%d')
     time = datetime.datetime.strftime(now, '%H%M%S')
-    log_file_name = '{0}/{1}-{2}-{3}.txt'.format(get_log_dir(), function_name, date, time)
+    log_file_name = f'{get_log_dir()}/{function_name}-{date}-{time}.txt'
 
     # return the log file name
     return log_file_name
@@ -281,15 +311,15 @@ def list_log_files_command(local_process_id):
     # assign the command
     if sys.platform.startswith('linux') or sys.platform.startswith('darwin'):
         if local_process_id == 'all':
-            command = 'ls {0}/*.txt'.format(log_dir)
+            command = f'ls {log_dir}/*.txt'
         else:
-            command = 'ls {0}/{1}-*.txt'.format(log_dir, local_process_id)
+            command = f'ls {log_dir}/{local_process_id}-*.txt'
     elif sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):
         log_dir = log_dir.replace('/', '\\')
         if local_process_id == 'all':
-            command = 'dir /B {0}\*.txt'.format(log_dir)
+            command = f'dir /B {log_dir}\*.txt'
         else:
-            command = 'dir /B {0}\{1}-*.txt'.format(log_dir, local_process_id)
+            command = f'dir /B {log_dir}\{local_process_id}-*.txt'
 
     # return the command
     return command
@@ -304,13 +334,14 @@ def get_submission_process_dict():
     # build the submission process dictionary
     submission_process_dict = {}
     submission_process_dict['manage_genomic_database']= {'text': 'Manage genomic database processes'}
-    submission_process_dict['manage_toa_database']= {'text': 'Manage {0} database'.format(get_toa_name())}
-    submission_process_dict['manage_toa_pipeline']= {'text': 'Manage {0} pipelines'.format(get_toa_name())}
-    submission_process_dict['restart_pipeline_process']= {'text': 'Restart {0} process'.format(get_toa_pipeline_name())}
-    submission_process_dict['run_pipeline_process']= {'text': 'Run {0} process'.format(get_toa_pipeline_name())}
-    submission_process_dict['setup_bioconda_package_list']= {'text': 'Set up Bioconda package list'}
-    submission_process_dict['setup_miniconda3']= {'text': 'Set up {0}'.format(get_miniconda3_name())}
-    submission_process_dict['setup_r']= {'text': 'Set up {0}'.format(get_r_name())}
+    submission_process_dict['manage_toa_database']= {'text': f'Manage {get_toa_name()} database'}
+    submission_process_dict['manage_toa_pipeline']= {'text': f'Manage {get_toa_name()} pipelines'}
+    submission_process_dict['restart_pipeline_process']= {'text': f'Restart {get_toa_pipeline_name()} process'}
+    submission_process_dict['run_annotation_merger_process']= {'text': f'Run {get_toa_process_merge_annotations_name()} process'}
+    submission_process_dict['run_pipeline_process']= {'text': f'Run {get_toa_pipeline_name()} process'}
+    submission_process_dict['install_conda_package_list']= {'text': 'Install Conda package list'}
+    submission_process_dict['install_miniconda3']= {'text': f'Install {get_miniconda3_name()}'}
+    submission_process_dict['install_r']= {'text': f'Install {get_r_name()}'}
 
     # return the submission process dictionary
     return submission_process_dict
@@ -348,24 +379,6 @@ def get_all_applications_selected_code():
 
 #-------------------------------------------------------------------------------
 
-def get_bioconda_code():
-    '''
-    Get the Bioconda code used to identify its processes.
-    '''
-
-    return 'bioconda'
-
-#-------------------------------------------------------------------------------
-
-def get_bioconda_name():
-    '''
-    Get the Bioconda name used to title.
-    '''
-
-    return 'Bioconda'
-
-#-------------------------------------------------------------------------------
-
 def get_blastplus_code():
     '''
     Get the BLAST+ code used to identify its processes.
@@ -384,12 +397,57 @@ def get_blastplus_name():
 
 #-------------------------------------------------------------------------------
 
-def get_blastplus_bioconda_code():
+def get_blastplus_conda_code():
     '''
-    Get the BLAST+ code used to identify the Bioconda package.
+    Get the BLAST+ code used to identify the Conda package.
     '''
 
     return 'blast'
+
+#-------------------------------------------------------------------------------
+
+def get_diamond_code():
+    '''
+    Get the DIAMOND code used to identify its processes.
+    '''
+
+    return 'diamond'
+
+#-------------------------------------------------------------------------------
+
+def get_diamond_name():
+    '''
+    Get the DIAMOND name used to title.
+    '''
+
+    return 'DIAMOND'
+
+#-------------------------------------------------------------------------------
+
+def get_diamond_conda_code():
+    '''
+    Get the DIAMOND code used to identify the Conda package.
+    '''
+
+    return 'diamond'
+
+#-------------------------------------------------------------------------------
+
+def get_conda_code():
+    '''
+    Get the Conda code used to identify its processes.
+    '''
+
+    return 'conda'
+
+#-------------------------------------------------------------------------------
+
+def get_conda_name():
+    '''
+    Get the Conda name used to title.
+    '''
+
+    return 'Conda'
 
 #-------------------------------------------------------------------------------
 
@@ -411,9 +469,9 @@ def get_entrez_direct_name():
 
 #-------------------------------------------------------------------------------
 
-def get_entrez_direct_bioconda_code():
+def get_entrez_direct_conda_code():
     '''
-    Get the Entrez Direct code used to the Bioconda package.
+    Get the Entrez Direct code used to the Conda package.
     '''
 
     return 'entrez-direct'
@@ -454,6 +512,15 @@ def get_miniconda3_url():
 
 #-------------------------------------------------------------------------------
 
+def get_miniconda_dir():
+    '''
+    Get the directory where Miniconda3 is installed.
+    '''
+
+    return 'Miniconda3'
+
+#-------------------------------------------------------------------------------
+
 def get_r_code():
     '''
     Get the R code used to identify its processes.
@@ -487,6 +554,15 @@ def get_toa_name():
     '''
 
     return 'TOA'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_database_dir():
+    '''
+    Get the directory where database data are saved.
+    '''
+
+    return 'TOA-databases'
 
 #-------------------------------------------------------------------------------
 
@@ -670,6 +746,24 @@ def get_toa_data_refseq_plant_name():
 
 #-------------------------------------------------------------------------------
 
+def get_toa_data_taxonomy_code():
+    '''
+    Get the code used to title NCBI Taxonomy in TOA processes.
+    '''
+
+    return 'taxonomy'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_data_taxonomy_name():
+    '''
+    Get the code used to identify NCBI Taxonomy in TOA processes.
+    '''
+
+    return 'NCBI Taxonomy'
+
+#-------------------------------------------------------------------------------
+
 def get_toa_data_viridiplantae_nucleotide_gi_code():
     '''
     Get the code used to identify NCBI Nucleotide GenInfo viridiplantae identifier list in TOA processes.
@@ -703,42 +797,6 @@ def get_toa_data_viridiplantae_protein_gi_name():
     '''
 
     return 'NCBI Protein GenInfo viridiplantae identifier list'
-
-#-------------------------------------------------------------------------------
-
-def get_toa_process_blastdb_nr_code():
-    '''
-    Get the code of the BLAST database NR build process used to identify its processes.
-    '''
-
-    return 'toabbnr'
-
-#-------------------------------------------------------------------------------
-
-def get_toa_process_blastdb_nr_name():
-    '''
-    Get the name of the BLAST database NR build process used to title.
-    '''
-
-    return 'Build BLAST database NR'
-
-#-------------------------------------------------------------------------------
-
-def get_toa_process_blastdb_nt_code():
-    '''
-    Get the code of the BLAST database NT build process used to identify its processes.
-    '''
-
-    return 'toabbnt'
-
-#-------------------------------------------------------------------------------
-
-def get_toa_process_blastdb_nt_name():
-    '''
-    Get the name of the BLAST database NT build process used to title.
-    '''
-
-    return 'Build BLAST database NT'
 
 #-------------------------------------------------------------------------------
 
@@ -865,6 +923,23 @@ def get_toa_process_download_monocots_04_name():
     '''
 
     return 'Download Monocots PLAZA 4.0 funcional annotations'
+#-------------------------------------------------------------------------------
+
+def get_toa_process_download_taxonomy_code():
+    '''
+    Get the code used to identify processes to download NCBI Taxonomy data.
+    '''
+
+    return 'toaddtaxo'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_process_download_taxonomy_name():
+    '''
+    Get the name used to title processes to download NCBI Taxonomy data.
+    '''
+
+    return 'Download NCBI Taxonomy data'
 
 #-------------------------------------------------------------------------------
 
@@ -1030,6 +1105,78 @@ def get_toa_process_load_monocots_04_name():
 
 #-------------------------------------------------------------------------------
 
+def get_toa_process_merge_annotations_code():
+    '''
+    Get the code used to identify processes to merge pipeline annotations.
+    '''
+
+    return 'toamergeann'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_process_merge_annotations_name():
+    '''
+    Get the name used to title processes to merge pipeline annotations.
+    '''
+
+    return 'Merge pipeline annotations'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_process_nr_blastplus_db_code():
+    '''
+    Get the code of the BLAST database NR build process with BLAST+ used to identify its processes.
+    '''
+
+    return 'toabbnrbp'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_process_nr_blastplus_db_name():
+    '''
+    Get the name of the BLAST database NR build process with BLAST+ used to title.
+    '''
+
+    return 'Build BLAST database NR for BLAST+'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_process_nr_diamond_db_code():
+    '''
+    Get the code of the BLAST database NR build process with DIAMOND used to identify its processes.
+    '''
+
+    return 'toabbnrdn'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_process_nr_diamond_db_name():
+    '''
+    Get the name of the BLAST database NR build process with DIAMOND used to title.
+    '''
+
+    return 'Build BLAST database NR for DIAMOND'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_process_nt_blastplus_db_code():
+    '''
+    Get the code of the BLAST database NT build process with BLAST+ used to identify its processes.
+    '''
+
+    return 'toabbntbp'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_process_nt_blastplus_db_name():
+    '''
+    Get the name of the BLAST database NT build process with BLAST+ used to title.
+    '''
+
+    return 'Build BLAST database NT for BLAST+'
+
+#-------------------------------------------------------------------------------
+
 def get_toa_process_pipeline_aminoacid_code():
     '''
     Get the code used to identify amino acid pipelines.
@@ -1183,12 +1330,30 @@ def get_toa_pipeline_name():
 
 #-------------------------------------------------------------------------------
 
+def get_toa_result_dir():
+    '''
+    Get the result directory where results datasets are saved.
+    '''
+
+    return 'TOA-results'
+
+#-------------------------------------------------------------------------------
+
 def get_toa_result_database_dir():
     '''
     Get the result subdirectory where TOA process results related to the genomic database managment are saved.
     '''
 
-    return 'TOA-databases'
+    return 'database'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_result_installation_dir():
+    '''
+    Get the result subdirectory where installation process results are saved.
+    '''
+
+    return 'installation'
 
 #-------------------------------------------------------------------------------
 
@@ -1197,16 +1362,25 @@ def get_toa_result_pipeline_dir():
     Get the result subdirectory where TOA process results related to pipelines are saved.
     '''
 
-    return 'TOA-pipelines'
+    return 'pipeline'
 
 #-------------------------------------------------------------------------------
 
-def get_toa_type_build_blastdb():
+def get_toa_type_build_blastplus_db():
     '''
     Get the code used to identify processes to build BLAST databases.
     '''
 
-    return 'build_blastdb'
+    return 'build_blastplus_db'
+
+#-------------------------------------------------------------------------------
+
+def get_toa_type_build_diamond_db():
+    '''
+    Get the code used to identify processes to build DIAMOND databases.
+    '''
+
+    return 'build_diamond_db'
 
 #-------------------------------------------------------------------------------
 
@@ -1282,9 +1456,9 @@ def get_transdecoder_name():
 
 #-------------------------------------------------------------------------------
 
-def get_transdecoder_bioconda_code():
+def get_transdecoder_conda_code():
     '''
-    Get the TransDecoder code used to the Bioconda package.
+    Get the TransDecoder code used to the Conda package.
     '''
 
     return 'transdecoder'
@@ -1457,6 +1631,43 @@ def check_float(literal, minimum=float(-sys.maxsize - 1), maximum=float(sys.maxs
 
 #-------------------------------------------------------------------------------
 
+def check_parameter_list(parameters, key, not_allowed_parameters_list):
+    '''
+    Check if a string contains a parameter list.
+    '''
+
+    # initialize the control variable and the error list
+    OK = True
+    error_list = []
+
+    # get the parameter list
+    parameter_list = [x.strip() for x in parameters.split(';')]
+
+    # check the parameter list
+    for parameter in parameter_list:
+        try:
+            if parameter.find('=') > 0:
+                pattern = r'^--(.+)=(.+)$'
+                mo = re.search(pattern, parameter)
+                parameter_name = mo.group(1).strip()
+                parameter_value = mo.group(2).strip()
+            else:
+                pattern = r'^--(.+)$'
+                mo = re.search(pattern, parameter)
+                parameter_name = mo.group(1).strip()
+        except:
+            error_list.append(f'*** ERROR: the value of the key "{key}" has to NONE or a valid parameter list.')
+            OK = False
+            break
+        if parameter_name in not_allowed_parameters_list:
+            error_list.append(f'*** ERROR: the parameter {parameter_name} is not allowed in the key "{key}" because it is controled by {get_short_project_name()}.')
+            OK = False
+
+    # return the control variable and the error list
+    return (OK, error_list)
+
+#-------------------------------------------------------------------------------
+
 def split_literal_to_integer_list(literal):
     '''
     Split a string literal with values are separated by comma in a integer value list.
@@ -1537,7 +1748,7 @@ def join_string_list_to_string(string_list):
 
     # concat the string items of string_list
     for string in string_list:
-        literal = "'{0}'".format(string) if literal == '' else "{0},'{1}'".format(literal, string)
+        literal = f"'{string}'" if literal == '' else f"{literal},'{string}'"
 
     # return the literal
     return literal
@@ -1606,11 +1817,19 @@ def run_command(command, log):
         # create a string from the bytes literal
         line = line.decode('utf-8')
         # write the line in log
-        log.write('{0}'.format(line))
+        log.write(line)
     rc = process.wait()
 
     # return the return code of the command run
     return rc
+
+#-------------------------------------------------------------------------------
+
+def get_taxonomy_server():
+    '''
+    Get the taxonomy server URL.
+    '''
+    return 'https://taxonomy.jgi-psf.org/'
 
 #-------------------------------------------------------------------------------
 
@@ -1623,14 +1842,14 @@ def get_taxonomy_dict(type, value):
     taxonomy_dict = {}
 
     # set the taxonomy server
-    taxonomy_server = 'https://taxonomy.jgi-psf.org/'
+    taxonomy_server = get_taxonomy_server()
 
     # replace spaces by underscores in value
     value = value.strip().replace(' ', '_')
 
     # inquire the taxonomy data to the server
     try:
-        r = requests.get('{0}/{1}/{2}'.format(taxonomy_server, type, value))
+        r = requests.get(f'{taxonomy_server}/{type}/{value}')
     except requests.exceptions.ConnectionError:
         raise ProgramException('W002', taxonomy_server)
     except Exception as e:
@@ -1729,7 +1948,7 @@ def read_annotation_record(file_name, file_id, type, record_counter):
         if type.upper() == 'PLAZA':
 
             # extract data 
-            # PLAZA record format:  "seq_id";"iteration_iter_num";"hit_num";"hit_accession";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id"
+            # PLAZA record format: "seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"iteration_iter_num";"hit_accession";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id"
             data_list = []
             start = 0
             for end in [i for i, chr in enumerate(record) if chr == ';']:
@@ -1738,46 +1957,48 @@ def read_annotation_record(file_name, file_id, type, record_counter):
             data_list.append(record[start:].strip('\n').strip('"'))
             try:
                 seq_id = data_list[0]
-                iteration_iter_num = data_list[1]
-                hit_num = data_list[2]
-                hit_accession = data_list[3]
+                nt_seq_id = data_list[1]
+                aa_seq_id = data_list[2]
+                hit_num = data_list[3]
                 hsp_num = data_list[4]
-                hsp_evalue = data_list[5]
-                hsp_identity = data_list[6]
-                hsp_positive = data_list[7]
-                hsp_gaps = data_list[8]
-                hsp_align_len = data_list[9]
-                hsp_qseq = data_list[10]
-                species = data_list[11]
-                family = data_list[12]
-                phylum = data_list[13]
-                kingdom = data_list[14]
-                superkingdom = data_list[15]
-                desc = data_list[16]
-                databases = data_list[17]
-                go_id = data_list[18]
-                go_desc = data_list[19]
-                interpro_id = data_list[20]
-                interpro_desc = data_list[21]
-                mapman_id = data_list[22]
-                mapman_desc = data_list[23]
-                ec_id = data_list[24]
-                kegg_id = data_list[25]
-                metacyc_id = data_list[26]
+                iteration_iter_num = data_list[5]
+                hit_accession = data_list[6]
+                hsp_evalue = data_list[7]
+                hsp_identity = data_list[8]
+                hsp_positive = data_list[9]
+                hsp_gaps = data_list[10]
+                hsp_align_len = data_list[11]
+                hsp_qseq = data_list[12]
+                species = data_list[13]
+                family = data_list[14]
+                phylum = data_list[15]
+                kingdom = data_list[16]
+                superkingdom = data_list[17]
+                desc = data_list[18]
+                databases = data_list[19]
+                go_id = data_list[20]
+                go_desc = data_list[21]
+                interpro_id = data_list[22]
+                interpro_desc = data_list[23]
+                mapman_id = data_list[24]
+                mapman_desc = data_list[25]
+                ec_id = data_list[26]
+                kegg_id = data_list[27]
+                metacyc_id = data_list[28]
             except Exception as e:
                 raise ProgramException('F006', os.path.basename(file_name), record_counter)
 
             # set the key
-            key = '{0}'.format(seq_id)
+            key = f'{nt_seq_id}-{aa_seq_id}-{hit_num}-{hsp_num}'
 
             # get the record data dictionary
-            data_dict = {'seq_id': seq_id, 'iteration_iter_num': iteration_iter_num, 'hit_num': hit_num, 'hit_accession': hit_accession, 'hsp_num': hsp_num, 'hsp_evalue': hsp_evalue, 'hsp_identity': hsp_identity, 'hsp_positive': hsp_positive, 'hsp_gaps': hsp_gaps, 'hsp_align_len': hsp_align_len, 'hsp_qseq': hsp_qseq, 'species': species, 'family': family, 'phylum': phylum, 'kingdom': kingdom, 'superkingdom': superkingdom, 'desc': desc, 'databases': databases, 'go_id': go_id, 'go_desc': go_desc, 'interpro_id': interpro_id, 'interpro_desc': interpro_desc, 'mapman_id': mapman_id, 'mapman_desc': mapman_desc, 'ec_id': ec_id, 'kegg_id': kegg_id, 'metacyc_id': metacyc_id}
+            data_dict = {'seq_id': seq_id, 'nt_seq_id': nt_seq_id, 'aa_seq_id': aa_seq_id, 'hit_num': hit_num, 'hsp_num': hsp_num, 'iteration_iter_num': iteration_iter_num, 'hit_accession': hit_accession, 'hsp_evalue': hsp_evalue, 'hsp_identity': hsp_identity, 'hsp_positive': hsp_positive, 'hsp_gaps': hsp_gaps, 'hsp_align_len': hsp_align_len, 'hsp_qseq': hsp_qseq, 'species': species, 'family': family, 'phylum': phylum, 'kingdom': kingdom, 'superkingdom': superkingdom, 'desc': desc, 'databases': databases, 'go_id': go_id, 'go_desc': go_desc, 'interpro_id': interpro_id, 'interpro_desc': interpro_desc, 'mapman_id': mapman_id, 'mapman_desc': mapman_desc, 'ec_id': ec_id, 'kegg_id': kegg_id, 'metacyc_id': metacyc_id}
 
         # if type is REFSEQ
         elif type.upper() == 'REFSEQ':
 
             # extract data 
-            # REFSEQ record format:  "seq_id";"iteration_iter_num";"hit_num";"hit_id";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"gene_id";"status";"rna_nucleotide_accession";"protein_accession";"genomic_nucleotide_accession";"gene_symbol";"go_id";"evidence";"go_term";"category";"interpro_id";"interpro_desc";"ec_id";"kegg_id";"metacyc_id"
+            # REFSEQ record format: "seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"iteration_iter_num";"hit_id";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"gene_id";"status";"rna_nucleotide_accession";"protein_accession";"genomic_nucleotide_accession";"gene_symbol";"go_id";"evidence";"go_term";"category";"interpro_id";"interpro_desc";"ec_id";"kegg_id";"metacyc_id"
             data_list = []
             start = 0
             for end in [i for i, chr in enumerate(record) if chr == ';']:
@@ -1786,52 +2007,54 @@ def read_annotation_record(file_name, file_id, type, record_counter):
             data_list.append(record[start:].strip('"').strip('\n'))
             try:
                 seq_id = data_list[0]
-                iteration_iter_num = data_list[1]
-                hit_num = data_list[2]
-                hit_id = data_list[3]
+                nt_seq_id = data_list[1]
+                aa_seq_id = data_list[2]
+                hit_num = data_list[3]
                 hsp_num = data_list[4]
-                hsp_evalue = data_list[5]
-                hsp_identity = data_list[6]
-                hsp_positive = data_list[7]
-                hsp_gaps = data_list[8]
-                hsp_align_len = data_list[9]
-                hsp_qseq = data_list[10]
-                species = data_list[11]
-                family = data_list[12]
-                phylum = data_list[13]
-                kingdom = data_list[14]
-                superkingdom = data_list[15]
-                desc = data_list[16]
-                databases = data_list[17]
-                gene_id = data_list[18]
-                status = data_list[19]
-                rna_nucleotide_accession = data_list[20]
-                protein_accession = data_list[21]
-                genomic_nucleotide_accession = data_list[22]
-                gene_symbol = data_list[23]
-                go_id = data_list[24]
-                evidence = data_list[25]
-                go_term = data_list[26]
-                category = data_list[27]
-                interpro_id = data_list[28]
-                interpro_desc = data_list[29]
-                ec_id = data_list[30]
-                kegg_id = data_list[31]
-                metacyc_id = data_list[32]
+                iteration_iter_num = data_list[5]
+                hit_id = data_list[6]
+                hsp_evalue = data_list[7]
+                hsp_identity = data_list[8]
+                hsp_positive = data_list[9]
+                hsp_gaps = data_list[10]
+                hsp_align_len = data_list[11]
+                hsp_qseq = data_list[12]
+                species = data_list[13]
+                family = data_list[14]
+                phylum = data_list[15]
+                kingdom = data_list[16]
+                superkingdom = data_list[17]
+                desc = data_list[18]
+                databases = data_list[19]
+                gene_id = data_list[20]
+                status = data_list[21]
+                rna_nucleotide_accession = data_list[22]
+                protein_accession = data_list[23]
+                genomic_nucleotide_accession = data_list[24]
+                gene_symbol = data_list[25]
+                go_id = data_list[26]
+                evidence = data_list[27]
+                go_term = data_list[28]
+                category = data_list[29]
+                interpro_id = data_list[30]
+                interpro_desc = data_list[31]
+                ec_id = data_list[32]
+                kegg_id = data_list[33]
+                metacyc_id = data_list[34]
             except Exception as e:
                 raise ProgramException('F006', os.path.basename(file_name), record_counter)
 
             # set the key
-            key = '{0}'.format(seq_id)
+            key = f'{nt_seq_id}-{aa_seq_id}-{hit_num}-{hsp_num}'
 
             # get the record data dictionary
-            data_dict = {'seq_id': seq_id, 'iteration_iter_num': iteration_iter_num, 'hit_num': hit_num, 'hit_id': hit_id, 'hsp_num': hsp_num,  'hsp_evalue': hsp_evalue,  'hsp_identity': hsp_identity, 'hsp_positive': hsp_positive, 'hsp_gaps': hsp_gaps, 'hsp_align_len': hsp_align_len, 'hsp_qseq': hsp_qseq, 'species': species, 'family': family, 'phylum': phylum, 'kingdom': kingdom, 'superkingdom': superkingdom, 'desc': desc, 'databases': databases, 'gene_id': gene_id, 'status': status, 'rna_nucleotide_accession': rna_nucleotide_accession, 'protein_accession': protein_accession, 'genomic_nucleotide_accession': genomic_nucleotide_accession, 'gene_symbol': gene_symbol, 'go_id': go_id, 'evidence': evidence, 'go_term': go_term, 'category':category, 'interpro_id': interpro_id, 'interpro_desc': interpro_desc, 'ec_id': ec_id, 'kegg_id': kegg_id, 'metacyc_id': metacyc_id}
+            data_dict = {'seq_id': seq_id, 'nt_seq_id': nt_seq_id, 'aa_seq_id': aa_seq_id, 'hit_num': hit_num, 'hsp_num': hsp_num, 'iteration_iter_num': iteration_iter_num, 'hit_id': hit_id,  'hsp_evalue': hsp_evalue,  'hsp_identity': hsp_identity, 'hsp_positive': hsp_positive, 'hsp_gaps': hsp_gaps, 'hsp_align_len': hsp_align_len, 'hsp_qseq': hsp_qseq, 'species': species, 'family': family, 'phylum': phylum, 'kingdom': kingdom, 'superkingdom': superkingdom, 'desc': desc, 'databases': databases, 'gene_id': gene_id, 'status': status, 'rna_nucleotide_accession': rna_nucleotide_accession, 'protein_accession': protein_accession, 'genomic_nucleotide_accession': genomic_nucleotide_accession, 'gene_symbol': gene_symbol, 'go_id': go_id, 'evidence': evidence, 'go_term': go_term, 'category':category, 'interpro_id': interpro_id, 'interpro_desc': interpro_desc, 'ec_id': ec_id, 'kegg_id': kegg_id, 'metacyc_id': metacyc_id}
 
         # if type is NT o NR
         if type.upper() in ['NT', 'NR']:
 
             # extract data 
-            # PLAZA record format:  "seq_id";"iteration_iter_num";"hit_num";"hit_id";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases"
+            # PLAZA record format: "seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"iteration_iter_num";"hit_id";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases"
             data_list = []
             start = 0
             for end in [i for i, chr in enumerate(record) if chr == ';']:
@@ -1840,34 +2063,36 @@ def read_annotation_record(file_name, file_id, type, record_counter):
             data_list.append(record[start:].strip('"'))
             try:
                 seq_id = data_list[0]
-                iteration_iter_num = data_list[12]
-                hit_num = data_list[2]
-                hit_id = data_list[3]
+                nt_seq_id = data_list[1]
+                aa_seq_id = data_list[2]
+                hit_num = data_list[3]
                 hsp_num = data_list[4]
-                hsp_evalue = data_list[5]
-                hsp_identity = data_list[6]
-                hsp_positive = data_list[7]
-                hsp_gaps = data_list[8]
-                hsp_align_len = data_list[9]
-                hsp_qseq = data_list[10]
-                species = data_list[11]
-                family = data_list[12]
-                phylum = data_list[13]
-                kingdom = data_list[14]
-                superkingdom = data_list[15]
-                desc = data_list[16]
-                databases = data_list[17]
+                iteration_iter_num = data_list[5]
+                hit_id = data_list[6]
+                hsp_evalue = data_list[7]
+                hsp_identity = data_list[8]
+                hsp_positive = data_list[9]
+                hsp_gaps = data_list[10]
+                hsp_align_len = data_list[11]
+                hsp_qseq = data_list[12]
+                species = data_list[13]
+                family = data_list[14]
+                phylum = data_list[15]
+                kingdom = data_list[16]
+                superkingdom = data_list[17]
+                desc = data_list[18]
+                databases = data_list[19]
             except Exception as e:
                 raise ProgramException('F006', os.path.basename(file_name), record_counter)
 
             # set the key
-            key = '{0}'.format(seq_id)
+            key = f'{nt_seq_id}-{aa_seq_id}-{hit_num}-{hsp_num}'
 
             # get the record data dictionary
-            data_dict = {'seq_id': seq_id, 'iteration_iter_num': iteration_iter_num, 'hit_num': hit_num, 'hit_id': hit_id, 'hsp_num': hsp_num, 'hsp_evalue': hsp_evalue, 'hsp_identity': hsp_identity, 'hsp_positive': hsp_positive, 'hsp_gaps': hsp_gaps, 'hsp_align_len': hsp_align_len, 'hsp_qseq': hsp_qseq, 'species': species, 'family': family, 'phylum': phylum, 'kingdom': kingdom, 'superkingdom': superkingdom, 'desc': desc, 'databases': databases}
+            data_dict = {'seq_id': seq_id, 'nt_seq_id': nt_seq_id, 'aa_seq_id': aa_seq_id, 'hit_num': hit_num, 'hsp_num': hsp_num, 'iteration_iter_num': iteration_iter_num, 'hit_id': hit_id, 'hsp_evalue': hsp_evalue, 'hsp_identity': hsp_identity, 'hsp_positive': hsp_positive, 'hsp_gaps': hsp_gaps, 'hsp_align_len': hsp_align_len, 'hsp_qseq': hsp_qseq, 'species': species, 'family': family, 'phylum': phylum, 'kingdom': kingdom, 'superkingdom': superkingdom, 'desc': desc, 'databases': databases}
 
         # if type is MERGER
-        # MERGER record format:  "seq_id";"hit_num";"hit_id";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"refseq_gene_id";"refseq_desc";"refseq_status";"refseq_protein_accession";"refseq_genomic_nucleotide_accession";"refseq_gene_symbol"
+        # MERGER record format: "seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"hit_id";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"refseq_gene_id";"refseq_desc";"refseq_status";"refseq_protein_accession";"refseq_genomic_nucleotide_accession";"refseq_gene_symbol"
         elif type.upper() == 'MERGER':
 
             # extract data 
@@ -1879,46 +2104,48 @@ def read_annotation_record(file_name, file_id, type, record_counter):
             data_list.append(record[start:].strip('"').strip('\n'))
             try:
                 seq_id = data_list[0]
-                hit_num = data_list[1]
-                hit_id = data_list[2]
-                hsp_num = data_list[3]
-                hsp_evalue = data_list[4]
-                hsp_identity = data_list[5]
-                hsp_positive = data_list[6]
-                hsp_gaps = data_list[7]
-                hsp_align_len = data_list[8]
-                hsp_qseq = data_list[9]
-                species = data_list[10]
-                family = data_list[11]
-                phylum = data_list[12]
-                kingdom = data_list[13]
-                superkingdom = data_list[14]
-                desc = data_list[15]
-                databases = data_list[16]
-                go_id = data_list[17]
-                go_desc = data_list[18]
-                interpro_id = data_list[19]
-                interpro_desc = data_list[20]
-                mapman_id = data_list[21]
-                mapman_desc = data_list[22]
-                ec_id = data_list[23]
-                kegg_id = data_list[24]
-                metacyc_id = data_list[25]
-                refseq_gene_id = data_list[26]
-                refseq_desc = data_list[27]
-                refseq_status = data_list[28]
-                refseq_rna_nucleotide_accession = data_list[29]
-                refseq_protein_accession = data_list[30]
-                refseq_genomic_nucleotide_accession = data_list[31]
-                refseq_gene_symbol = data_list[32]
+                nt_seq_id = data_list[1]
+                aa_seq_id = data_list[2]
+                hit_num = data_list[3]
+                hsp_num = data_list[4]
+                hit_id = data_list[5]
+                hsp_evalue = data_list[6]
+                hsp_identity = data_list[7]
+                hsp_positive = data_list[8]
+                hsp_gaps = data_list[9]
+                hsp_align_len = data_list[10]
+                hsp_qseq = data_list[11]
+                species = data_list[12]
+                family = data_list[13]
+                phylum = data_list[14]
+                kingdom = data_list[15]
+                superkingdom = data_list[16]
+                desc = data_list[17]
+                databases = data_list[18]
+                go_id = data_list[19]
+                go_desc = data_list[20]
+                interpro_id = data_list[21]
+                interpro_desc = data_list[22]
+                mapman_id = data_list[23]
+                mapman_desc = data_list[24]
+                ec_id = data_list[25]
+                kegg_id = data_list[26]
+                metacyc_id = data_list[27]
+                refseq_gene_id = data_list[28]
+                refseq_desc = data_list[29]
+                refseq_status = data_list[30]
+                refseq_rna_nucleotide_accession = data_list[31]
+                refseq_protein_accession = data_list[32]
+                refseq_genomic_nucleotide_accession = data_list[33]
+                refseq_gene_symbol = data_list[34]
             except Exception as e:
                 raise ProgramException('F006', os.path.basename(file_name), record_counter)
 
             # set the key
-            key = '{0}'.format(seq_id)
+            key = f'{nt_seq_id}-{aa_seq_id}-{hit_num}-{hsp_num}'
     
             # get the record data dictionary
-            data_dict = {'seq_id': seq_id, 'hit_num': hit_num, 'hsp_num': hsp_num, 'hit_id': hit_id, 'hsp_evalue': hsp_evalue,  'hsp_identity': hsp_identity, 'hsp_positive': hsp_positive, 'hsp_gaps': hsp_gaps, 'hsp_align_len': hsp_align_len, 'hsp_qseq': hsp_qseq, 'species': species, 'family': family, 'phylum': phylum, 'kingdom': kingdom, 'superkingdom': superkingdom, 'desc': desc, 'databases': databases, 'go_id': go_id, 'go_desc': go_desc, 'interpro_id': interpro_id, 'interpro_desc': interpro_desc, 'mapman_id': mapman_id, 'mapman_desc': mapman_desc, 'ec_id': ec_id, 'kegg_id': kegg_id, 'metacyc_id': metacyc_id, 'refseq_gene_id': refseq_gene_id, 'refseq_desc': refseq_desc, 'refseq_status': refseq_status, 'refseq_rna_nucleotide_accession': refseq_rna_nucleotide_accession, 'refseq_protein_accession': refseq_protein_accession, 'refseq_genomic_nucleotide_accession': refseq_genomic_nucleotide_accession, 'refseq_gene_symbol': refseq_gene_symbol}
+            data_dict = {'seq_id': seq_id, 'nt_seq_id': nt_seq_id, 'aa_seq_id': aa_seq_id, 'hit_num': hit_num, 'hsp_num': hsp_num, 'hit_id': hit_id, 'hsp_evalue': hsp_evalue,  'hsp_identity': hsp_identity, 'hsp_positive': hsp_positive, 'hsp_gaps': hsp_gaps, 'hsp_align_len': hsp_align_len, 'hsp_qseq': hsp_qseq, 'species': species, 'family': family, 'phylum': phylum, 'kingdom': kingdom, 'superkingdom': superkingdom, 'desc': desc, 'databases': databases, 'go_id': go_id, 'go_desc': go_desc, 'interpro_id': interpro_id, 'interpro_desc': interpro_desc, 'mapman_id': mapman_id, 'mapman_desc': mapman_desc, 'ec_id': ec_id, 'kegg_id': kegg_id, 'metacyc_id': metacyc_id, 'refseq_gene_id': refseq_gene_id, 'refseq_desc': refseq_desc, 'refseq_status': refseq_status, 'refseq_rna_nucleotide_accession': refseq_rna_nucleotide_accession, 'refseq_protein_accession': refseq_protein_accession, 'refseq_genomic_nucleotide_accession': refseq_genomic_nucleotide_accession, 'refseq_gene_symbol': refseq_gene_symbol}
 
     # if there is not record 
     else:
@@ -1937,19 +2164,19 @@ def write_annotation_header(file_id, type):
 
     # if type is PLAZA
     if type.upper() == 'PLAZA':
-        file_id.write('"seq_id";"iteration_iter_num";"hit_num";"hit_accession";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id"\n')
+        file_id.write( '"seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"iteration_iter_num";"hit_accession";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id"\n')
 
     # if type is REFSEQ
     elif type.upper() == 'REFSEQ':
-        file_id.write('"seq_id";"iteration_iter_num";"hit_num";"hit_id";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"gene_id";"status";"rna_nucleotide_accession";"protein_accession";"genomic_nucleotide_accession";"gene_symbol";"go_id";"evidence";"go_term";"category";"interpro_id";"interpro_desc";"ec_id";"kegg_id";"metacyc_id"\n')
+        file_id.write( '"seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"iteration_iter_num";"hit_id";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"gene_id";"status";"rna_nucleotide_accession";"protein_accession";"genomic_nucleotide_accession";"gene_symbol";"go_id";"evidence";"go_term";"category";"interpro_id";"interpro_desc";"ec_id";"kegg_id";"metacyc_id"\n')
 
     # if type is NT or NR
     elif type.upper() in ['NT', 'NR']:
-        file_id.write('"seq_id";"iteration_iter_num";"hit_num";"hit_id";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases"\n')
+        file_id.write( '"seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"iteration_iter_num";"hit_id";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases"\n')
 
     # if type is MERGER
     elif type.upper() == 'MERGER':
-        file_id.write('"seq_id";"hit_num";"hit_id";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id";"refseq_gene_id";"refseq_desc";"refseq_status";"refseq_rna_nucleotide_accession";"refseq_protein_accession";"refseq_genomic_nucleotide_accession";"refseq_gene_symbol"\n')
+        file_id.write( '"seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"hit_id";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id";"refseq_gene_id";"refseq_desc";"refseq_status";"refseq_rna_nucleotide_accession";"refseq_protein_accession";"refseq_genomic_nucleotide_accession";"refseq_gene_symbol"\n')
 
 #-------------------------------------------------------------------------------
 
@@ -1957,31 +2184,35 @@ def write_annotation_record(file_id, type, data_dict):
     '''
     '''
 
+    # convert hit_num to string with format
+    if check_int(data_dict['hit_num']):
+        data_dict['hit_num'] = f'{int(data_dict["hit_num"]):02d}'
+
+    # convert hsp_num to string with format
+    if check_int(data_dict['hsp_num']):
+        data_dict['hspt_num'] = f'{int(data_dict["hsp_num"]):02d}'
+
     # if type is PLAZA
-    # format: "seq_id";"iteration_iter_num";"hit_num";"hit_accession";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id"
+    # format: "seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"iteration_iter_num";"hit_accession";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id"
     if type.upper() == 'PLAZA':
-        if data_dict['accum_go_id'] != '': data_dict['accum_go_id'] = 'GO:{0}'.format(data_dict['accum_go_id'])
-        output_format= '"{0}";"{1}";"{2}";"{3}";"{4}";"{5}";"{6}";"{7}";"{8}";"{9}";"{10}";"{11}";"{12}";"{13}";"{14}";"{15}";"{16}";"{17}";"{18}";"{19}";"{20}";"{21}";"{22}";"{23}";"{24}";"{25}";"{26}"\n'
-        file_id.write(output_format.format(data_dict['seq_id'], data_dict['iteration_iter_num'], data_dict['hit_num'], data_dict['hit_accession'], data_dict['hsp_num'], data_dict['hsp_evalue'], data_dict['hsp_identity'], data_dict['hsp_positive'], data_dict['hsp_gaps'], data_dict['hsp_align_len'], data_dict['hsp_qseq'], data_dict['species'], data_dict['family'], data_dict['phylum'], data_dict['kingdom'], data_dict['superkingdom'], data_dict['desc'], data_dict['accum_databases'], data_dict['accum_go_id'], data_dict['accum_go_desc'], data_dict['accum_interpro_id'], data_dict['accum_interpro_desc'], data_dict['accum_mapman_id'], data_dict['accum_mapman_desc'], data_dict['accum_ec_id'], data_dict['accum_kegg_id'], data_dict['accum_metacyc_id']))
+        if data_dict['accum_go_id'] != '': data_dict['accum_go_id'] = f'''GO:{data_dict['accum_go_id']}'''
+        file_id.write(f'''"{data_dict['seq_id']}";"{data_dict['nt_seq_id']}";"{data_dict['aa_seq_id']}";"{data_dict['hit_num']}";"{data_dict['hsp_num']}";"{data_dict['iteration_iter_num']}";"{data_dict['hit_accession']}";"{data_dict['hsp_evalue']}";"{data_dict['hsp_identity']}";"{data_dict['hsp_positive']}";"{data_dict['hsp_gaps']}";"{data_dict['hsp_align_len']}";"{data_dict['hsp_qseq']}";"{data_dict['species']}";"{data_dict['family']}";"{data_dict['phylum']}";"{data_dict['kingdom']}";"{data_dict['superkingdom']}";"{data_dict['desc']}";"{data_dict['accum_databases']}";"{data_dict['accum_go_id']}";"{data_dict['accum_go_desc']}";"{data_dict['accum_interpro_id']}";"{data_dict['accum_interpro_desc']}";"{data_dict['accum_mapman_id']}";"{data_dict['accum_mapman_desc']}";"{data_dict['accum_ec_id']}";"{data_dict['accum_kegg_id']}";"{data_dict['accum_metacyc_id']}"\n''')
 
     # if type is REFSEQ
-    # format: "seq_id";"iteration_iter_num";"hit_num";"hit_id";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"gene_id";"status";"rna_nucleotide_accession";"protein_accession";"genomic_nucleotide_accession";"gene_symbol";"go_id";"evidence";"go_term";"category";"interpro_id";"interpro_desc";"ec_id";"kegg_id";"metacyc_id"
+    # format: "seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"iteration_iter_num";"hit_id";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"gene_id";"status";"rna_nucleotide_accession";"protein_accession";"genomic_nucleotide_accession";"gene_symbol";"go_id";"evidence";"go_term";"category";"interpro_id";"interpro_desc";"ec_id";"kegg_id";"metacyc_id"
     elif type.upper() == 'REFSEQ':
-        if data_dict['accum_go_id'] != '': data_dict['accum_go_id'] = 'GO:{0}'.format(data_dict['accum_go_id'])
-        output_format= '"{0}";"{1}";"{2}";"{3}";"{4}";"{5}";"{6}";"{7}";"{8}";"{9}";"{10}";"{11}";"{12}";"{13}";"{14}";"{15}";"{16}";"{17}";"{18}";"{19}";"{20}";"{21}";"{22}";"{23}";"{24}";"{25}";"{26}";"{27}";"{28}";"{29}";"{30}";"{31}";"{32}"\n'
-        file_id.write(output_format.format(data_dict['seq_id'], data_dict['iteration_iter_num'], data_dict['hit_num'], data_dict['hit_id'], data_dict['hsp_num'], data_dict['hsp_evalue'], data_dict['hsp_identity'], data_dict['hsp_positive'], data_dict['hsp_gaps'], data_dict['hsp_align_len'], data_dict['hsp_qseq'], data_dict['species'], data_dict['family'], data_dict['phylum'], data_dict['kingdom'], data_dict['superkingdom'], data_dict['desc'], data_dict['accum_databases'], data_dict['gene_id'], data_dict['status'], data_dict['rna_nucleotide_accession'], data_dict['protein_accession'], data_dict['genomic_nucleotide_accession'], data_dict['gene_symbol'], data_dict['accum_go_id'], data_dict['accum_evidence'], data_dict['accum_go_term'], data_dict['accum_category'], data_dict['accum_interpro_id'], data_dict['accum_interpro_desc'], data_dict['accum_ec_id'], data_dict['accum_kegg_id'], data_dict['accum_metacyc_id']))
+        if data_dict['accum_go_id'] != '': data_dict['accum_go_id'] = f'''GO:{data_dict['accum_go_id']}'''
+        file_id.write(f'''"{data_dict['seq_id']}";"{data_dict['nt_seq_id']}";"{data_dict['aa_seq_id']}";"{data_dict['hit_num']}";"{data_dict['hsp_num']}";"{data_dict['iteration_iter_num']}";"{data_dict['hit_id']}";"{data_dict['hsp_evalue']}";"{data_dict['hsp_identity']}";"{data_dict['hsp_positive']}";"{data_dict['hsp_gaps']}";"{data_dict['hsp_align_len']}";"{data_dict['hsp_qseq']}";"{data_dict['species']}";"{data_dict['family']}";"{data_dict['phylum']}";"{data_dict['kingdom']}";"{data_dict['superkingdom']}";"{data_dict['desc']}";"{data_dict['accum_databases']}";"{data_dict['gene_id']}";"{data_dict['status']}";"{data_dict['rna_nucleotide_accession']}";"{data_dict['protein_accession']}";"{data_dict['genomic_nucleotide_accession']}";"{data_dict['gene_symbol']}";"{data_dict['accum_go_id']}";"{data_dict['accum_evidence']}";"{data_dict['accum_go_term']}";"{data_dict['accum_category']}";"{data_dict['accum_interpro_id']}";"{data_dict['accum_interpro_desc']}";"{data_dict['accum_ec_id']}";"{data_dict['accum_kegg_id']}";"{data_dict['accum_metacyc_id']}"\n''')
 
     # if type is NT or NR
-    # format: "seq_id";"iteration_iter_num";"hit_num";"hit_id";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases"
+    # format: "seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"iteration_iter_num";"hit_id";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases"
     elif type.upper() in ['NT', 'NR']:
-        output_format= '"{0}";"{1}";"{2}";"{3}";"{4}";"{5}";"{6}";"{7}";"{8}";"{9}";"{10}";"{11}";"{12}";"{13}";"{14}";"{15}";"{16}";"{17}"\n'
-        file_id.write(output_format.format(data_dict['seq_id'], data_dict['iteration_iter_num'], data_dict['hit_num'], data_dict['hit_id'], data_dict['hsp_num'], data_dict['hsp_evalue'], data_dict['hsp_identity'], data_dict['hsp_positive'], data_dict['hsp_gaps'], data_dict['hsp_align_len'], data_dict['hsp_qseq'], data_dict['species'], data_dict['family'], data_dict['phylum'], data_dict['kingdom'], data_dict['superkingdom'], data_dict['desc'], data_dict['accum_databases']))
+        file_id.write(f'''"{data_dict['seq_id']}";"{data_dict['nt_seq_id']}";"{data_dict['aa_seq_id']}";"{data_dict['hit_num']}";"{data_dict['hsp_num']}";"{data_dict['iteration_iter_num']}";"{data_dict['hit_id']}";"{data_dict['hsp_evalue']}";"{data_dict['hsp_identity']}";"{data_dict['hsp_positive']}";"{data_dict['hsp_gaps']}";"{data_dict['hsp_align_len']}";"{data_dict['hsp_qseq']}";"{data_dict['species']}";"{data_dict['family']}";"{data_dict['phylum']}";"{data_dict['kingdom']}";"{data_dict['superkingdom']}";"{data_dict['desc']}";"{data_dict['accum_databases']}"\n''')
 
     # if type is MERGER
-    # format:  "seq_id";"hit_num";"hit_id";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id";"refseq_gene_id";"refseq_desc";"refseq_status";"refseq_rna_nucleotide_accession";"refseq_protein_accession";"refseq_genomic_nucleotide_accession";"refseq_gene_symbol"
+    # format: "seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"hit_id";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id";"refseq_gene_id";"refseq_desc";"refseq_status";"refseq_rna_nucleotide_accession";"refseq_protein_accession";"refseq_genomic_nucleotide_accession";"refseq_gene_symbol"
     elif type.upper() == 'MERGER':
-        output_format= '"{0}";"{1}";"{2}";"{3}";"{4}";"{5}";"{6}";"{7}";"{8}";"{9}";"{10}";"{11}";"{12}";"{13}";"{14}";"{15}";"{16}";"{17}";"{18}";"{19}";"{20}";"{21}";"{22}";"{23}";"{24}";"{25}";"{26}";"{26}";"{27}";"{28}";"{29}";"{30}";"{31}";"{32}"\n'
-        file_id.write(output_format.format(data_dict['seq_id'], data_dict['hit_num'], data_dict['hit_id'], data_dict['hsp_num'], data_dict['hsp_evalue'], data_dict['hsp_identity'], data_dict['hsp_positive'], data_dict['hsp_gaps'], data_dict['hsp_align_len'], data_dict['hsp_qseq'], data_dict['species'], data_dict['family'], data_dict['phylum'], data_dict['kingdom'], data_dict['superkingdom'], data_dict['desc'], data_dict['databases'], data_dict['go_id'], data_dict['go_desc'], data_dict['interpro_id'], data_dict['interpro_desc'], data_dict['mapman_id'], data_dict['mapman_desc'], data_dict['ec_id'], data_dict['kegg_id'], data_dict['metacyc_id'], data_dict['refseq_gene_id'], data_dict['refseq_desc'], data_dict['refseq_status'], data_dict['refseq_rna_nucleotide_accession'], data_dict['refseq_protein_accession'], data_dict['refseq_genomic_nucleotide_accession'], data_dict['refseq_gene_symbol']))
+        file_id.write(f'''"{data_dict['seq_id']}";"{data_dict['nt_seq_id']}";"{data_dict['aa_seq_id']}";"{data_dict['hit_num']}";"{data_dict['hsp_num']}";"{data_dict['hit_id']}";"{data_dict['hsp_evalue']}";"{data_dict['hsp_identity']}";"{data_dict['hsp_positive']}";"{data_dict['hsp_gaps']}";"{data_dict['hsp_align_len']}";"{data_dict['hsp_qseq']}";"{data_dict['species']}";"{data_dict['family']}";"{data_dict['phylum']}";"{data_dict['kingdom']}";"{data_dict['superkingdom']}";"{data_dict['desc']}";"{data_dict['databases']}";"{data_dict['go_id']}";"{data_dict['go_desc']}";"{data_dict['interpro_id']}";"{data_dict['interpro_desc']}";"{data_dict['mapman_id']}";"{data_dict['mapman_desc']}";"{data_dict['ec_id']}";"{data_dict['kegg_id']}";"{data_dict['metacyc_id']}";"{data_dict['refseq_gene_id']}";"{data_dict['refseq_desc']}";"{data_dict['refseq_status']}";"{data_dict['refseq_rna_nucleotide_accession']}";"{data_dict['refseq_protein_accession']}";"{data_dict['refseq_genomic_nucleotide_accession']}";"{data_dict['refseq_gene_symbol']}"\n''')
 
 #-------------------------------------------------------------------------------
 
@@ -1989,24 +2220,31 @@ def write_merged_annotation_record(file_id, type, data_dict):
     '''
     '''
 
-    # merged record format:  "seq_id";"hit_num";"hit_id";"hsp_num";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id";"refseq_gene_id";"refseq_desc";"refseq_status";"refseq_rna_nucleotide_accession";"refseq_protein_accession";"refseq_genomic_nucleotide_accession";"refseq_gene_symbol"
-    output_format= '"{0}";"{1}";"{2}";"{3}";"{4}";"{5}";"{6}";"{7}";"{8}";"{9}";"{10}";"{11}";"{12}";"{13}";"{14}";"{15}";"{16}";"{17}";"{18}";"{19}";"{20}";"{21}";"{22}";"{23}";"{24}";"{25}";"{26}";"{27}";"{28}";"{29}";"{30}";"{31}";"{32}"\n'
+    # convert hit_num to string with format
+    if check_int(data_dict['hit_num']):
+        data_dict['hit_num'] = f'{int(data_dict["hit_num"]):02d}'
+
+    # convert hsp_num to string with format
+    if check_int(data_dict['hsp_num']):
+        data_dict['hspt_num'] = f'{int(data_dict["hsp_num"]):02d}'
+
+    # merged record format: "seq_id";"nt_seq_id";"aa_seq_id";"hit_num";"hsp_num";"hit_id";"hsp_evalue";"hsp_identity";"hsp_positive";"hsp_gaps";"hsp_align_len";"hsp_qseq";"species";"family";"phylum";"kingdom";"superkingdom";"desc";"databases";"go_id";"go_desc";"interpro_id";"interpro_desc";"mapman_id";"mapman_desc";"ec_id";"kegg_id";"metacyc_id";"refseq_gene_id";"refseq_desc";"refseq_status";"refseq_rna_nucleotide_accession";"refseq_protein_accession";"refseq_genomic_nucleotide_accession";"refseq_gene_symbol"
 
     # if type is PLAZA
     if type.upper() == 'PLAZA':
-        file_id.write(output_format.format(data_dict['seq_id'], data_dict['hit_num'], data_dict['hit_accession'], data_dict['hsp_num'], data_dict['hsp_evalue'], data_dict['hsp_identity'], data_dict['hsp_positive'], data_dict['hsp_gaps'], data_dict['hsp_align_len'], data_dict['hsp_qseq'], data_dict['species'], data_dict['family'], data_dict['phylum'], data_dict['kingdom'], data_dict['superkingdom'], data_dict['desc'], data_dict['databases'], data_dict['go_id'], data_dict['go_desc'], data_dict['interpro_id'], data_dict['interpro_desc'], data_dict['mapman_id'], data_dict['mapman_desc'], data_dict['ec_id'], data_dict['kegg_id'], data_dict['metacyc_id'], '', '', '', '', '', '', '', ''))
+        file_id.write(f'''"{data_dict['seq_id']}";"{data_dict['nt_seq_id']}";"{data_dict['aa_seq_id']}";"{data_dict['hit_num']}";"{data_dict['hsp_num']}";"{data_dict['hit_accession']}";"{data_dict['hsp_evalue']}";"{data_dict['hsp_identity']}";"{data_dict['hsp_positive']}";"{data_dict['hsp_gaps']}";"{data_dict['hsp_align_len']}";"{data_dict['hsp_qseq']}";"{data_dict['species']}";"{data_dict['family']}";"{data_dict['phylum']}";"{data_dict['kingdom']}";"{data_dict['superkingdom']}";"{data_dict['desc']}";"{data_dict['databases']}";"{data_dict['go_id']}";"{data_dict['go_desc']}";"{data_dict['interpro_id']}";"{data_dict['interpro_desc']}";"{data_dict['mapman_id']}";"{data_dict['mapman_desc']}";"{data_dict['ec_id']}";"{data_dict['kegg_id']}";"{data_dict['metacyc_id']}";"";"";"";"";"";"";""\n''')
 
     # if type is REFSEQ
     elif type.upper() == 'REFSEQ':
-        file_id.write(output_format.format(data_dict['seq_id'], data_dict['hit_num'], data_dict['hit_id'], data_dict['hsp_num'], data_dict['hsp_evalue'], data_dict['hsp_identity'], data_dict['hsp_positive'], data_dict['hsp_gaps'], data_dict['hsp_align_len'], data_dict['hsp_qseq'], data_dict['species'], data_dict['family'], data_dict['phylum'], data_dict['kingdom'], data_dict['superkingdom'], data_dict['desc'], data_dict['databases'], data_dict['go_id'], data_dict['go_term'], data_dict['interpro_id'], data_dict['interpro_desc'], '', '', data_dict['ec_id'], data_dict['kegg_id'], data_dict['metacyc_id'], data_dict['gene_id'], data_dict['desc'], data_dict['status'], data_dict['rna_nucleotide_accession'], data_dict['protein_accession'], data_dict['genomic_nucleotide_accession'], data_dict['gene_symbol']))
+        file_id.write(f'''"{data_dict['seq_id']}";"{data_dict['nt_seq_id']}";"{data_dict['aa_seq_id']}";"{data_dict['hit_num']}";"{data_dict['hsp_num']}";"{data_dict['hit_id']}";"{data_dict['hsp_evalue']}";"{data_dict['hsp_identity']}";"{data_dict['hsp_positive']}";"{data_dict['hsp_gaps']}";"{data_dict['hsp_align_len']}";"{data_dict['hsp_qseq']}";"{data_dict['species']}";"{data_dict['family']}";"{data_dict['phylum']}";"{data_dict['kingdom']}";"{data_dict['superkingdom']}";"{data_dict['desc']}";"{data_dict['databases']}";"{data_dict['go_id']}";"{data_dict['go_term']}";"{data_dict['interpro_id']}";"{data_dict['interpro_desc']}";"";"";"{data_dict['ec_id']}";"{data_dict['kegg_id']}";"{data_dict['metacyc_id']}";"{data_dict['gene_id']}";"{data_dict['desc']}";"{data_dict['status']}";"{data_dict['rna_nucleotide_accession']}";"{data_dict['protein_accession']}";"{data_dict['genomic_nucleotide_accession']}";"{data_dict['gene_symbol']}"\n''')
 
     # if type is NT or NR
     elif type.upper() in ['NT', 'NR']:
-        file_id.write(output_format.format(data_dict['seq_id'], data_dict['hit_num'], data_dict['hit_id'], data_dict['hsp_num'], data_dict['hsp_evalue'], data_dict['hsp_identity'], data_dict['hsp_positive'], data_dict['hsp_gaps'], data_dict['hsp_align_len'], data_dict['hsp_qseq'], data_dict['species'], data_dict['family'], data_dict['phylum'], data_dict['kingdom'], data_dict['superkingdom'], data_dict['desc'], data_dict['databases'], '', '', '', '', '', '', '', '', '', '', '', '', '', '', '', ''))
+        file_id.write(f'''"{data_dict['seq_id']}";"{data_dict['nt_seq_id']}";"{data_dict['aa_seq_id']}";"{data_dict['hit_num']}";"{data_dict['hsp_num']}";"{data_dict['hit_id']}";"{data_dict['hsp_evalue']}";"{data_dict['hsp_identity']}";"{data_dict['hsp_positive']}";"{data_dict['hsp_gaps']}";"{data_dict['hsp_align_len']}";"{data_dict['hsp_qseq']}";"{data_dict['species']}";"{data_dict['family']}";"{data_dict['phylum']}";"{data_dict['kingdom']}";"{data_dict['superkingdom']}";"{data_dict['desc']}";"{data_dict['databases']}";"";"";"";"";"";"";"";"";"";"";"";"";"";"";"";""\n''')
 
     # if type is MERGER
     elif type.upper() == 'MERGER':
-        file_id.write(output_format.format(data_dict['seq_id'], data_dict['hit_num'], data_dict['hit_id'], data_dict['hsp_num'], data_dict['hsp_evalue'], data_dict['hsp_identity'], data_dict['hsp_positive'], data_dict['hsp_gaps'], data_dict['hsp_align_len'], data_dict['hsp_qseq'], data_dict['species'], data_dict['family'], data_dict['phylum'], data_dict['kingdom'], data_dict['superkingdom'], data_dict['desc'], data_dict['databases'], data_dict['go_id'], data_dict['go_desc'], data_dict['interpro_id'], data_dict['interpro_desc'], data_dict['mapman_id'], data_dict['mapman_desc'], data_dict['ec_id'], data_dict['kegg_id'], data_dict['metacyc_id'], data_dict['refseq_gene_id'], data_dict['refseq_desc'], data_dict['refseq_status'], data_dict['refseq_rna_nucleotide_accession'], data_dict['refseq_protein_accession'], data_dict['refseq_genomic_nucleotide_accession'], data_dict['refseq_gene_symbol']))
+        file_id.write(f'''"{data_dict['seq_id']}";"{data_dict['nt_seq_id']}";"{data_dict['aa_seq_id']}";"{data_dict['hit_num']}";"{data_dict['hsp_num']}";"{data_dict['hit_id']}";"{data_dict['hsp_evalue']}";"{data_dict['hsp_identity']}";"{data_dict['hsp_positive']}";"{data_dict['hsp_gaps']}";"{data_dict['hsp_align_len']}";"{data_dict['hsp_qseq']}";"{data_dict['species']}";"{data_dict['family']}";"{data_dict['phylum']}";"{data_dict['kingdom']}";"{data_dict['superkingdom']}";"{data_dict['desc']}";"{data_dict['databases']}";"{data_dict['go_id']}";"{data_dict['go_desc']}";"{data_dict['interpro_id']}";"{data_dict['interpro_desc']}";"{data_dict['mapman_id']}";"{data_dict['mapman_desc']}";"{data_dict['ec_id']}";"{data_dict['kegg_id']}";"{data_dict['metacyc_id']}";"{data_dict['refseq_gene_id']}";"{data_dict['refseq_desc']}";"{data_dict['refseq_status']}";"{data_dict['refseq_rna_nucleotide_accession']}";"{data_dict['refseq_protein_accession']}";"{data_dict['refseq_genomic_nucleotide_accession']}";"{data_dict['refseq_gene_symbol']}"\n''')
 
 #-------------------------------------------------------------------------------
 
@@ -2064,7 +2302,7 @@ def get_id_relationship_dict(relationship_file):
                 id_relationship_dict[new_seq_id] = old_seq_id
 
             # print record counter
-            Message.print('verbose', '\rRelationship file: {0} processed records.'.format(record_counter))
+            Message.print('verbose', f'\rRelationship file: {record_counter} processed records.')
 
             # read the next record
             record = relationship_file_id.readline()
@@ -2074,6 +2312,56 @@ def get_id_relationship_dict(relationship_file):
 
     # return the new-old identification relationship dictionary
     return id_relationship_dict
+
+#-------------------------------------------------------------------------------
+
+def get_seq_ids(x_seq_id, toa_transcriptome_relationship_dict, toa_transdecoder_relationship_dict):
+    '''
+    Get the transcriptome and TOA identifiers from the relationship dictionaries
+    '''
+
+    # case 1: nucleotide pipeline
+    if toa_transdecoder_relationship_dict == {}:
+        try:
+            nt_seq_id = x_seq_id
+            aa_seq_id = ''
+            transcript_seq_id = toa_transcriptome_relationship_dict[nt_seq_id]
+        except Exception as e:
+            raise ProgramException('L008', nt_seq_id)
+
+    # case 2: amino acid pipeline
+    else:
+        try:
+            aa_seq_id = x_seq_id
+            peptide_seq_id = toa_transdecoder_relationship_dict[aa_seq_id]
+        except Exception as e:
+            raise ProgramException('L008', aa_seq_id)
+        try:
+            nt_seq_id = peptide_seq_id[:12]
+            transcript_seq_id = toa_transcriptome_relationship_dict[nt_seq_id]
+        except Exception as e:
+            raise ProgramException('L008', nt_seq_id)
+
+    # return the transcriptome and TOA identifiers
+    return transcript_seq_id, nt_seq_id, aa_seq_id
+
+#-------------------------------------------------------------------------------
+
+def get_alignment_tool_code_list():
+    '''
+    Get the code list of "alignment_tool".
+    '''
+
+    return [get_blastplus_name(), get_diamond_name()]
+
+#-------------------------------------------------------------------------------
+
+def get_alignment_tool_code_list_text():
+    '''
+    Get the code list of "alignment_tool" as text.
+    '''
+
+    return str(get_alignment_tool_code_list()).strip('[]').replace('\'', '').replace(',', ' or')
 
 #-------------------------------------------------------------------------------
     
@@ -2149,6 +2437,24 @@ def get_type2_code_list_text():
 
 #-------------------------------------------------------------------------------
     
+def get_sequence_type_code_list():
+    '''
+    Get the code list of "header".
+    '''
+
+    return ['NT', 'AA']
+
+#-------------------------------------------------------------------------------
+    
+def get_sequence_type_code_list_text():
+    '''
+    Get the code list of "header" as text.
+    '''
+
+    return 'NT (nucleotides) or AA (amino acids)'
+
+#-------------------------------------------------------------------------------
+    
 def get_genomic_feature_format_code_list():
     '''
     Get the code list of "genomic_feature_format".
@@ -2167,21 +2473,39 @@ def get_genomic_feature_format_code_list_text():
 
 #-------------------------------------------------------------------------------
     
-def get_merger_operation_code_list():
+def get_fasta_merger_operation_code_list():
     '''
-    Get the code list of "merger_operation".
+    Get the code list of "merger_operation" with FASTA.
     '''
 
     return ['1AND2', '1LESS2']
 
 #-------------------------------------------------------------------------------
     
-def get_merger_operation_code_list_text():
+def get_fasta_merger_operation_code_list_text():
     '''
-    Get the code list of "merger_operation" as text.
+    Get the code list of "merger_operation" with FASTA files as text.
     '''
 
     return '1AND2 (sequences included in both files) or 1LESS2 (sequences in 1 and not in 2)'
+
+#-------------------------------------------------------------------------------
+    
+def get_annotation_merger_operation_code_list():
+    '''
+    Get the code list of "merger_operation" with annotation files.
+    '''
+
+    return ['1AND2', '1BEST']
+
+#-------------------------------------------------------------------------------
+    
+def get_annotation_merger_operation_code_list_text():
+    '''
+    Get the code list of "merger_operation" with annotation files as text.
+    '''
+
+    return '1AND2 (annotations included in both files) or 1BEST (all annotations of the first file and annotations of the second file if their seq id is not in the first)'
 
 #-------------------------------------------------------------------------------
     
@@ -2208,7 +2532,7 @@ def get_restored_file_format_code_list():
     Get the code list of "restored_file_format".
     '''
 
-    return ['FASTA', 'XML', 'CSV']
+    return ['FASTA', 'XML']
 
 #-------------------------------------------------------------------------------
     
@@ -2282,7 +2606,7 @@ class DevStdOut(object):
                 os.makedirs(os.path.dirname(self.log_file))
             self.log_file_id = open(self.log_file, mode='w', encoding='iso-8859-1', newline='\n')
         except Exception as e:
-            print('*** ERROR: The file {0} can not be created'.format(self.log_file))
+            print(f'*** ERROR: The file {self.log_file} can not be created.')
 
     #---------------
 
@@ -2416,54 +2740,54 @@ class ProgramException(Exception):
 
         # manage the code of exception
         if code_exception == 'B001':
-            Message.print('error', '*** ERROR {0}: The database {1} can not be connected.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: The database {param1} can not be connected.')
         elif code_exception == 'B002':
-            Message.print('error', '*** ERROR {0}: {1}'.format(code_exception, param1))
-            Message.print('error', '{0}'.format(param2))
+            Message.print('error', f'*** ERROR {code_exception}: {param1}')
+            Message.print('error', f'{param2}')
         elif code_exception == 'D001':
-            Message.print('error', '*** ERROR {0}: The record {3} of file {2} has a {1} value not integer.'.format(code_exception, param1, param2, param3))
+            Message.print('error', f'*** ERROR {code_exception}: The record {param3} of file {param2} has a {param1} value not integer.')
         elif code_exception == 'D002':
-            Message.print('error', '*** ERROR {0}: The record {3} of file {2} has a {1} value not float.'.format(code_exception, param1, param2, param3))
+            Message.print('error', f'*** ERROR {code_exception}: The record {param3} of file {param2} has a {param1} value not float.')
         elif code_exception == 'F001':
-            Message.print('error', '*** ERROR {0}: The file {1} can not be opened.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: The file {param1} can not be opened.')
         elif code_exception == 'F002':
-            Message.print('error', '*** ERROR {0}: The GZ compressed file {1} can not be opened.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: The GZ compressed file {param1} can not be opened.')
         elif code_exception == 'F003':
-            Message.print('error', '*** ERROR {0}: The file {1} can not be written.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: The file {param1} can not be written.')
         elif code_exception == 'F004':
-            Message.print('error', '*** ERROR {0}: The GZ compressed file {1} can not be written.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: The GZ compressed file {param1} can not be written.')
         elif code_exception == 'F005':
-            Message.print('error', '*** ERROR {0}: The format file {1} is not {2}.'.format(code_exception, param1, param2))
+            Message.print('error', f'*** ERROR {code_exception}: The format file {param1} is not {param2}.')
         elif code_exception == 'F006':
-            Message.print('error', '*** ERROR {0}: The record format in record {2} of the file {1} is wrong.'.format(code_exception, param1, param2))
+            Message.print('error', f'*** ERROR {code_exception}: The record format in record {param2} of the file {param1} is wrong.')
         elif code_exception == 'L001':
-            Message.print('error', '*** ERROR {0}: {1} is not a valid dataset identification.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: {param1} is not a valid dataset identification.')
         elif code_exception == 'L002':
-            Message.print('error', '*** ERROR {0}: The record {3} of file {2} has a wrong {1} identification.'.format(code_exception, param1, param2, param3))
+            Message.print('error', f'*** ERROR {code_exception}: The record {param3} of file {param2} has a wrong {param1} identification.')
         elif code_exception == 'L003':
-            Message.print('error', '*** ERROR {0}: {1} is not a valid species identification.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: {param1} is not a valid species identification.')
         elif code_exception == 'L004':
-            Message.print('error', '*** ERROR {0}: {1} in the file name {2} is not a valid species identification.'.format(code_exception, param1, param2))
+            Message.print('error', f'*** ERROR {code_exception}: {param1} in the file name {param2} is not a valid species identification.')
         elif code_exception == 'L005':
-            Message.print('error', '*** ERROR {0}: The name of the file {1} is not a valid name (gene_description.species_id.csv.gz with a valid species_id).'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: The name of the file {param1} is not a valid name (gene_description.species_id.csv.gz with a valid species_id).')
         elif code_exception == 'L006':
-            Message.print('error', '*** ERROR {0}: {1} is not a valid scientific name of a species.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: {param1} is not a valid scientific name of a species.')
         elif code_exception == 'L007':
-            Message.print('error', '*** ERROR {0}: There are not data loaded into TOA database to the species {1}.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: There are not data loaded into TOA database to the species {param1}.')
         elif code_exception == 'L008':
-            Message.print('error', '*** ERROR {0}: The sequence identification {1} is not found in the relation file.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: The sequence identification {param1} is not found in relation file(s).')
         elif code_exception == 'P001':
-            Message.print('error', '*** ERROR {0}: The program has parameters with invalid values.'.format(code_exception))
+            Message.print('error', f'*** ERROR {code_exception}: The program has parameters with invalid values.')
         elif code_exception == 'S001':
-            Message.print('error', '*** ERROR {0}: The {1} OS is not supported.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: The {param1} OS is not supported.')
         elif code_exception == 'W001':
-            Message.print('error', '*** ERROR {0}: The server {1} is not reachable.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: The server {param1} is not reachable.')
         elif code_exception == 'W002':
-            Message.print('error', '*** ERROR {0}: Connection to the server {1} is timed out.'.format(code_exception, param1))
+            Message.print('error', f'*** ERROR {code_exception}: Connection to the server {param1} is timed out.')
         elif code_exception == 'W003':
-            Message.print('error', '*** ERROR {0}: The server {1} returned the code {2}.'.format(code_exception, param1, param2))
+            Message.print('error', f'*** ERROR {code_exception}: The server {param1} returned the code {param2}.')
         else:
-            Message.print('error', '*** ERROR {0}: The exception is not managed.'.format(code_exception))
+            Message.print('error', f'*** ERROR {code_exception}: The exception is not managed.')
             sys.exit(1)
 
         # roll back changes into TOA database since the last call to commit()
@@ -2491,7 +2815,7 @@ class BreakAllLoops(Exception):
 #-------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    print('This source contains general functions and classes used in {0} software package used in both console mode and gui mode.'.format(get_long_project_name()))
+    print(f'This source contains general functions and classes used in {get_long_project_name()} software package used in both console mode and gui mode.')
     sys.exit(0)
 
 #-------------------------------------------------------------------------------

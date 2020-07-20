@@ -10,7 +10,7 @@ Additionally, NCBI Gene, InterPro and Gene Ontology databases are also used to c
 TOA has a user-friendly front-end where researchers can perform the following tasks simply with a few clicks:
 i) download biochemical and biological data from genomic databases; ii) design the annotation pipeline that
 implements the most appropriate workflow for the experiment they are analyzing; iii) view statistics and
-graphics of results;  and iv) track the status of processes during execution.
+graphics of results; and iv) track the status of processes during execution.
 
 Refer to the TOA manual (https://github.com/GGFHF/TOA/blob/master/Package/TOA-manual.pdf) for installation
 instructions, a description of the software and examples of use.

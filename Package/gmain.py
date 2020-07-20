@@ -19,7 +19,7 @@ Licence: GNU General Public Licence Version 3.
 
 '''
 This source contains the class Main corresponding to the graphical user interface of
-the TOA (Tree-oriented Annotation) software package.
+the TOA (Taxonomy-oriented Annotation) software package.
 '''
 
 #-------------------------------------------------------------------------------
@@ -129,25 +129,26 @@ class Main(tkinter.Tk):
         # link "menu_system" to "menu_bar"
         self.menu_bar.add_cascade(label='System', menu=self.menu_system)
 
-        # create "menu_bioinfo_software_setup" add add its menu items
-        self.menu_bioinfo_software_setup = tkinter.Menu(self.menu_bar, tearoff=0)
-        self.menu_bioinfo_software_setup.add_command(label='{0} (Bioconda infrastructure)'.format(xlib.get_miniconda3_name()), command=self.setup_miniconda3)
-        self.menu_bioinfo_software_setup.add_separator()
-        self.menu_bioinfo_software_setup.add_command(label=xlib.get_blastplus_name(), command=self.setup_blastplus)
-        self.menu_bioinfo_software_setup.add_command(label=xlib.get_entrez_direct_name(), command=self.setup_entrez_direct)
-        self.menu_bioinfo_software_setup.add_command(label=xlib.get_transdecoder_name(), command=self.setup_transdecoder)
-        # -- self.menu_bioinfo_software_setup.add_separator()
-        # -- self.menu_bioinfo_software_setup.add_command(label='{0} & analysis packages'.format(xlib.get_r_name()), command=self.setup_r)
+        # create "menu_bioinfo_software_installation" add add its menu items
+        self.menu_bioinfo_software_installation = tkinter.Menu(self.menu_bar, tearoff=0)
+        self.menu_bioinfo_software_installation.add_command(label=f'{xlib.get_miniconda3_name()} (Conda infrastructure)', command=self.install_miniconda3)
+        self.menu_bioinfo_software_installation.add_separator()
+        self.menu_bioinfo_software_installation.add_command(label=xlib.get_blastplus_name(), command=self.install_blastplus)
+        self.menu_bioinfo_software_installation.add_command(label=xlib.get_diamond_name(), command=self.install_diamond)
+        self.menu_bioinfo_software_installation.add_command(label=xlib.get_entrez_direct_name(), command=self.install_entrez_direct)
+        self.menu_bioinfo_software_installation.add_command(label=xlib.get_transdecoder_name(), command=self.install_transdecoder)
+        # -- self.menu_bioinfo_software_installation.add_separator()
+        # -- self.menu_bioinfo_software_installation.add_command(label=f'{xlib.get_r_name()} & analysis packages', command=self.install_r)
 
         # create "menu_toa_configuration" and add its menu items
         self.menu_toa_configuration = tkinter.Menu(self.menu_bar, tearoff=0)
-        self.menu_toa_configuration.add_command(label='Recreate {0} config file'.format(xlib.get_toa_name()), command=self.recreate_toa_config_file)
-        self.menu_toa_configuration.add_command(label='View {0} config file'.format(xlib.get_toa_name()), command=self.view_toa_config_file)
+        self.menu_toa_configuration.add_command(label=f'Recreate {xlib.get_toa_name()} config file', command=self.recreate_toa_config_file)
+        self.menu_toa_configuration.add_command(label=f'View {xlib.get_toa_name()} config file', command=self.view_toa_config_file)
         self.menu_toa_configuration.add_separator()
-        self.menu_toa_configuration.add_command(label='Recreate {0} database'.format(xlib.get_toa_name()), command=self.recreate_toa_database)
-        self.menu_toa_configuration.add_command(label='Rebuild {0} database'.format(xlib.get_toa_name()), command=self.rebuild_toa_database)
+        self.menu_toa_configuration.add_command(label=f'Recreate {xlib.get_toa_name()} database', command=self.recreate_toa_database)
+        self.menu_toa_configuration.add_command(label=f'Rebuild {xlib.get_toa_name()} database', command=self.rebuild_toa_database)
         self.menu_toa_configuration.add_separator()
-        self.menu_toa_configuration.add_cascade(label='Bioinfo software setup', menu=self.menu_bioinfo_software_setup)
+        self.menu_toa_configuration.add_cascade(label='Bioinfo software installation', menu=self.menu_bioinfo_software_installation)
 
         # link "menu_toa_configuration" to "menu_bar"
         self.menu_bar.add_cascade(label='Configuration', menu=self.menu_toa_configuration)
@@ -162,36 +163,40 @@ class Main(tkinter.Tk):
         self.menu_toa_basic_data.add_separator()
         self.menu_toa_basic_data.add_command(label='Download other basic data', command=self.download_basic_data)
         self.menu_toa_basic_data.add_separator()
-        self.menu_toa_basic_data.add_command(label='Load data into {0} database'.format(xlib.get_toa_name()), command=self.load_basic_data)
+        self.menu_toa_basic_data.add_command(label=f'Load data into {xlib.get_toa_name()} database', command=self.load_basic_data)
 
         # create "menu_toa_gymno_01" and add its menu items
         self.menu_toa_gymno_01 = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_gymno_01.add_command(label='Build proteome', command=self.build_gymno_01_proteome)
         self.menu_toa_gymno_01.add_separator()
         self.menu_toa_gymno_01.add_command(label='Download functional annotations from PLAZA server', command=self.download_gymno_01_data)
-        self.menu_toa_gymno_01.add_command(label='Load data into {0} database'.format(xlib.get_toa_name()), command=self.load_gymno_01_data)
+        self.menu_toa_gymno_01.add_command(label=f'Load data into {xlib.get_toa_name()} database', command=self.load_gymno_01_data)
 
         # create "menu_toa_dicots_04" and add its menu items
         self.menu_toa_dicots_04 = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_dicots_04.add_command(label='Build proteome', command=self.build_dicots_04_proteome)
         self.menu_toa_dicots_04.add_separator()
         self.menu_toa_dicots_04.add_command(label='Download functional annotations from PLAZA server', command=self.download_dicots_04_data)
-        self.menu_toa_dicots_04.add_command(label='Load data into {0} database'.format(xlib.get_toa_name()), command=self.load_dicots_04_data)
+        self.menu_toa_dicots_04.add_command(label=f'Load data into {xlib.get_toa_name()} database', command=self.load_dicots_04_data)
 
         # create "menu_toa_monocots_04" and add its menu items
         self.menu_toa_monocots_04 = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_monocots_04.add_command(label='Build proteome', command=self.build_monocots_04_proteome)
         self.menu_toa_monocots_04.add_separator()
         self.menu_toa_monocots_04.add_command(label='Download functional annotations from PLAZA server', command=self.download_monocots_04_data)
-        self.menu_toa_monocots_04.add_command(label='Load data into {0} database'.format(xlib.get_toa_name()), command=self.load_monocots_04_data)
+        self.menu_toa_monocots_04.add_command(label=f'Load data into {xlib.get_toa_name()} database', command=self.load_monocots_04_data)
 
         # create "menu_toa_refseq_plant" and add its menu items
         self.menu_toa_refseq_plant = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_refseq_plant.add_command(label='Build proteome', command=self.build_refseq_plant_proteome)
 
+        # create "menu_toa_taxonomy" and add its menu items
+        self.menu_toa_taxonomy = tkinter.Menu(self.menu_bar, tearoff=0)
+        self.menu_toa_taxonomy.add_command(label='Download taxonomy data from NCBI server', command=self.download_taxonomy_data)
+
         # create "menu_toa_nt" and add its menu items
         self.menu_toa_nt = tkinter.Menu(self.menu_bar, tearoff=0)
-        self.menu_toa_nt.add_command(label='Build BLAST database', command=self.build_nt_blastdb)
+        self.menu_toa_nt.add_command(label='Build database for BLAST+', command=self.build_blastplus_nt_db)
 
         # create "menu_toa_nucleotide_gi" and add its menu items
         self.menu_toa_nucleotide_gi = tkinter.Menu(self.menu_bar, tearoff=0)
@@ -199,7 +204,8 @@ class Main(tkinter.Tk):
 
         # create "menu_toa_nr" and add its menu items
         self.menu_toa_nr = tkinter.Menu(self.menu_bar, tearoff=0)
-        self.menu_toa_nr.add_command(label='Build BLAST database', command=self.build_nr_blastdb)
+        self.menu_toa_nr.add_command(label='Build database for BLAST+', command=self.build_blastplus_nr_db)
+        self.menu_toa_nr.add_command(label='Build database for DIAMOND', command=self.build_diamond_nr_db)
 
         # create "menu_toa_protein_gi" and add its menu items
         self.menu_toa_protein_gi = tkinter.Menu(self.menu_bar, tearoff=0)
@@ -208,17 +214,17 @@ class Main(tkinter.Tk):
         # create "menu_toa_gene" and add its menu items
         self.menu_toa_gene = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_gene.add_command(label='Download functional annotations from NCBI server', command=self.download_gene_data)
-        self.menu_toa_gene.add_command(label='Load data into {0} database'.format(xlib.get_toa_name()), command=self.load_gene_data)
+        self.menu_toa_gene.add_command(label=f'Load data into {xlib.get_toa_name()} database', command=self.load_gene_data)
 
         # create "menu_toa_interpro" and add its menu items
         self.menu_toa_interpro = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_interpro.add_command(label='Download functional annotations from InterPro server', command=self.download_interpro_data)
-        self.menu_toa_interpro.add_command(label='Load data into {0} database'.format(xlib.get_toa_name()), command=self.load_interpro_data)
+        self.menu_toa_interpro.add_command(label=f'Load data into {xlib.get_toa_name()} database', command=self.load_interpro_data)
 
         # create "menu_toa_go" and add its menu items
         self.menu_toa_go = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_go.add_command(label='Download functional annotations from Gene Ontology server', command=self.download_go_data)
-        self.menu_toa_go.add_command(label='Load data into {0} database'.format(xlib.get_toa_name()), command=self.load_go_data)
+        self.menu_toa_go.add_command(label=f'Load data into {xlib.get_toa_name()} database', command=self.load_go_data)
 
         # create "menu_toa_databases" and add its menu items
         self.menu_toa_databases = tkinter.Menu(self.menu_bar, tearoff=0)
@@ -229,10 +235,11 @@ class Main(tkinter.Tk):
         self.menu_toa_databases.add_cascade(label=xlib.get_toa_data_monocots_04_name(), menu=self.menu_toa_monocots_04)
         self.menu_toa_databases.add_separator()
         self.menu_toa_databases.add_cascade(label=xlib.get_toa_data_refseq_plant_name(), menu=self.menu_toa_refseq_plant)
+        # -- self.menu_toa_databases.add_cascade(label=xlib.get_toa_data_taxonomy_name(), menu=self.menu_toa_taxonomy)
         self.menu_toa_databases.add_cascade(label=xlib.get_toa_data_nt_name(), menu=self.menu_toa_nt)
-        self.menu_toa_databases.add_cascade(label=xlib.get_toa_data_viridiplantae_nucleotide_gi_name(), menu=self.menu_toa_nucleotide_gi)
+        # -- self.menu_toa_databases.add_cascade(label=xlib.get_toa_data_viridiplantae_nucleotide_gi_name(), menu=self.menu_toa_nucleotide_gi)
         self.menu_toa_databases.add_cascade(label=xlib.get_toa_data_nr_name(), menu=self.menu_toa_nr)
-        self.menu_toa_databases.add_cascade(label=xlib.get_toa_data_viridiplantae_protein_gi_name(), menu=self.menu_toa_protein_gi)
+        # -- self.menu_toa_databases.add_cascade(label=xlib.get_toa_data_viridiplantae_protein_gi_name(), menu=self.menu_toa_protein_gi)
         self.menu_toa_databases.add_cascade(label=xlib.get_toa_data_gene_name(), menu=self.menu_toa_gene)
         self.menu_toa_databases.add_separator()
         self.menu_toa_databases.add_cascade(label=xlib.get_toa_data_interpro_name(), menu=self.menu_toa_interpro)
@@ -258,11 +265,19 @@ class Main(tkinter.Tk):
         self.menu_toa_aminoacid_pipeline.add_command(label='Run pipeline', command=self.run_aminoacid_pipeline_process)
         self.menu_toa_aminoacid_pipeline.add_command(label='Restart pipeline', command=self.restart_aminoacid_pipeline_process)
 
+        # create "menu_toa_annotation_merger" and add its menu items
+        self.menu_toa_annotation_merger = tkinter.Menu(self.menu_bar, tearoff=0)
+        self.menu_toa_annotation_merger.add_command(label='Recreate config file', command=self.recreate_annotation_merger_config_file)
+        self.menu_toa_annotation_merger.add_command(label='Edit config file', command=self.edit_annotation_merger_config_file)
+        self.menu_toa_annotation_merger.add_separator()
+        self.menu_toa_annotation_merger.add_command(label='Run process', command=self.run_annotation_merger_process)
+
         # create "menu_toa_pipelines" and add its menu items
         self.menu_toa_pipelines = tkinter.Menu(self.menu_bar, tearoff=0)
-        self.menu_toa_pipelines.add_cascade(label='{0} {1}'.format(xlib.get_toa_name(), xlib.get_toa_process_pipeline_nucleotide_name()), menu=self.menu_toa_nucleotide_pipeline)
+        self.menu_toa_pipelines.add_cascade(label=f'{xlib.get_toa_name()} {xlib.get_toa_process_pipeline_nucleotide_name()}', menu=self.menu_toa_nucleotide_pipeline)
+        self.menu_toa_pipelines.add_cascade(label=f'{xlib.get_toa_name()} {xlib.get_toa_process_pipeline_aminoacid_name()}', menu=self.menu_toa_aminoacid_pipeline)
         self.menu_toa_pipelines.add_separator()
-        self.menu_toa_pipelines.add_cascade(label='{0} {1}'.format(xlib.get_toa_name(), xlib.get_toa_process_pipeline_aminoacid_name()), menu=self.menu_toa_aminoacid_pipeline)
+        self.menu_toa_pipelines.add_cascade(label=f'Annotation merger of {xlib.get_toa_name()} pipelines', menu=self.menu_toa_annotation_merger)
 
         # link "menu_toa_pipelines" to "menu_bar"
         self.menu_bar.add_cascade(label='Annotation pipelines', menu=self.menu_toa_pipelines)
@@ -270,78 +285,96 @@ class Main(tkinter.Tk):
         # create "menu_toa_alignment_stats" and add its menu items
         self.menu_toa_alignment_stats = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_alignment_stats.add_command(label='# HITs per # HSPs data', command=self.view_hit_per_hsp_data)
-        self.menu_toa_alignment_stats.add_command(label='# HITs per # HSPs plot', command=self.plot_hit_per_hsp_data)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_alignment_stats.add_command(label='# HITs per # HSPs plot', command=self.plot_hit_per_hsp_data)
 
         # create "menu_toa_annotation_dataset_stats" and add its menu items
         self.menu_toa_annotation_dataset_stats = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_annotation_dataset_stats.add_command(label='Frequency distribution data', command=self.view_annotation_dataset_frequency)
-        self.menu_toa_annotation_dataset_stats.add_command(label='Frequency distribution plot', command=self.plot_annotation_dataset_frequency)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_annotation_dataset_stats.add_command(label='Frequency distribution plot', command=self.plot_annotation_dataset_frequency)
 
         # create "menu_toa_species_stats" and add its menu items
         self.menu_toa_species_stats = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_species_stats.add_command(label='Frequency distribution data', command=self.view_species_frequency)
-        self.menu_toa_species_stats.add_command(label='Frequency distribution plot', command=self.plot_species_frequency)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_species_stats.add_command(label='Frequency distribution plot', command=self.plot_species_frequency)
 
         # create "menu_toa_family_stats" and add its menu items
         self.menu_toa_family_stats = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_family_stats.add_command(label='Frequency distribution data', command=self.view_family_frequency)
-        self.menu_toa_family_stats.add_command(label='Frequency distribution plot', command=self.plot_family_frequency)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_family_stats.add_command(label='Frequency distribution plot', command=self.plot_family_frequency)
 
         # create "menu_toa_phylum_stats" and add its menu items
         self.menu_toa_phylum_stats = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_phylum_stats.add_command(label='Frequency distribution data', command=self.view_phylum_frequency)
-        self.menu_toa_phylum_stats.add_command(label='Frequency distribution plot', command=self.plot_phylum_frequency)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_phylum_stats.add_command(label='Frequency distribution plot', command=self.plot_phylum_frequency)
 
         # create "menu_toa_ec_stats" and add its menu items
         self.menu_toa_ec_stats = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_ec_stats.add_command(label='Frequency distribution data', command=self.view_ec_frequency)
-        self.menu_toa_ec_stats.add_command(label='Frequency distribution plot', command=self.plot_ec_frequency)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_ec_stats.add_command(label='Frequency distribution plot', command=self.plot_ec_frequency)
         self.menu_toa_ec_stats.add_separator()
         self.menu_toa_ec_stats.add_command(label='# sequences per # ids data', command=self.view_seq_per_ec_data)
-        self.menu_toa_ec_stats.add_command(label='# sequences per # ids plot', command=self.plot_seq_per_ec_data)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_ec_stats.add_command(label='# sequences per # ids plot', command=self.plot_seq_per_ec_data)
 
         # create "menu_toa_go_stats" and add its menu items
         self.menu_toa_go_stats = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_go_stats.add_command(label='Frequency distribution per term data', command=self.view_go_frequency)
-        self.menu_toa_go_stats.add_command(label='Frequency distribution per term plot', command=self.plot_go_frequency)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_go_stats.add_command(label='Frequency distribution per term plot', command=self.plot_go_frequency)
         self.menu_toa_go_stats.add_separator()
         self.menu_toa_go_stats.add_command(label='Frequency distribution per namespace data', command=self.view_namespace_frequency)
-        self.menu_toa_go_stats.add_command(label='Frequency distribution per namespace plot', command=self.plot_namespace_frequency)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_go_stats.add_command(label='Frequency distribution per namespace plot', command=self.plot_namespace_frequency)
         self.menu_toa_go_stats.add_separator()
         self.menu_toa_go_stats.add_command(label='# sequences per # terms data', command=self.view_seq_per_go_data)
-        self.menu_toa_go_stats.add_command(label='# sequences per # terms plot', command=self.plot_seq_per_go_data)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_go_stats.add_command(label='# sequences per # terms plot', command=self.plot_seq_per_go_data)
 
         # create "menu_toa_interpro_stats" and add its menu items
         self.menu_toa_interpro_stats = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_interpro_stats.add_command(label='Frequency distribution data', command=self.view_interpro_frequency)
-        self.menu_toa_interpro_stats.add_command(label='Frequency distribution plot', command=self.plot_interpro_frequency)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_interpro_stats.add_command(label='Frequency distribution plot', command=self.plot_interpro_frequency)
         self.menu_toa_interpro_stats.add_separator()
         self.menu_toa_interpro_stats.add_command(label='# sequences per # ids data', command=self.view_seq_per_interpro_data)
-        self.menu_toa_interpro_stats.add_command(label='# sequences per # ids plot', command=self.plot_seq_per_interpro_data)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_interpro_stats.add_command(label='# sequences per # ids plot', command=self.plot_seq_per_interpro_data)
 
         # create "menu_toa_kegg_stats" and add its menu items
         self.menu_toa_kegg_stats = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_kegg_stats.add_command(label='Frequency distribution data', command=self.view_kegg_frequency)
-        self.menu_toa_kegg_stats.add_command(label='Frequency distribution plot', command=self.plot_kegg_frequency)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_kegg_stats.add_command(label='Frequency distribution plot', command=self.plot_kegg_frequency)
         self.menu_toa_kegg_stats.add_separator()
         self.menu_toa_kegg_stats.add_command(label='# sequences per # ids data', command=self.view_seq_per_kegg_data)
-        self.menu_toa_kegg_stats.add_command(label='# sequences per # ids plot', command=self.plot_seq_per_kegg_data)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_kegg_stats.add_command(label='# sequences per # ids plot', command=self.plot_seq_per_kegg_data)
 
         # create "menu_toa_mapman_stats" and add its menu items
         self.menu_toa_mapman_stats = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_mapman_stats.add_command(label='Frequency distribution data', command=self.view_mapman_frequency)
-        self.menu_toa_mapman_stats.add_command(label='Frequency distribution plot', command=self.plot_mapman_frequency)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_mapman_stats.add_command(label='Frequency distribution plot', command=self.plot_mapman_frequency)
         self.menu_toa_mapman_stats.add_separator()
         self.menu_toa_mapman_stats.add_command(label='# sequences per # ids data', command=self.view_seq_per_mapman_data)
-        self.menu_toa_mapman_stats.add_command(label='# sequences per # ids plot', command=self.plot_seq_per_mapman_data)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_mapman_stats.add_command(label='# sequences per # ids plot', command=self.plot_seq_per_mapman_data)
 
         # create "menu_toa_metacyc_stats" and add its menu items
         self.menu_toa_metacyc_stats = tkinter.Menu(self.menu_bar, tearoff=0)
         self.menu_toa_metacyc_stats.add_command(label='Distribution data', command=self.view_metacyc_frequency)
-        self.menu_toa_metacyc_stats.add_command(label='Distribution plot', command=self.plot_metacyc_frequency)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_metacyc_stats.add_command(label='Distribution plot', command=self.plot_metacyc_frequency)
         self.menu_toa_metacyc_stats.add_separator()
         self.menu_toa_metacyc_stats.add_command(label='# sequences per # ids data', command=self.view_seq_per_metacyc_data)
-        self.menu_toa_metacyc_stats.add_command(label='# sequences per # ids plot', command=self.plot_seq_per_metacyc_data)
+        if os.getcwd() != xlib.get_docker_toa_dir():
+            self.menu_toa_metacyc_stats.add_command(label='# sequences per # ids plot', command=self.plot_seq_per_metacyc_data)
 
         # create "menu_toa_stats" and add its menu items
         self.menu_toa_stats = tkinter.Menu(self.menu_bar, tearoff=0)
@@ -414,108 +447,129 @@ class Main(tkinter.Tk):
 
     #---------------
 
-    def setup_miniconda3(self):
+    def install_miniconda3(self):
         '''
-        Set up the Miniconda3 in the cluster.
+        Install the Miniconda3 in the cluster.
         '''
 
         # close the current form
         self.close_current_form()
 
-        # create and register "form_setup_miniconda3" in "container" with the grid geometry manager
-        form_setup_miniconda3 = gbioinfoapp.FormSetupBioinfoApp(self.container, self, app=xlib.get_miniconda3_code())
-        form_setup_miniconda3.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_install_miniconda3" in "container" with the grid geometry manager
+        form_install_miniconda3 = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_miniconda3_code())
+        form_install_miniconda3.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_setup_miniconda3" as current form and add it in the forms dictionary
-        self.current_form = 'form_setup_miniconda3'
-        self.forms_dict[self.current_form] = form_setup_miniconda3
+        # set "form_install_miniconda3" as current form and add it in the forms dictionary
+        self.current_form = 'form_install_miniconda3'
+        self.forms_dict[self.current_form] = form_install_miniconda3
 
-        # raise "form_setup_miniconda3" to front
-        form_setup_miniconda3.tkraise()
+        # raise "form_install_miniconda3" to front
+        form_install_miniconda3.tkraise()
 
     #---------------
 
-    def setup_blastplus(self):
+    def install_blastplus(self):
         '''
-        Set up the BLAST+ in the cluster.
+        Install the BLAST+ in the cluster.
         '''
 
         # close the current form
         self.close_current_form()
 
-        # create and register "form_setup_blastplus" in "container" with the grid geometry manager
-        form_setup_blastplus = gbioinfoapp.FormSetupBioinfoApp(self.container, self, app=xlib.get_blastplus_code())
-        form_setup_blastplus.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_install_blastplus" in "container" with the grid geometry manager
+        form_install_blastplus = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_blastplus_code())
+        form_install_blastplus.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_setup_blastplus" as current form and add it in the forms dictionary
-        self.current_form = 'form_setup_blastplus'
-        self.forms_dict[self.current_form] = form_setup_blastplus
+        # set "form_install_blastplus" as current form and add it in the forms dictionary
+        self.current_form = 'form_install_blastplus'
+        self.forms_dict[self.current_form] = form_install_blastplus
 
-        # raise "form_setup_blastplus" to front
-        form_setup_blastplus.tkraise()
+        # raise "form_install_blastplus" to front
+        form_install_blastplus.tkraise()
 
     #---------------
 
-    def setup_entrez_direct(self):
+    def install_diamond(self):
         '''
-        Set up the Entrez Direct software in the cluster.
+        Install the DIAMOND in the cluster.
         '''
 
         # close the current form
         self.close_current_form()
 
-        # create and register "form_setup_entrez_direct" in "container" with the grid geometry manager
-        form_setup_entrez_direct = gbioinfoapp.FormSetupBioinfoApp(self.container, self, app=xlib.get_entrez_direct_code())
-        form_setup_entrez_direct.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_install_diamond" in "container" with the grid geometry manager
+        form_install_diamond = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_diamond_code())
+        form_install_diamond.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_setup_entrez_direct" as current form and add it in the forms dictionary
-        self.current_form = 'form_setup_entrez_direct'
-        self.forms_dict[self.current_form] = form_setup_entrez_direct
+        # set "form_install_diamond" as current form and add it in the forms dictionary
+        self.current_form = 'form_install_diamond'
+        self.forms_dict[self.current_form] = form_install_diamond
 
-        # raise "form_setup_entrez_direct" to front
-        form_setup_entrez_direct.tkraise()
+        # raise "form_install_diamond" to front
+        form_install_diamond.tkraise()
 
     #---------------
 
-    def setup_r(self):
+    def install_entrez_direct(self):
         '''
-        Set up the R in the cluster.
+        Install the Entrez Direct software in the cluster.
         '''
 
         # close the current form
         self.close_current_form()
 
-        # create and register "form_setup_r" in "container" with the grid geometry manager
-        form_setup_r = gbioinfoapp.FormSetupBioinfoApp(self.container, self, app=xlib.get_r_code())
-        form_setup_r.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_install_entrez_direct" in "container" with the grid geometry manager
+        form_install_entrez_direct = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_entrez_direct_code())
+        form_install_entrez_direct.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_setup_r" as current form and add it in the forms dictionary
-        self.current_form = 'form_setup_r'
-        self.forms_dict[self.current_form] = form_setup_r
+        # set "form_install_entrez_direct" as current form and add it in the forms dictionary
+        self.current_form = 'form_install_entrez_direct'
+        self.forms_dict[self.current_form] = form_install_entrez_direct
 
-        # raise "form_setup_r" to front
-        form_setup_r.tkraise()
+        # raise "form_install_entrez_direct" to front
+        form_install_entrez_direct.tkraise()
 
     #---------------
 
-    def setup_transdecoder(self):
+    def install_r(self):
         '''
-        Set up the TransDecoder software in the cluster.
+        Install the R in the cluster.
         '''
 
         # close the current form
         self.close_current_form()
 
-        # create and register "form_setup_transdecoder" in "container" with the grid geometry manager
-        form_setup_transdecoder = gbioinfoapp.FormSetupBioinfoApp(self.container, self, app=xlib.get_transdecoder_code())
-        form_setup_transdecoder.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_install_r" in "container" with the grid geometry manager
+        form_install_r = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_r_code())
+        form_install_r.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_setup_transdecoder" as current form and add it in the forms dictionary
-        self.current_form = 'form_setup_transdecoder'
-        self.forms_dict[self.current_form] = form_setup_transdecoder
+        # set "form_install_r" as current form and add it in the forms dictionary
+        self.current_form = 'form_install_r'
+        self.forms_dict[self.current_form] = form_install_r
 
-        # raise "form_setup_transdecoder" to front
-        form_setup_transdecoder.tkraise()
+        # raise "form_install_r" to front
+        form_install_r.tkraise()
+
+    #---------------
+
+    def install_transdecoder(self):
+        '''
+        Install the TransDecoder software in the cluster.
+        '''
+
+        # close the current form
+        self.close_current_form()
+
+        # create and register "form_install_transdecoder" in "container" with the grid geometry manager
+        form_install_transdecoder = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_transdecoder_code())
+        form_install_transdecoder.grid(row=0, column=0, sticky='nsew')
+
+        # set "form_install_transdecoder" as current form and add it in the forms dictionary
+        self.current_form = 'form_install_transdecoder'
+        self.forms_dict[self.current_form] = form_install_transdecoder
+
+        # raise "form_install_transdecoder" to front
+        form_install_transdecoder.tkraise()
 
     #---------------
 
@@ -611,11 +665,11 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # set the head
-        head = '{0} - Recreate file of datasets'.format(xlib.get_toa_name())
+        head = f'{xlib.get_toa_name()} - Recreate file of datasets'
 
         # confirm the creation of the file of datasets
-        message = 'The file {0} is going to be recreated. The previous file will be lost.\n\nAre you sure to continue?'.format(xtoa.get_dataset_file())
-        OK = tkinter.messagebox.askyesno('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+        message = f'The file {xtoa.get_dataset_file()} is going to be recreated. The previous file will be lost.\n\nAre you sure to continue?'
+        OK = tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - {head}', message)
 
         # recreate the file of datasets
         if OK:
@@ -623,8 +677,8 @@ class Main(tkinter.Tk):
             if not OK:
                 message = ''
                 for error in error_list:
-                    message = '{0}{1}\n'.format(message, error) 
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+                    message = f'{message}{error}\n'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {head}', message)
 
         # edit the file of datasets
         if OK:
@@ -636,13 +690,13 @@ class Main(tkinter.Tk):
             # check the data file
             (OK, error_list) = xtoa.check_dataset_file(strict=False)
             if OK:
-                message = 'The file {0} is OK.'.format(xtoa.get_dataset_file())
-                tkinter.messagebox.showinfo('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+                message = f'The file {xtoa.get_dataset_file()} is OK.'
+                tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {head}', message)
             else:
                 message = 'Detected errors:\n\n'
                 for error in error_list:
-                    message = '{0}{1}\n'.format(message, error) 
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+                    message = f'{message}{error}\n'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {head}', message)
 
     #---------------
 
@@ -658,7 +712,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # set the head
-        head = '{0} - Edit file of datasets'.format(xlib.get_toa_name())
+        head = f'{xlib.get_toa_name()} - Edit file of datasets'
 
         # edit the file of datasets using "DialogEditor" 
         dialog_editor = gdialogs.DialogEditor(self, xtoa.get_dataset_file())
@@ -667,13 +721,13 @@ class Main(tkinter.Tk):
         # check the file of datasets
         (OK, error_list) = xtoa.check_dataset_file(strict=False)
         if OK:
-            message = 'The file {0} is OK.'.format(xtoa.get_dataset_file())
-            tkinter.messagebox.showinfo('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+            message = f'The file {xtoa.get_dataset_file()} is OK.'
+            tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {head}', message)
         else:
             message = 'Detected errors:\n\n'
             for error in error_list:
-                message = '{0}{1}\n'.format(message, error) 
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+                message = f'{message}{error}\n'
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {head}', message)
 
     #---------------
 
@@ -689,11 +743,11 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # set the head
-        head = '{0} - Recreate file of species'.format(xlib.get_toa_name())
+        head = f'{xlib.get_toa_name()} - Recreate file of species'
 
         # confirm the creation of the file of species
-        message = 'The file {0} is going to be recreated. The previous file will be lost.\n\nAre you sure to continue?'.format(xtoa.get_species_file())
-        OK = tkinter.messagebox.askyesno('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+        message = f'The file {xtoa.get_species_file()} is going to be recreated. The previous file will be lost.\n\nAre you sure to continue?'
+        OK = tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - {head}', message)
 
         # recreate the file of species
         if OK:
@@ -701,8 +755,8 @@ class Main(tkinter.Tk):
             if not OK:
                 message = ''
                 for error in error_list:
-                    message = '{0}{1}\n'.format(message, error) 
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+                    message = f'{message}{error}\n'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {head}', message)
 
         # edit the file of species
         if OK:
@@ -714,13 +768,13 @@ class Main(tkinter.Tk):
             # check the data file
             (OK, error_list) = xtoa.check_species_file(strict=False)
             if OK:
-                message = 'The file {0} is OK.'.format(xtoa.get_species_file())
-                tkinter.messagebox.showinfo('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+                message = f'The file {xtoa.get_species_file()} is OK.'
+                tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {head}', message)
             else:
                 message = 'Detected errors:\n\n'
                 for error in error_list:
-                    message = '{0}{1}\n'.format(message, error) 
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+                    message = f'{message}{error}\n' 
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {head}', message)
 
     #---------------
 
@@ -736,7 +790,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # set the head
-        head = '{0} - Edit file of species'.format(xlib.get_toa_name())
+        head = f'{xlib.get_toa_name()} - Edit file of species'.format()
 
         # edit the file of species using "DialogEditor" 
         dialog_editor = gdialogs.DialogEditor(self, xtoa.get_species_file())
@@ -745,13 +799,13 @@ class Main(tkinter.Tk):
         # check the file of species
         (OK, error_list) = xtoa.check_species_file(strict=False)
         if OK:
-            message = 'The file {0} is OK.'.format(xtoa.get_species_file())
-            tkinter.messagebox.showinfo('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+            message = f'The file {xtoa.get_species_file()} is OK.'
+            tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {head}', message)
         else:
             message = 'Detected errors:\n\n'
             for error in error_list:
-                message = '{0}{1}\n'.format(message, error) 
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+                message = f'{message}{error}\n' 
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {head}', message)
 
     #---------------
 
@@ -763,16 +817,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_basic_data_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_download_basic_data" in "container" with the grid geometry manager
+        form_download_basic_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_basic_data_code())
+        form_download_basic_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_download_basic_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_download_basic_data'
+        self.forms_dict[self.current_form] = form_download_basic_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_download_basic_data" to front
+        form_download_basic_data.tkraise()
 
     #---------------
 
@@ -784,16 +838,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_basic_data_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_load_basic_data" in "container" with the grid geometry manager
+        form_load_basic_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_basic_data_code())
+        form_load_basic_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_load_basic_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_load_basic_data'
+        self.forms_dict[self.current_form] = form_load_basic_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_load_basic_data" to front
+        form_load_basic_data.tkraise()
 
     #---------------
 
@@ -805,16 +859,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_gymno_01_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_build_gymno_01_proteome" in "container" with the grid geometry manager
+        form_build_gymno_01_proteome = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_gymno_01_code())
+        form_build_gymno_01_proteome.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_build_gymno_01_proteome" as current form and add it in the forms dictionary
+        self.current_form = 'form_build_gymno_01_proteome'
+        self.forms_dict[self.current_form] = form_build_gymno_01_proteome
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_build_gymno_01_proteome" to front
+        form_build_gymno_01_proteome.tkraise()
 
     #---------------
 
@@ -826,16 +880,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_gymno_01_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_download_gymno_01_data" in "container" with the grid geometry manager
+        form_download_gymno_01_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_gymno_01_code())
+        form_download_gymno_01_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_download_gymno_01_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_download_gymno_01_data'
+        self.forms_dict[self.current_form] = form_download_gymno_01_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_download_gymno_01_data" to front
+        form_download_gymno_01_data.tkraise()
 
     #---------------
 
@@ -847,16 +901,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_gymno_01_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_load_gymno_01_data" in "container" with the grid geometry manager
+        form_load_gymno_01_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_gymno_01_code())
+        form_load_gymno_01_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_load_gymno_01_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_load_gymno_01_data'
+        self.forms_dict[self.current_form] = form_load_gymno_01_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_load_gymno_01_data" to front
+        form_load_gymno_01_data.tkraise()
 
     #---------------
 
@@ -868,16 +922,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_dicots_04_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_build_dicots_04_proteome" in "container" with the grid geometry manager
+        form_build_dicots_04_proteome = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_dicots_04_code())
+        form_build_dicots_04_proteome.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_build_dicots_04_proteome" as current form and add it in the forms dictionary
+        self.current_form = 'form_build_dicots_04_proteome'
+        self.forms_dict[self.current_form] = form_build_dicots_04_proteome
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_build_dicots_04_proteome" to front
+        form_build_dicots_04_proteome.tkraise()
 
     #---------------
 
@@ -889,16 +943,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_dicots_04_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_download_dicots_04_data" in "container" with the grid geometry manager
+        form_download_dicots_04_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_dicots_04_code())
+        form_download_dicots_04_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_download_dicots_04_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_download_dicots_04_data'
+        self.forms_dict[self.current_form] = form_download_dicots_04_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_download_dicots_04_data" to front
+        form_download_dicots_04_data.tkraise()
 
     #---------------
 
@@ -910,16 +964,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_dicots_04_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_load_dicots_04_data" in "container" with the grid geometry manager
+        form_load_dicots_04_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_dicots_04_code())
+        form_load_dicots_04_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_load_dicots_04_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_load_dicots_04_data'
+        self.forms_dict[self.current_form] = form_load_dicots_04_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_load_dicots_04_data" to front
+        form_load_dicots_04_data.tkraise()
 
     #---------------
 
@@ -931,16 +985,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_monocots_04_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_build_monocots_04_proteome" in "container" with the grid geometry manager
+        form_build_monocots_04_proteome = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_monocots_04_code())
+        form_build_monocots_04_proteome.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_build_monocots_04_proteome" as current form and add it in the forms dictionary
+        self.current_form = 'form_build_monocots_04_proteome'
+        self.forms_dict[self.current_form] = form_build_monocots_04_proteome
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_build_monocots_04_proteome" to front
+        form_build_monocots_04_proteome.tkraise()
 
     #---------------
 
@@ -952,16 +1006,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_monocots_04_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_download_monocots_04_data" in "container" with the grid geometry manager
+        form_download_monocots_04_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_monocots_04_code())
+        form_download_monocots_04_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_download_monocots_04_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_download_monocots_04_data'
+        self.forms_dict[self.current_form] = form_download_monocots_04_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_download_monocots_04_data" to front
+        form_download_monocots_04_data.tkraise()
 
     #---------------
 
@@ -973,16 +1027,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_monocots_04_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_load_monocots_04_data" in "container" with the grid geometry manager
+        form_load_monocots_04_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_monocots_04_code())
+        form_load_monocots_04_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_load_monocots_04_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_load_monocots_04_data'
+        self.forms_dict[self.current_form] = form_load_monocots_04_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_load_monocots_04_data" to front
+        form_load_monocots_04_data.tkraise()
 
     #---------------
 
@@ -994,37 +1048,58 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_refseq_plant_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_build_refseq_plant_proteome" in "container" with the grid geometry manager
+        form_build_refseq_plant_proteome = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_refseq_plant_code())
+        form_build_refseq_plant_proteome.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_build_refseq_plant_proteome" as current form and add it in the forms dictionary
+        self.current_form = 'form_build_refseq_plant_proteome'
+        self.forms_dict[self.current_form] = form_build_refseq_plant_proteome
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_build_refseq_plant_proteome" to front
+        form_build_refseq_plant_proteome.tkraise()
 
     #---------------
 
-    def build_nt_blastdb(self):
+    def download_taxonomy_data(self):
         '''
-        Build the NCBI BLAST database NT.
+        Download NCBI Taxonomy data.
         '''
 
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_blastdb(), genomic_database=xlib.get_toa_data_nt_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_download_taxonomy_data" in "container" with the grid geometry manager
+        form_download_taxonomy_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_taxonomy_code())
+        form_download_taxonomy_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_download_taxonomy_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_download_taxonomy_data'
+        self.forms_dict[self.current_form] = form_download_taxonomy_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_download_taxonomy_data" to front
+        form_download_taxonomy_data.tkraise()
+
+    #---------------
+
+    def build_blastplus_nt_db(self):
+        '''
+        Build the NCBI BLAST database NT for BLAST+.
+        '''
+
+        # close the current form
+        self.close_current_form()
+
+        # create and register "form_build_blastplus_nt_db" in "container" with the grid geometry manager
+        form_build_blastplus_nt_db = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_blastplus_db(), genomic_database=xlib.get_toa_data_nt_code())
+        form_build_blastplus_nt_db.grid(row=0, column=0, sticky='nsew')
+
+        # set "form_build_blastplus_nt_db" as current form and add it in the forms dictionary
+        self.current_form = 'form_build_blastplus_nt_db'
+        self.forms_dict[self.current_form] = form_build_blastplus_nt_db
+
+        # raise "form_build_blastplus_nt_db" to front
+        form_build_blastplus_nt_db.tkraise()
 
     #---------------
 
@@ -1036,37 +1111,58 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_gilist(), genomic_database=xlib.get_toa_data_viridiplantae_nucleotide_gi_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_build_viridiplantae_nucleotide_gi_gilist" in "container" with the grid geometry manager
+        form_build_viridiplantae_nucleotide_gi_gilist = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_gilist(), genomic_database=xlib.get_toa_data_viridiplantae_nucleotide_gi_code())
+        form_build_viridiplantae_nucleotide_gi_gilist.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_build_viridiplantae_nucleotide_gi_gilist" as current form and add it in the forms dictionary
+        self.current_form = 'form_build_viridiplantae_nucleotide_gi_gilist'
+        self.forms_dict[self.current_form] = form_build_viridiplantae_nucleotide_gi_gilist
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_build_viridiplantae_nucleotide_gi_gilist" to front
+        form_build_viridiplantae_nucleotide_gi_gilist.tkraise()
 
     #---------------
 
-    def build_nr_blastdb(self):
+    def build_blastplus_nr_db(self):
         '''
-        Build the NCBI BLAST database NR.
+        Build the NCBI BLAST database NR for BLAST+.
         '''
 
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_blastdb(), genomic_database=xlib.get_toa_data_nr_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_build_blastplus_nr_db" in "container" with the grid geometry manager
+        form_build_blastplus_nr_db = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_blastplus_db(), genomic_database=xlib.get_toa_data_nr_code())
+        form_build_blastplus_nr_db.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_build_blastplus_nr_db" as current form and add it in the forms dictionary
+        self.current_form = 'form_build_blastplus_nr_db'
+        self.forms_dict[self.current_form] = form_build_blastplus_nr_db
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_build_blastplus_nr_db" to front
+        form_build_blastplus_nr_db.tkraise()
+
+    #---------------
+
+    def build_diamond_nr_db(self):
+        '''
+        Build the NCBI BLAST database NR for DIAMOND.
+        '''
+
+        # close the current form
+        self.close_current_form()
+
+        # create and register "form_build_diamond_nr_db" in "container" with the grid geometry manager
+        form_build_diamond_nr_db = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_diamond_db(), genomic_database=xlib.get_toa_data_nr_code())
+        form_build_diamond_nr_db.grid(row=0, column=0, sticky='nsew')
+
+        # set "form_build_diamond_nr_db" as current form and add it in the forms dictionary
+        self.current_form = 'form_build_diamond_nr_db'
+        self.forms_dict[self.current_form] = form_build_diamond_nr_db
+
+        # raise "form_build_diamond_nr_db" to front
+        form_build_diamond_nr_db.tkraise()
 
     #---------------
 
@@ -1078,16 +1174,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_gilist(), genomic_database=xlib.get_toa_data_viridiplantae_protein_gi_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_build_viridiplantae_protein_gi_gilist" in "container" with the grid geometry manager
+        form_build_viridiplantae_protein_gi_gilist = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_gilist(), genomic_database=xlib.get_toa_data_viridiplantae_protein_gi_code())
+        form_build_viridiplantae_protein_gi_gilist.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_build_viridiplantae_protein_gi_gilist" as current form and add it in the forms dictionary
+        self.current_form = 'form_build_viridiplantae_protein_gi_gilist'
+        self.forms_dict[self.current_form] = form_build_viridiplantae_protein_gi_gilist
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_build_viridiplantae_protein_gi_gilist" to front
+        form_build_viridiplantae_protein_gi_gilist.tkraise()
 
     #---------------
 
@@ -1099,16 +1195,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_gene_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_download_gene_data" in "container" with the grid geometry manager
+        form_download_gene_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_gene_code())
+        form_download_gene_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_download_gene_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_download_gene_data'
+        self.forms_dict[self.current_form] = form_download_gene_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_download_gene_data" to front
+        form_download_gene_data.tkraise()
 
     #---------------
 
@@ -1120,16 +1216,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_gene_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_load_gene_data" in "container" with the grid geometry manager
+        form_load_gene_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_gene_code())
+        form_load_gene_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_load_gene_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_load_gene_data'
+        self.forms_dict[self.current_form] = form_load_gene_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_load_gene_data" to front
+        form_load_gene_data.tkraise()
 
     #---------------
 
@@ -1141,16 +1237,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_interpro_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_download_interpro_data" in "container" with the grid geometry manager
+        form_download_interpro_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_interpro_code())
+        form_download_interpro_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_download_interpro_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_download_interpro_data'
+        self.forms_dict[self.current_form] = form_download_interpro_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_download_interpro_data" to front
+        form_download_interpro_data.tkraise()
 
     #---------------
 
@@ -1162,16 +1258,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_interpro_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_load_interpro_data" in "container" with the grid geometry manager
+        form_load_interpro_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_interpro_code())
+        form_load_interpro_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_load_interpro_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_load_interpro_data'
+        self.forms_dict[self.current_form] = form_load_interpro_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_load_interpro_data" to front
+        form_load_interpro_data.tkraise()
 
     #---------------
 
@@ -1183,16 +1279,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_go_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_download_go_data" in "container" with the grid geometry manager
+        form_download_go_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_go_code())
+        form_download_go_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_download_go_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_download_go_data'
+        self.forms_dict[self.current_form] = form_download_go_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_download_go_data" to front
+        form_download_go_data.tkraise()
 
     #---------------
 
@@ -1204,16 +1300,16 @@ class Main(tkinter.Tk):
         # close the current form
         self.close_current_form()
 
-        # create and register "form_manage_genomic_database" in "container" with the grid geometry manager
-        form_manage_genomic_database = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_go_code())
-        form_manage_genomic_database.grid(row=0, column=0, sticky='nsew')
+        # create and register "form_load_go_data" in "container" with the grid geometry manager
+        form_load_go_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_go_code())
+        form_load_go_data.grid(row=0, column=0, sticky='nsew')
 
-        # set "form_manage_genomic_database" as current form and add it in the forms dictionary
-        self.current_form = 'form_manage_genomic_database'
-        self.forms_dict[self.current_form] = form_manage_genomic_database
+        # set "form_load_go_data" as current form and add it in the forms dictionary
+        self.current_form = 'form_load_go_data'
+        self.forms_dict[self.current_form] = form_load_go_data
 
-        # raise "form_manage_genomic_database" to front
-        form_manage_genomic_database.tkraise()
+        # raise "form_load_go_data" to front
+        form_load_go_data.tkraise()
 
     #---------------
 
@@ -1251,7 +1347,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # set the head
-        head = '{0} - Edit config file'.format(xlib.get_toa_process_pipeline_nucleotide_name())
+        head = f'{xlib.get_toa_process_pipeline_nucleotide_name()} - Edit config file'
 
         # edit the nucleotide pipeline config file using "DialogEditor" 
         dialog_editor = gdialogs.DialogEditor(self, xtoa.get_nucleotide_pipeline_config_file())
@@ -1260,13 +1356,13 @@ class Main(tkinter.Tk):
         # check the nucleotide pipeline config file
         (OK, error_list) = xtoa.check_pipeline_config_file(pipeline_type=xlib.get_toa_process_pipeline_nucleotide_code(), strict=False)
         if OK:
-            message = 'The {0} config file is OK.'.format(xlib.get_toa_process_pipeline_nucleotide_name())
-            tkinter.messagebox.showinfo('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+            message = f'The {xlib.get_toa_process_pipeline_nucleotide_name()} config file is OK.'
+            tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {head}', message)
         else:
             message = 'Detected errors:\n\n'
             for error in error_list:
-                message = '{0}{1}\n'.format(message, error) 
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+                message = f'{message}{error}\n' 
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {head}', message)
 
     #---------------
 
@@ -1346,7 +1442,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # set the head
-        head = '{0} - Edit config file'.format(xlib.get_toa_process_pipeline_aminoacid_name())
+        head = f'{xlib.get_toa_process_pipeline_aminoacid_name()} - Edit config file'
 
         # edit the amino acid pipeline config file using "DialogEditor" 
         dialog_editor = gdialogs.DialogEditor(self, xtoa.get_aminoacid_pipeline_config_file())
@@ -1355,13 +1451,13 @@ class Main(tkinter.Tk):
         # check the amino acid pipeline config file
         (OK, error_list) = xtoa.check_pipeline_config_file(pipeline_type=xlib.get_toa_process_pipeline_aminoacid_code(), strict=False)
         if OK:
-            message = 'The {0} config file is OK.'.format(xlib.get_toa_process_pipeline_aminoacid_name())
-            tkinter.messagebox.showinfo('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+            message = f'The {xlib.get_toa_process_pipeline_aminoacid_name()} config file is OK.'
+            tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {head}', message)
         else:
             message = 'Detected errors:\n\n'
             for error in error_list:
-                message = '{0}{1}\n'.format(message, error) 
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), head), message)
+                message = f'{message}{error}\n' 
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {head}', message)
 
     #---------------
 
@@ -1404,6 +1500,80 @@ class Main(tkinter.Tk):
 
         # raise "form_restart_aminoacid_pipeline_process" to front
         form_restart_aminoacid_pipeline_process.tkraise()
+
+    #---------------
+
+    def recreate_annotation_merger_config_file(self):
+        '''
+        Recreate the pipeline merger config file with the default options. It is necessary
+        update the options in each process run.
+        '''
+
+        # close the current form
+        self.close_current_form()
+
+        # create and register "form_recreate_annotation_merger_config_file" in "container" with the grid geometry manager
+        form_recreate_annotation_merger_config_file = gtoa.FormRecreateAnnotatioMergerConfigFile(self.container, self)
+        form_recreate_annotation_merger_config_file.grid(row=0, column=0, sticky='nsew')
+
+        # set "form_recreate_annotation_merger_config_file" as current form and add it in the forms dictionary
+        self.current_form = 'form_recreate_annotation_merger_config_file'
+        self.forms_dict[self.current_form] = form_recreate_annotation_merger_config_file
+
+        # raise "form_recreate_annotation_merger_config_file" to front
+        form_recreate_annotation_merger_config_file.tkraise()
+
+    #---------------
+
+    def edit_annotation_merger_config_file(self):
+        '''
+        Edit the pipeline merger config file to change the parameters of process run.
+        '''
+
+        # initialize the control variable
+        OK = True
+
+        # close the current form
+        self.close_current_form()
+
+        # set the head
+        head = f'{xlib.get_toa_process_merge_annotations_name()} - Edit config file'
+
+        # edit the pipeline merger config file using "DialogEditor" 
+        dialog_editor = gdialogs.DialogEditor(self, xtoa.get_annotation_merger_config_file())
+        self.wait_window(dialog_editor)
+
+        # check the nucleotide pipeline config file
+        (OK, error_list) = xtoa.check_annotation_merger_config_file(strict=False)
+        if OK:
+            message = f'The {xlib.get_toa_process_merge_annotations_name()} config file is OK.'
+            tkinter.messagebox.showinfo(f'{xlib.get_short_project_name()} - {head}', message)
+        else:
+            message = 'Detected errors:\n\n'
+            for error in error_list:
+                message = f'{message}{error}\n' 
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {head}', message)
+
+    #---------------
+
+    def run_annotation_merger_process(self):
+        '''
+        Run an annotation merger process corresponding to the options in nucleotide pipeline config file.
+        '''
+
+        # close the current form
+        self.close_current_form()
+
+        # create and register "form_run_annotation_merger_process" in "container" with the grid geometry manager
+        form_run_annotation_merger_process = gtoa.FormRunPipelineProcess(self.container, self, pipeline_type=xlib.get_toa_process_merge_annotations_code())
+        form_run_annotation_merger_process.grid(row=0, column=0, sticky='nsew')
+
+        # set "form_run_annotation_merger_process" as current form and add it in the forms dictionary
+        self.current_form = 'form_run_annotation_merger_process'
+        self.forms_dict[self.current_form] = form_run_annotation_merger_process
+
+        # raise "form_run_annotation_merger_process" to front
+        form_run_annotation_merger_process.tkraise()
 
     #---------------
 
@@ -2212,10 +2382,10 @@ class Main(tkinter.Tk):
 
         try:
             manual = os.path.abspath(xlib.get_project_manual_file())
-            webbrowser.open_new('file://{0}'.format(manual))
-        except Exception as e:
-            message = 'The document {0}\n is not available.'.format(manual)
-            tkinter.messagebox.showerror('{0} - Open help'.format(xlib.get_short_project_name()), message)
+            webbrowser.open_new(f'file://{manual}')
+        except Exception:
+            message = f'The document {manual}\n is not available.'
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - Open help', message)
 
     #---------------
 
@@ -2232,7 +2402,7 @@ class Main(tkinter.Tk):
     def warn_unavailable_process(self):
 
         message = 'This process is been built.\nIt is coming soon!'
-        tkinter.messagebox.showwarning(xlib.get_short_project_name(), message)
+        tkinter.messagebox.showwarning(tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message), message)
 
     #---------------
 
@@ -2256,8 +2426,8 @@ class Main(tkinter.Tk):
         Exit the application.
         '''
 
-        message = 'Are you sure to exit {0}?'.format(xlib.get_long_project_name())
-        if tkinter.messagebox.askyesno('{0} - Exit'.format(xlib.get_short_project_name()), message):
+        message = f'Are you sure to exit {xlib.get_short_project_name()}?'
+        if tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - Exit', message):
             self.destroy()
 
    #---------------
@@ -2327,7 +2497,7 @@ class FormWelcome(tkinter.Frame):
 #-------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    print('This file contains the class Main corresponding to the graphical user interface of the {0} software package.'.format(xlib.get_long_project_name()))
+    print(f'This file contains the class Main corresponding to the graphical user interface of the {xlib.get_long_project_name()} software package.')
     sys.exit(0)
 
 #-------------------------------------------------------------------------------

@@ -68,8 +68,8 @@ def build_parser():
 
     # create the parser and add arguments
     description = 'Description: This program loads cross-references between Gene Ontology and other databases into TOA database.'
-    text = '{0} v{1} - {2}\n\n{3}\n'.format(xlib.get_long_project_name(), xlib.get_project_version(), os.path.basename(__file__), description)
-    usage = '\r{0}\nUsage: {1} arguments'.format(text.ljust(len('usage:')), os.path.basename(__file__))
+    text = f'{xlib.get_short_project_name()} v{xlib.get_project_version()} - {os.path.basename(__file__)}\n\n{description}\n'
+    usage = f'\r{text.ljust(len("usage:"))}\nUsage: {os.path.basename(__file__)} arguments'
     parser = argparse.ArgumentParser(usage=usage)
     parser._optionals.title = 'Arguments'
     parser.add_argument('--db', dest='toa_database', help='Path of the TOA database (mandatory).')
@@ -78,8 +78,8 @@ def build_parser():
     parser.add_argument('--kegg2go', dest='kegg2go_file', help='Path of the gene2go file (mandatory).')
     parser.add_argument('--metacyc2go', dest='metacyc2go_file', help='Path of the metacyc2go file (mandatory).')
     parser.add_argument('--interpro2go', dest='interpro2go_file', help='Path of the interpro2go file (mandatory).')
-    parser.add_argument('--verbose', dest='verbose', help='Additional job status info during the run: {0}; default: {1}.'.format(xlib.get_verbose_code_list_text(), xlib.Const.DEFAULT_VERBOSE))
-    parser.add_argument('--trace', dest='trace', help='Additional info useful to the developer team: {0}; default: {1}.'.format(xlib.get_trace_code_list_text(), xlib.Const.DEFAULT_TRACE))
+    parser.add_argument('--verbose', dest='verbose', help=f'Additional job status info during the run: {xlib.get_verbose_code_list_text()}; default: {xlib.Const.DEFAULT_VERBOSE}.')
+    parser.add_argument('--trace', dest='trace', help=f'Additional info useful to the developer team: {xlib.get_trace_code_list_text()}; default: {xlib.Const.DEFAULT_TRACE}.')
 
     # return the paser
     return parser
@@ -104,7 +104,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The ontology file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.ontology_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.ontology_file))
+        xlib.Message.print('error', f'*** The file {args.ontology_file} does not exist.')
         OK = False
 
     # check "ec2go_file"
@@ -112,7 +112,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The ec2go file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.ec2go_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.ec2go_file))
+        xlib.Message.print('error', f'*** The file {args.ec2go_file} does not exist.')
         OK = False
 
     # check "kegg2go_file"
@@ -120,7 +120,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The kegg2go file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.kegg2go_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.kegg2go_file))
+        xlib.Message.print('error', f'*** The file {args.kegg2go_file} does not exist.')
         OK = False
 
     # check "metacyc2go_file"
@@ -128,7 +128,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The metacyc2go file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.metacyc2go_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.metacyc2go_file))
+        xlib.Message.print('error', f'*** The file {args.metacyc2go_file} does not exist.')
         OK = False
 
     # check "interpro2go_file"
@@ -136,14 +136,14 @@ def check_args(args):
         xlib.Message.print('error', '*** The interpro2go file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.interpro2go_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.interpro2go_file))
+        xlib.Message.print('error', f'*** The file {args.interpro2go_file} does not exist.')
         OK = False
 
     # check "verbose"
     if args.verbose is None:
         args.verbose = xlib.Const.DEFAULT_VERBOSE
     elif not xlib.check_code(args.verbose, xlib.get_verbose_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** verbose has to be {0}.'.format(xlib.get_verbose_code_list_text()))
+        xlib.Message.print('error', f'*** verbose has to be {xlib.get_verbose_code_list_text()}.')
         OK = False
     if args.verbose.upper() == 'Y':
         xlib.Message.set_verbose_status(True)
@@ -152,7 +152,7 @@ def check_args(args):
     if args.trace is None:
         args.trace = xlib.Const.DEFAULT_TRACE
     elif not xlib.check_code(args.trace, xlib.get_trace_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** trace has to be {0}.'.format(xlib.get_trace_code_list_text()))
+        xlib.Message.print('error', f'*** trace has to be {xlib.get_trace_code_list_text()}.')
         OK = False
     if args.trace.upper() == 'Y':
         xlib.Message.set_trace_status(True)
@@ -210,7 +210,7 @@ def load_table_go_ontology(conn, ontology_file):
         record_counter += 1
 
         # print record counter
-        xlib.Message.print('verbose', '\rOntology file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+        xlib.Message.print('verbose', f'\rOntology file: {record_counter} processed records - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = ontology_file_id.readline()
@@ -225,7 +225,7 @@ def load_table_go_ontology(conn, ontology_file):
             record_counter += 1
 
             # print record counter
-            xlib.Message.print('verbose', '\rOntology file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+            xlib.Message.print('verbose', f'\rOntology file: {record_counter} processed records - Inserted rows: {inserted_row_counter}')
 
             # read the next record
             record = ontology_file_id.readline()
@@ -235,6 +235,7 @@ def load_table_go_ontology(conn, ontology_file):
             row_dict['go_id'] = ''
             row_dict['go_name'] = ''
             row_dict['namespace'] = ''
+            alt_id_list = []
 
             # while there are records and they are term details
             while record != '' and not record.startswith('[Term]'):
@@ -244,27 +245,28 @@ def load_table_go_ontology(conn, ontology_file):
 
                 # get the GO identification
                 if record.startswith('id:'):
-                    start = record.find('GO:')
-                    row_dict['go_id'] = record[start+3:].strip()
+                    row_dict['go_id'] = record[len('id: GO:'):].strip()
 
                 # get the GO name
                 if record.startswith('name:'):
-                    start = record.find('name:')
-                    row_dict['go_name'] = record[start+5:].strip()
+                    row_dict['go_name'] = record[len('name:'):].strip()
 
                     # change quotation marks and semicolons in "go_name"
                     row_dict['go_name'] = row_dict['go_name'].replace("'", '|').replace(';', ',')
 
                 # get the namespace
                 if record.startswith('namespace:'):
-                    start = record.find('namespace:')
-                    row_dict['namespace'] = record[start+10:].strip()
+                    row_dict['namespace'] = record[len('namespace:'):].strip()
 
                     # change quotation marks and semicolons in "namespace"
                     row_dict['namespace'] = row_dict['namespace'].replace("'", '|').replace(';', ',').replace('_', ' ')
 
+                # get the alternative identificationnamespace
+                if record.startswith('alt_id:'):
+                    alt_id_list.append(record[len('alt_id: GO:'):].strip())
+
                 # print record counter
-                xlib.Message.print('verbose', '\rOntology file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+                xlib.Message.print('verbose', f'\rOntology file: {record_counter} processed records - Inserted rows: {inserted_row_counter}')
 
                 # read the next record
                 record = ontology_file_id.readline()
@@ -276,9 +278,13 @@ def load_table_go_ontology(conn, ontology_file):
             # insert data into table "go_ontology"
             xsqlite.insert_go_ontology_row(conn, row_dict)
             inserted_row_counter += 1
+            for alt_id in alt_id_list:
+                row_dict['go_id'] = alt_id
+                xsqlite.insert_go_ontology_row(conn, row_dict)
+                inserted_row_counter += 1
 
             # print record counter
-            xlib.Message.print('verbose', '\rOntology file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+            xlib.Message.print('verbose', f'\rOntology file: {record_counter} processed records - Inserted rows: {inserted_row_counter}')
 
             # break the loop when typedef sections start
             if record.startswith('[Typedef]'):
@@ -373,7 +379,7 @@ def load_table_go_cross_references(conn, ec2go_file, kegg2go_file, metacyc2go_fi
             inserted_row_counter += 1
 
             # print record counter
-            xlib.Message.print('verbose', '\rec2go file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+            xlib.Message.print('verbose', f'\rec2go file: {record_counter} processed records - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = ec2go_file_id.readline()
@@ -441,7 +447,7 @@ def load_table_go_cross_references(conn, ec2go_file, kegg2go_file, metacyc2go_fi
             inserted_row_counter += 1
 
             # print record counter
-            xlib.Message.print('verbose', '\rkegg2go file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+            xlib.Message.print('verbose', f'\rkegg2go file: {record_counter} processed records - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = kegg2go_file_id.readline()
@@ -509,7 +515,7 @@ def load_table_go_cross_references(conn, ec2go_file, kegg2go_file, metacyc2go_fi
             inserted_row_counter += 1
 
             # print record counter
-            xlib.Message.print('verbose', '\rmetacyc2go file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+            xlib.Message.print('verbose', f'\rmetacyc2go file: {record_counter} processed records - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = metacyc2go_file_id.readline()
@@ -579,7 +585,7 @@ def load_table_go_cross_references(conn, ec2go_file, kegg2go_file, metacyc2go_fi
             inserted_row_counter += 1
 
             # print record counter
-            xlib.Message.print('verbose', '\rinterpro2go file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+            xlib.Message.print('verbose', f'\rinterpro2go file: {record_counter} processed records - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = interpro2go_file_id.readline()

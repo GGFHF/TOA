@@ -88,8 +88,8 @@ def build_parser():
 
     # create the parser and add arguments
     description = 'Description: This program loads functional annotation data (Gene Ontology and Interpro) from PLAZA into TOA database.'
-    text = '{0} v{1} - {2}\n\n{3}\n'.format(xlib.get_long_project_name(), xlib.get_project_version(), os.path.basename(__file__), description)
-    usage = '\r{0}\nUsage: {1} arguments'.format(text.ljust(len('usage:')), os.path.basename(__file__))
+    text = f'{xlib.get_long_project_name()} v{xlib.get_project_version()} - {os.path.basename(__file__)}\n\n{description}\n'
+    usage = f'\r{text.ljust(len("usage:"))}\nUsage: {os.path.basename(__file__)} arguments'
     parser = argparse.ArgumentParser(usage=usage)
     parser._optionals.title = 'Arguments'
     parser.add_argument('--db', dest='toa_database', help='Path of the TOA database (mandatory).')
@@ -99,8 +99,8 @@ def build_parser():
     parser.add_argument('--interpro', dest='interpro_file', help='Path of the InterPro file (mandatory).')
     parser.add_argument('--go', dest='go_file', help='Path of the Gene Ontology file (mandatory).')
     parser.add_argument('--mapman', dest='mapman_file', help='Path of the Mapman file (mandatory).')
-    parser.add_argument('--verbose', dest='verbose', help='Additional job status info during the run: {0}; default: {1}.'.format(xlib.get_verbose_code_list_text(), xlib.Const.DEFAULT_VERBOSE))
-    parser.add_argument('--trace', dest='trace', help='Additional info useful to the developer team: {0}; default: {1}.'.format(xlib.get_trace_code_list_text(), xlib.Const.DEFAULT_TRACE))
+    parser.add_argument('--verbose', dest='verbose', help=f'Additional job status info during the run: {xlib.get_verbose_code_list_text()}; default: {xlib.Const.DEFAULT_VERBOSE}.')
+    parser.add_argument('--trace', dest='trace', help=f'Additional info useful to the developer team: {xlib.get_trace_code_list_text()}; default: {xlib.Const.DEFAULT_TRACE}.')
 
     # return the paser
     return parser
@@ -139,7 +139,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The gene description file directoty is not indicated in the input arguments.')
         OK = False
     elif not os.path.isdir(args.gene_desc_dir):
-        xlib.Message.print('error', '*** The directory {0} does not exist.'.format(args.gene_desc_dir))
+        xlib.Message.print('error', f'*** The directory {args.gene_desc_dir} does not exist.')
         OK = False
 
     # check "interpro_file"
@@ -147,7 +147,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The InterPro file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.interpro_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.interpro_file))
+        xlib.Message.print('error', f'*** The file {args.interpro_file} does not exist.')
         OK = False
 
     # check "go_file"
@@ -155,7 +155,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The Gene Ontology file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.go_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.go_file))
+        xlib.Message.print('error', f'*** The file {args.go_file} does not exist.')
         OK = False
 
     # check "mapman_file"
@@ -163,14 +163,14 @@ def check_args(args):
         xlib.Message.print('error', '*** The MapMan file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.mapman_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.mapman_file))
+        xlib.Message.print('error', f'*** The file {args.mapman_file} does not exist.')
         OK = False
 
     # check "verbose"
     if args.verbose is None:
         args.verbose = xlib.Const.DEFAULT_VERBOSE
     elif not xlib.check_code(args.verbose, xlib.get_verbose_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** verbose has to be {0}.'.format(xlib.get_verbose_code_list_text()))
+        xlib.Message.print('error', f'*** verbose has to be {xlib.get_verbose_code_list_text()}.')
         OK = False
     if args.verbose.upper() == 'Y':
         xlib.Message.set_verbose_status(True)
@@ -179,7 +179,7 @@ def check_args(args):
     if args.trace is None:
         args.trace = xlib.Const.DEFAULT_TRACE
     elif not xlib.check_code(args.trace, xlib.get_trace_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** trace has to be {0}.'.format(xlib.get_trace_code_list_text()))
+        xlib.Message.print('error', f'*** trace has to be {xlib.get_trace_code_list_text()}.')
         OK = False
     if args.trace.upper() == 'Y':
         xlib.Message.set_trace_status(True)
@@ -231,7 +231,7 @@ def load_table_plaza_gene_description(conn, dataset_id, species_id, gene_desc_di
             raise xlib.ProgramException('L005', gene_desc_file)
 
         # concat the directory to the name of the gene description file 
-        gene_desc_file = '{0}/{1}'.format(gene_desc_dir, gene_desc_file)
+        gene_desc_file = f'{gene_desc_dir}/{gene_desc_file}'
 
         # open the gene description file
         if gene_desc_file.endswith('.gz'):
@@ -318,7 +318,7 @@ def load_table_plaza_gene_description(conn, dataset_id, species_id, gene_desc_di
                     inserted_row_counter += 1
 
                 # print record counter
-                xlib.Message.print('verbose', '\r{0}: {1} processed records - Inserted rows: {2}'.format(os.path.basename(gene_desc_file), record_counter, inserted_row_counter))
+                xlib.Message.print('verbose', f'\rProcessed records of {os.path.basename(gene_desc_file)}: {record_counter} - Inserted rows: {inserted_row_counter}')
 
             # read the next record
             record = gene_desc_file_id.readline()
@@ -483,7 +483,7 @@ def load_table_plaza_interpro(conn, dataset_id, species_id, interpro_file, plaza
                 inserted_row_counter += 1
 
             # print record counter
-            xlib.Message.print('verbose', '\rInterPro file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+            xlib.Message.print('verbose', f'\rProcessed records of InterPro file: {record_counter} - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = interpro_file_id.readline()
@@ -601,7 +601,7 @@ def load_table_plaza_go(conn, dataset_id, species_id, go_file, plaza_species_id_
 
                 # check "plaza_species_id"
                 if row_dict['plaza_species_id'] not in plaza_species_id_list:
-                    xlib.Message.print('trace', '\nrecord: {0}'.format(record))
+                    xlib.Message.print('trace', f'\nrecord: {record}')
                     print('plaza_species_id: {}'.format(row_dict['plaza_species_id']))
                     raise xlib.ProgramException('L002', 'species', os.path.basename(go_file), record_counter)
 
@@ -616,7 +616,7 @@ def load_table_plaza_go(conn, dataset_id, species_id, go_file, plaza_species_id_
                 inserted_row_counter += 1
 
             # print record counter
-            xlib.Message.print('verbose', '\rGene Ontology file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+            xlib.Message.print('verbose', f'\rProcessed records of Gene Ontology file: {record_counter} - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = go_file_id.readline()
@@ -717,7 +717,7 @@ def load_table_plaza_mapman(conn, dataset_id, species_id, mapman_file, plaza_spe
 
                 # check "plaza_species_id"
                 if row_dict['plaza_species_id'] not in plaza_species_id_list:
-                    xlib.Message.print('trace', '\nrecord: {0}'.format(record))
+                    xlib.Message.print('trace', f'\nrecord: {record}')
                     print('plaza_species_id: {}'.format(row_dict['plaza_species_id']))
                     raise xlib.ProgramException('L002', 'species', os.path.basename(mapman_file), record_counter)
 
@@ -729,7 +729,7 @@ def load_table_plaza_mapman(conn, dataset_id, species_id, mapman_file, plaza_spe
                 inserted_row_counter += 1
 
             # print record counter
-            xlib.Message.print('verbose', '\rMapman file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+            xlib.Message.print('verbose', f'\rProcessed records of Mapman file: {record_counter} - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = mapman_file_id.readline()

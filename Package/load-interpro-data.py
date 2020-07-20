@@ -65,14 +65,14 @@ def build_parser():
 
     # create the parser and add arguments
     description = 'Description: This program loads InterPro data into TOA database.'
-    text = '{0} v{1} - {2}\n\n{3}\n'.format(xlib.get_long_project_name(), xlib.get_project_version(), os.path.basename(__file__), description)
-    usage = '\r{0}\nUsage: {1} arguments'.format(text.ljust(len('usage:')), os.path.basename(__file__))
+    text = f'{xlib.get_long_project_name()} v{xlib.get_project_version()} - {os.path.basename(__file__)}\n\n{description}\n'
+    usage = f'\r{text.ljust(len("usage:"))}\nUsage: {os.path.basename(__file__)} arguments'
     parser = argparse.ArgumentParser(usage=usage)
     parser._optionals.title = 'Arguments'
     parser.add_argument('--db', dest='toa_database', help='Path of the TOA database (mandatory).')
     parser.add_argument('--interpro2go', dest='interpro2go_file', help='Path of the interpro2go file (mandatory).')
-    parser.add_argument('--verbose', dest='verbose', help='Additional job status info during the run: {0}; default: {1}.'.format(xlib.get_verbose_code_list_text(), xlib.Const.DEFAULT_VERBOSE))
-    parser.add_argument('--trace', dest='trace', help='Additional info useful to the developer team: {0}; default: {1}.'.format(xlib.get_trace_code_list_text(), xlib.Const.DEFAULT_TRACE))
+    parser.add_argument('--verbose', dest='verbose', help=f'Additional job status info during the run: {xlib.get_verbose_code_list_text()}; default: {xlib.Const.DEFAULT_VERBOSE}.')
+    parser.add_argument('--trace', dest='trace', help=f'Additional info useful to the developer team: {xlib.get_trace_code_list_text()}; default: {xlib.Const.DEFAULT_TRACE}.')
 
     # return the paser
     return parser
@@ -97,14 +97,14 @@ def check_args(args):
         xlib.Message.print('error', '*** The interpro2go file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.interpro2go_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.interpro2go_file))
+        xlib.Message.print('error', f'*** The file {args.interpro2go_file} does not exist.')
         OK = False
 
     # check "verbose"
     if args.verbose is None:
         args.verbose = xlib.Const.DEFAULT_VERBOSE
     elif not xlib.check_code(args.verbose, xlib.get_verbose_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** verbose has to be {0}.'.format(xlib.get_verbose_code_list_text()))
+        xlib.Message.print('error', f'*** verbose has to be {xlib.get_verbose_code_list_text()}.')
         OK = False
     if args.verbose.upper() == 'Y':
         xlib.Message.set_verbose_status(True)
@@ -113,7 +113,7 @@ def check_args(args):
     if args.trace is None:
         args.trace = xlib.Const.DEFAULT_TRACE
     elif not xlib.check_code(args.trace, xlib.get_trace_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** trace has to be {0}.'.format(xlib.get_trace_code_list_text()))
+        xlib.Message.print('error', f'*** trace has to be {xlib.get_trace_code_list_text()}.')
         OK = False
     if args.trace.upper() == 'Y':
         xlib.Message.set_trace_status(True)
@@ -199,7 +199,7 @@ def load_table_interpro_interpro2go(conn, interpro2go_file):
             inserted_row_counter += 1
 
         # print record counter
-        xlib.Message.print('verbose', '\rinterpro2go file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+        xlib.Message.print('verbose', f'\rProcessed records of interpro2go file: {record_counter} - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = interpro2go_file_id.readline()

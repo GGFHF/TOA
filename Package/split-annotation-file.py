@@ -57,16 +57,16 @@ def build_parser():
 
     # create the parser and add arguments
     description = 'Description: This program splits a annotation file in several files with a certain record number.'
-    text = '{0} v{1} - {2}\n\n{3}\n'.format(xlib.get_long_project_name(), xlib.get_project_version(), os.path.basename(__file__), description)
-    usage = '\r{0}\nUsage: {1} arguments'.format(text.ljust(len('usage:')), os.path.basename(__file__))
+    text = f'{xlib.get_long_project_name()} v{xlib.get_project_version()} - {os.path.basename(__file__)}\n\n{description}\n'
+    usage = f'\r{text.ljust(len("usage:"))}\nUsage: {os.path.basename(__file__)} arguments'
     parser = argparse.ArgumentParser(usage=usage)
     parser._optionals.title = 'Arguments'
     parser.add_argument('--annotation', dest='annotation_file', help='Path of annotation file in CSV format (mandatory).')
-    parser.add_argument('--type', dest='type', help='Type of the first annotation file (mandatory): {0}'.format(xlib.get_type_code_list_text()))
-    parser.add_argument('--header', dest='header', help='There is a header record in the annotation file: {0}; default: {1}.'.format(xlib.get_header_code_list_text(), xlib.Const.DEFAULT_HEADER))
-    parser.add_argument('--rnum', dest='record_number_per_file', help='Record number per splitted file; default: {0}.'.format(xlib.Const.DEFAULT_RNUM))
-    parser.add_argument('--verbose', dest='verbose', help='Additional job status info during the run: {0}; default: {1}.'.format(xlib.get_verbose_code_list_text(), xlib.Const.DEFAULT_VERBOSE))
-    parser.add_argument('--trace', dest='trace', help='Additional info useful to the developer team: {0}; default: {1}.'.format(xlib.get_trace_code_list_text(), xlib.Const.DEFAULT_TRACE))
+    parser.add_argument('--type', dest='type', help=f'Type of the first annotation file (mandatory): {xlib.get_type_code_list_text()}')
+    parser.add_argument('--header', dest='header', help=f'There is a header record in the annotation file: {xlib.get_header_code_list_text()}; default: {xlib.Const.DEFAULT_HEADER}.')
+    parser.add_argument('--rnum', dest='record_number_per_file', help=f'Record number per splitted file; default: {xlib.Const.DEFAULT_RNUM}.')
+    parser.add_argument('--verbose', dest='verbose', help=f'Additional job status info during the run: {xlib.get_verbose_code_list_text()}; default: {xlib.Const.DEFAULT_VERBOSE}.')
+    parser.add_argument('--trace', dest='trace', help=f'Additional info useful to the developer team: {xlib.get_trace_code_list_text()}; default: {xlib.Const.DEFAULT_TRACE}.')
 
     # return the paser
     return parser
@@ -86,7 +86,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The annotation file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.annotation_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.annotation_file))
+        xlib.Message.print('error', f'*** The file {args.annotation_file} does not exist.')
         OK = False
 
     # check "type"
@@ -94,7 +94,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The type of annotation file is not indicated in the input arguments.')
         OK = False
     elif not xlib.check_code(args.type, xlib.get_type_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** The type of annotation file has to be {0}.'.format(xlib.get_type_code_list_text()))
+        xlib.Message.print('error', f'*** The type of annotation file has to be {xlib.get_type_code_list_text()}.')
         OK = False
     else:
         args.type = args.type.upper()
@@ -103,7 +103,7 @@ def check_args(args):
     if args.header is None:
         args.header = xlib.Const.DEFAULT_HEADER
     elif not xlib.check_code(args.header, xlib.get_header_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** header has to be {0}.'.format(xlib.get_header_code_list_text()))
+        xlib.Message.print('error', f'*** header has to be {xlib.get_header_code_list_text()}.')
         OK = False
     else:
         args.header = args.header.upper()
@@ -121,7 +121,7 @@ def check_args(args):
     if args.verbose is None:
         args.verbose = xlib.Const.DEFAULT_VERBOSE
     elif not xlib.check_code(args.verbose, xlib.get_verbose_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** verbose has to be {0}.'.format(xlib.get_verbose_code_list_text()))
+        xlib.Message.print('error', f'*** verbose has to be {xlib.get_verbose_code_list_text()}.')
         OK = False
     if args.verbose.upper() == 'Y':
         xlib.Message.set_verbose_status(True)
@@ -130,7 +130,7 @@ def check_args(args):
     if args.trace is None:
         args.trace = xlib.Const.DEFAULT_TRACE
     elif not xlib.check_code(args.trace, xlib.get_trace_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** trace has to be {0}.'.format(xlib.get_trace_code_list_text()))
+        xlib.Message.print('error', f'*** trace has to be {xlib.get_trace_code_list_text()}.')
         OK = False
     if args.trace.upper() == 'Y':
         xlib.Message.set_trace_status(True)
@@ -189,9 +189,9 @@ def split_files(annotation_file, type, record_number_per_file, header):
 
             # set the output file name
             if annotation_file.endswith('.csv'):
-                output_file = '{0}-{1:02d}.csv'.format(annotation_file[:-4], output_file_counter)
+                output_file = f'{annotation_file[:-4]}-{output_file_counter:02d}.csv'
             elif annotation_file.endswith('.csv.gz'):
-                output_file = '{0}-{1:02d}.csv.gz'.format(annotation_file[:-7], output_file_counter)
+                output_file = f'{annotation_file[:-7]}-{output_file_counter:02d}.csv.gz'
 
             # open the output file
             if output_file.endswith('.gz'):
@@ -220,7 +220,7 @@ def split_files(annotation_file, type, record_number_per_file, header):
             # write in the output file
             output_record_counter += 1
             xlib.write_annotation_record(output_file_id, type, data_dict)
-            xlib.Message.print('verbose', '\r{0} read annotations - {1} annotations written in the file {2}.'.format(input_record_counter, output_record_counter, os.path.basename(output_file)))
+            xlib.Message.print('verbose', f'\rRead annotations: {input_record_counter} - Written annotations in the file {os.path.basename(output_file)}: {output_record_counter}.')
 
             # read the next record of the first annotation file
             input_record_counter += 1

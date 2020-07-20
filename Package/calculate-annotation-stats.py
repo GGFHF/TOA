@@ -51,7 +51,8 @@ def main(argv):
     conn = xsqlite.connect_database(args.toa_database)
 
     # calculate general statistics
-    calculate_general_stats(conn, args.transcriptome_file, args.peptide_file, args.dataset_list, args.non_annotation_file_list, args.stats_file)
+    if args.transcriptome_file != 'NONE':
+        calculate_general_stats(conn, args.transcriptome_file, args.peptide_file, args.dataset_list, args.non_annotation_file_list, args.stats_file)
 
     # calculate functional statistics
     calculate_functional_stats(conn, args.annotation_file, args.type, args.stats_file)
@@ -65,20 +66,20 @@ def build_parser():
 
     # create the parser and add arguments
     description = 'Description: This program calculates annotation statistics.'
-    text = '{0} v{1} - {2}\n\n{3}\n'.format(xlib.get_long_project_name(), xlib.get_project_version(), os.path.basename(__file__), description)
-    usage = '\r{0}\nUsage: {1} arguments'.format(text.ljust(len('usage:')), os.path.basename(__file__))
+    text = f'{xlib.get_long_project_name()} v{xlib.get_project_version()} - {os.path.basename(__file__)}\n\n{description}\n'
+    usage = f'\r{text.ljust(len("usage:"))}\nUsage: {os.path.basename(__file__)} arguments'
     parser = argparse.ArgumentParser(usage=usage)
     parser._optionals.title = 'Arguments'
     parser.add_argument('--db', dest='toa_database', help='Path of the TOA database (mandatory).')
-    parser.add_argument('--transcriptome', dest='transcriptome_file', help='Path of transcriptome file in FASTA format (mandatory).')
-    parser.add_argument('--peptides', dest='peptide_file', help='Path of peptide file in FASTA format in peptide pipeline case or NONE in nucleotide pipeline case (mandatory).')
-    parser.add_argument('--dslist', dest='dataset_list', help='List of datasets with format ds_1,ds_2,...,ds_n (mandatoty).')
-    parser.add_argument('--nonannlist', dest='non_annotation_file_list', help='List of non annotated file paths with format file_1,file_2,...,file_n  (mandatoty).')
+    parser.add_argument('--transcriptome', dest='transcriptome_file', help='Path of transcriptome file in FASTA format or NONE (mandatory).')
+    parser.add_argument('--peptides', dest='peptide_file', help='Path of peptide file in FASTA format in peptide pipeline case or NONE (mandatory).')
+    parser.add_argument('--dslist', dest='dataset_list', help='List of datasets with format ds_1,ds_2,...,ds_n or NONE(mandatoty).')
+    parser.add_argument('--nonannlist', dest='non_annotation_file_list', help='List of non annotated file paths with format file_1,file_2,...,file_n or NONE  (mandatoty).')
     parser.add_argument('--annotation', dest='annotation_file', help='Path of annotation file in CSV format (mandatory).')
-    parser.add_argument('--type', dest='type', help='Type of the annotation file (mandatory): {0}.'.format(xlib.get_type_code_list_text()))
+    parser.add_argument('--type', dest='type', help=f'Type of the annotation file (mandatory): {xlib.get_type_code_list_text()}.')
     parser.add_argument('--stats', dest='stats_file', help='Path of statistics file in CSV format (mandatory).')
-    parser.add_argument('--verbose', dest='verbose', help='Additional job status info during the run: {0}; default: {1}.'.format(xlib.get_verbose_code_list_text(), xlib.Const.DEFAULT_VERBOSE))
-    parser.add_argument('--trace', dest='trace', help='Additional info useful to the developer team: {0}; default: {1}.'.format(xlib.get_trace_code_list_text(), xlib.Const.DEFAULT_TRACE))
+    parser.add_argument('--verbose', dest='verbose', help=f'Additional job status info during the run: {xlib.get_verbose_code_list_text()}; default: {xlib.Const.DEFAULT_VERBOSE}.')
+    parser.add_argument('--trace', dest='trace', help=f'Additional info useful to the developer team: {xlib.get_trace_code_list_text()}; default: {xlib.Const.DEFAULT_TRACE}.')
 
     # return the paser
     return parser
@@ -93,6 +94,9 @@ def check_args(args):
     # initialize the control variable
     OK = True
 
+    # initialize the list used to control variables with NONE values
+    none_variable_list = []
+
     # check "toa_database"
     if args.toa_database is None:
         xlib.Message.print('error', '*** The TOA database is not indicated in the input arguments.')
@@ -102,8 +106,11 @@ def check_args(args):
     if args.transcriptome_file is None:
         xlib.Message.print('error', '*** The transcriptome file is not indicated in the input arguments.')
         OK = False
+    elif args.transcriptome_file.upper() == 'NONE':
+        args.transcriptome_file = args.transcriptome_file.upper()
+        none_variable_list.append('transcriptome_file')
     elif not os.path.isfile(args.transcriptome_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.transcriptome_file))
+        xlib.Message.print('error', f'*** The file {args.transcriptome_file} does not exist.')
         OK = False
 
     # check "peptide_file"
@@ -111,15 +118,19 @@ def check_args(args):
         xlib.Message.print('error', '*** The peptide file is not indicated in the input arguments.')
         OK = False
     elif args.peptide_file.upper() == 'NONE':
-        args.peptide_file = 'NONE'
+        args.peptide_file = args.peptide_file.upper()
+        none_variable_list.append('peptide_file')
     elif not os.path.isfile(args.peptide_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.peptide_file))
+        xlib.Message.print('error', f'*** The file {args.peptide_file} does not exist.')
         OK = False
 
     # check "dataset_list"
     if args.dataset_list is None:
         xlib.Message.print('error', '*** The list of annotation databases is not indicated in the input arguments.')
         OK = False
+    elif args.dataset_list.upper() == 'NONE':
+        args.dataset_list = args.dataset_list.upper()
+        none_variable_list.append('dataset_list')
     else:
         args.dataset_list = xlib.split_literal_to_string_list(args.dataset_list)
 
@@ -127,19 +138,27 @@ def check_args(args):
     if args.non_annotation_file_list is None:
         xlib.Message.print('error', '*** The list of non annotated file paths is not indicated in the input arguments.')
         OK = False
+    elif args.non_annotation_file_list.upper() == 'NONE':
+        args.non_annotation_file_list = args.non_annotation_file_list.upper()
+        none_variable_list.append('non_annotation_file_list')
     else:
         args.non_annotation_file_list = xlib.split_literal_to_string_list(args.non_annotation_file_list)
         for non_annotation_file in args.non_annotation_file_list:
             if not os.path.isfile(non_annotation_file):
-                xlib.Message.print('error', '*** The file {0} does not exist.'.format(non_annotation_file))
+                xlib.Message.print('error', f'*** The file {non_annotation_file} does not exist.')
                 OK = False
+
+    # check relationships between "transcriptome_file", "peptide_file", "dataset_list" and "non_annotation_file_list"
+    if len(none_variable_list) not in [0, 4] and len(none_variable_list) == 1 and args.peptide_file != 'NONE':
+        xlib.Message.print('error', '*** all values of "transcriptome_file", "peptide_file", "dataset_list" and "non_annotation_file_list" have to be distinct to NONE or all values have to be NONE.')
+        OK = False
 
     # check "annotation_file"
     if args.annotation_file is None:
         xlib.Message.print('error', '*** The annotation file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.annotation_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.annotation_file))
+        xlib.Message.print('error', f'*** The file {args.annotation_file} does not exist.')
         OK = False
 
     # check "type"
@@ -147,7 +166,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The type of annotation file is not indicated in the input arguments.')
         OK = False
     elif not xlib.check_code(args.type, xlib.get_type_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** The type of annotation file has to be {0}.'.format(xlib.get_type_code_list_text()))
+        xlib.Message.print('error', f'*** The type of annotation file has to be {xlib.get_type_code_list_text()}.')
         OK = False
     else:
         args.type = args.type.upper()
@@ -161,7 +180,7 @@ def check_args(args):
     if args.verbose is None:
         args.verbose = xlib.Const.DEFAULT_VERBOSE
     elif not xlib.check_code(args.verbose, xlib.get_verbose_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** verbose has to be {0}.'.format(xlib.get_verbose_code_list_text()))
+        xlib.Message.print('error', f'*** verbose has to be {xlib.get_verbose_code_list_text()}.')
         OK = False
     if args.verbose.upper() == 'Y':
         xlib.Message.set_verbose_status(True)
@@ -170,7 +189,7 @@ def check_args(args):
     if args.trace is None:
         args.trace = xlib.Const.DEFAULT_TRACE
     elif not xlib.check_code(args.trace, xlib.get_trace_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** trace has to be {0}.'.format(xlib.get_trace_code_list_text()))
+        xlib.Message.print('error', f'*** trace has to be {xlib.get_trace_code_list_text()}.')
         OK = False
     if args.trace.upper() == 'Y':
         xlib.Message.set_trace_status(True)
@@ -196,7 +215,7 @@ def calculate_general_stats(conn, transcriptome_file, peptide_file, dataset_list
     remained_seq_number = calculate_seq_number(transcriptome_file)
 
     # add transcriptome data to the dataset statistics dictionary
-    dataset_stats_dict[1] = {'name': 'Transcriptome', 'annotated': '', 'remained': '{0}'.format(remained_seq_number)}
+    dataset_stats_dict[1] = {'name': 'Transcriptome', 'annotated': '', 'remained': f'{remained_seq_number}'}
 
     # if there is a peptides_file
     if peptide_file != 'NONE':
@@ -205,7 +224,7 @@ def calculate_general_stats(conn, transcriptome_file, peptide_file, dataset_list
         remained_seq_number = calculate_seq_number(peptide_file)
 
         # add peptide data to the dataset statistics dictionary
-        dataset_stats_dict[2] = {'name': 'Predicted peptides', 'annotated': '', 'remained': '{0}'.format(remained_seq_number)}
+        dataset_stats_dict[2] = {'name': 'Predicted peptides', 'annotated': '', 'remained': f'{remained_seq_number}'}
 
     # for each annotation dataset
     for i in range(len(dataset_list)):
@@ -217,8 +236,8 @@ def calculate_general_stats(conn, transcriptome_file, peptide_file, dataset_list
         annotated_seq_number = remained_seq_number - non_annotated_seq_number
         remained_seq_number = non_annotated_seq_number
 
-        # add dataset data to the sgeneral tatistics dictionary
-        dataset_stats_dict[i+10] = {'name': dataset_dict[dataset_list[i]]['dataset_name'], 'annotated': '{0}'.format(annotated_seq_number), 'remained': '{0}'.format(remained_seq_number)}
+        # add dataset data to the general statistics dictionary
+        dataset_stats_dict[i+10] = {'name': dataset_dict[dataset_list[i]]['dataset_name'], 'annotated': f'{annotated_seq_number}', 'remained': f'{remained_seq_number}'}
 
     # write dataset statistics file
     write_dataset_stats(dataset_stats_dict, stats_file)
@@ -275,7 +294,7 @@ def calculate_functional_stats(conn, annotation_file, type, stats_file):
 
     # read the secord record of the annotation file (first data record)
     (record, key, data_dict) = xlib.read_annotation_record(annotation_file, annotation_file_id, type, annotation_counter)
-    xlib.Message.print('trace', 'key: {0} - record: {1}'.format(key, record))
+    xlib.Message.print('trace', f'key: {key} - record: {record}')
 
     # while there are records
     while record != '':
@@ -499,11 +518,11 @@ def calculate_functional_stats(conn, annotation_file, type, stats_file):
                     min_evalue_kegg_id_list = kegg_id_list
                     min_evalue_metacyc_id_list = metacyc_id_list
 
-                xlib.Message.print('verbose', '\r{0} processed annotations'.format(annotation_counter))
+                xlib.Message.print('verbose', f'\rProcessed annotations: {annotation_counter}')
 
                 # read the next record of the annotation file
                 (record, key, data_dict) = xlib.read_annotation_record(annotation_file, annotation_file_id, type, annotation_counter)
-                xlib.Message.print('trace', 'key: {0} - record: {1}'.format(key, record))
+                xlib.Message.print('trace', f'key: {key} - record: {record}')
 
             # increase the HIT number per HSP number in the corresponding statistics dictionary
             hit_per_hsp_data = hit_num_per_hsp_num_stats_dict.get(hsp_counter, 0)
@@ -587,7 +606,7 @@ def calculate_functional_stats(conn, annotation_file, type, stats_file):
     xlib.Message.print('verbose', '\n')
 
     # print summary
-    xlib.Message.print('info', '{0} annotation records in annotation file.'.format(annotation_counter))
+    xlib.Message.print('info', f'{annotation_counter} annotation records in annotation file.')
 
     # close files
     annotation_file_id.close()
@@ -615,7 +634,7 @@ def calculate_functional_stats(conn, annotation_file, type, stats_file):
     write_x_per_y_stats(seq_num_per_metacyc_id_num_stats_dict, stats_file, stats_code='seq_per_metacyc')
 
     # show OK message 
-    xlib.Message.print('info', 'The statistics can be consulted in the file {0}.'.format(os.path.basename(stats_file)))
+    xlib.Message.print('info', f'The statistics can be consulted in the file {os.path.basename(stats_file)}.')
 
 #-------------------------------------------------------------------------------
 
@@ -688,7 +707,7 @@ def write_dataset_stats(stats_dict, generic_stats_file):
 
     # get the current file name
     dir_path, filename = os.path.split(generic_stats_file)
-    stats_file = '{0}/{1}-{2}'.format(dir_path, 'dataset', filename)
+    stats_file = f'{dir_path}/dataset-{filename}'
 
     # open the statistics file
     if stats_file.endswith('.gz'):
@@ -707,7 +726,7 @@ def write_dataset_stats(stats_dict, generic_stats_file):
 
     # write data record
     for key in sorted(stats_dict.keys()):
-        stats_file_id.write( '"{0}";"{1}";{2}\n'.format(stats_dict[key]['name'], stats_dict[key]['annotated'], stats_dict[key]['remained']))
+        stats_file_id.write(f'''"{stats_dict[key]['name']}";{stats_dict[key]['annotated']};{stats_dict[key]['remained']}\n''')
 
     # close statistics file
     stats_file_id.close()
@@ -721,7 +740,7 @@ def write_x_per_y_stats(stats_dict, generic_stats_file, stats_code):
 
     # get the current file name
     dir_path, filename = os.path.split(generic_stats_file)
-    stats_file = '{0}/{1}-{2}'.format(dir_path, stats_code, filename)
+    stats_file = f'{dir_path}/{stats_code}-{filename}'
 
     # open the statistics file
     if stats_file.endswith('.gz'):
@@ -753,7 +772,7 @@ def write_x_per_y_stats(stats_dict, generic_stats_file, stats_code):
 
     # write data record
     for key in sorted(stats_dict.keys()):
-        stats_file_id.write( '"{0}";"{1}"\n'.format(key, stats_dict[key]))
+        stats_file_id.write(f'"{key}";"{stats_dict[key]}"\n')
 
     # close statistics file
     stats_file_id.close()
@@ -767,7 +786,7 @@ def write_phylogenic_data_frecuency(stats_dict, generic_stats_file, stats_code):
 
     # get the current file name
     dir_path, filename = os.path.split(generic_stats_file)
-    stats_file = '{0}/{1}-{2}'.format(dir_path, stats_code, filename)
+    stats_file = f'{dir_path}/{stats_code}-{filename}'
 
     # open the statistics file
     if stats_file.endswith('.gz'):
@@ -791,7 +810,7 @@ def write_phylogenic_data_frecuency(stats_dict, generic_stats_file, stats_code):
 
     # write data record
     for key in sorted(stats_dict.keys()):
-        stats_file_id.write( '"{0}";{1};{2};{3}\n'.format(key, stats_dict[key]['all'], stats_dict[key]['hsp1'], stats_dict[key]['minevalue']))
+        stats_file_id.write(f'''"{key}";{stats_dict[key]['all']};{stats_dict[key]['hsp1']};{stats_dict[key]['minevalue']}\n''')
 
     # close statistics file
     stats_file_id.close()
@@ -805,7 +824,7 @@ def write_ontologic_data_frecuency(stats_dict, desc_dict, generic_stats_file, st
 
     # get the current file name
     dir_path, filename = os.path.split(generic_stats_file)
-    stats_file = os.path.join(dir_path, '{0}-{1}'.format(stats_code, filename))
+    stats_file = os.path.join(dir_path, f'{stats_code}-{filename}')
 
     # open the statistics file
     if stats_file.endswith('.gz'):
@@ -840,7 +859,7 @@ def write_ontologic_data_frecuency(stats_dict, desc_dict, generic_stats_file, st
             desc = desc_dict.get(key2, {}).get('desc', 'N/A')
         else:
             desc = desc_dict.get(key, 'N/A')
-        stats_file_id.write( '"{0}";"{1}";{2};{3};{4}\n'.format(key, desc, stats_dict[key]['all'], stats_dict[key]['hsp1'], stats_dict[key]['minevalue']))
+        stats_file_id.write(f'''"{key}";"{desc}";{stats_dict[key]['all']};{stats_dict[key]['hsp1']};{stats_dict[key]['minevalue']}\n''')
 
     # close statistics file
     stats_file_id.close()
@@ -860,8 +879,8 @@ def write_go_data_frecuency(conn, go_id_stats_dict, generic_stats_file):
 
     # get the current file names
     dir_path, filename = os.path.split(generic_stats_file)
-    go_id_stats_file = '{0}/{1}-{2}'.format(dir_path, 'go', filename)
-    namespace_stats_file = '{0}/{1}-{2}'.format(dir_path, 'namespace', filename)
+    go_id_stats_file = f'{dir_path}/go-{filename}'
+    namespace_stats_file = f'{dir_path}/namespace-{filename}'
 
     # open the file of statistics by GO identifier
     if go_id_stats_file.endswith('.gz'):
@@ -881,14 +900,14 @@ def write_go_data_frecuency(conn, go_id_stats_dict, generic_stats_file):
     # write data in the file of statistics by GO identifier and accumulate data in the namespace statistics dictionary
     for key in sorted(go_id_stats_dict.keys()):
         try:
-            go_id_stats_file_id.write( '"GO:{0}";{1};{2};{3};{4};{5}\n'.format(key, go_ontology_dictionary[key]['go_name'], go_ontology_dictionary[key]['namespace'], go_id_stats_dict[key]['all'], go_id_stats_dict[key]['hsp1'], go_id_stats_dict[key]['minevalue']))
+            go_id_stats_file_id.write(f'''"GO:{key}";"{go_ontology_dictionary[key]['go_name']}";"{go_ontology_dictionary[key]['namespace']}";{go_id_stats_dict[key]['all']};{go_id_stats_dict[key]['hsp1']};{go_id_stats_dict[key]['minevalue']}\n''')
             namespace_data = namespace_stats_dict.get(go_ontology_dictionary[key]['namespace'], {'all': 0, 'hsp1': 0, 'minevalue':0})
             namespace_data['all'] = namespace_data['all'] + go_id_stats_dict[key]['all']
             namespace_data['hsp1'] = namespace_data['hsp1'] + go_id_stats_dict[key]['hsp1']
             namespace_data['minevalue'] = namespace_data['minevalue'] + go_id_stats_dict[key]['minevalue']
             namespace_stats_dict[go_ontology_dictionary[key]['namespace']] = namespace_data
         except Exception as e:
-            go_id_stats_file_id.write( '"GO:{0}";{1};{2};{3};{4};{5}\n'.format(key, 'N/A', 'N/A', go_id_stats_dict[key]['all'], go_id_stats_dict[key]['hsp1'], go_id_stats_dict[key]['minevalue']))
+            go_id_stats_file_id.write(f'''"GO:{key}";"N/A";"N/A";{go_id_stats_dict[key]['all']};{go_id_stats_dict[key]['hsp1']};{go_id_stats_dict[key]['minevalue']}\n''')
             namespace_data = namespace_stats_dict.get('N/A', {'all': 0, 'hsp1': 0, 'minevalue':0})
             namespace_data['all'] = namespace_data['all'] + go_id_stats_dict[key]['all']
             namespace_data['hsp1'] = namespace_data['hsp1'] + go_id_stats_dict[key]['hsp1']
@@ -917,7 +936,7 @@ def write_go_data_frecuency(conn, go_id_stats_dict, generic_stats_file):
     for key in sorted(namespace_stats_dict.keys()):
 
         # write data record
-        namespace_stats_file_id.write( '"{0}";{1};{2};{3}\n'.format(key, namespace_stats_dict[key]['all'], namespace_stats_dict[key]['hsp1'], namespace_stats_dict[key]['minevalue']))
+        namespace_stats_file_id.write(f'''"{key}";{namespace_stats_dict[key]['all']};{namespace_stats_dict[key]['hsp1']};{namespace_stats_dict[key]['minevalue']}\n''')
 
     # close the file of statistics by namespace
     namespace_stats_file_id.close()

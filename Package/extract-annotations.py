@@ -57,17 +57,17 @@ def build_parser():
 
     # create the parser and add arguments
     description = 'Description: This program extracts annotations of an annotation file.'
-    text = '{0} v{1} - {2}\n\n{3}\n'.format(xlib.get_long_project_name(), xlib.get_project_version(), os.path.basename(__file__), description)
-    usage = '\r{0}\nUsage: {1} arguments'.format(text.ljust(len('usage:')), os.path.basename(__file__))
+    text = f'{xlib.get_long_project_name()} v{xlib.get_project_version()} - {os.path.basename(__file__)}\n\n{description}\n'
+    usage = f'\r{text.ljust(len("usage:"))}\nUsage: {os.path.basename(__file__)} arguments'
     parser = argparse.ArgumentParser(usage=usage)
     parser._optionals.title = 'Arguments'
     parser.add_argument('--annotation', dest='annotation_file', help='Path of annotation file in CSV format (mandatory).')
-    parser.add_argument('--type', dest='type', help='Type of the annotation file (mandatory): {0}.'.format(xlib.get_type_code_list_text()))
+    parser.add_argument('--type', dest='type', help=f'Type of the annotation file (mandatory): {xlib.get_type_code_list_text()}.')
     parser.add_argument('--id', dest='id_file', help='Path of the identification file in plane text (mandatory).')
     parser.add_argument('--extract', dest='extract_file', help='Path of extracted annotation file in CSV format (mandatory).')
     parser.add_argument('--stats', dest='stats_file', help='Path of statistics file in CSV format (mandatory).')
-    parser.add_argument('--verbose', dest='verbose', help='Additional job status info during the run: {0}; default: {1}.'.format(xlib.get_verbose_code_list_text(), xlib.Const.DEFAULT_VERBOSE))
-    parser.add_argument('--trace', dest='trace', help='Additional info useful to the developer team: {0}; default: {1}.'.format(xlib.get_trace_code_list_text(), xlib.Const.DEFAULT_TRACE))
+    parser.add_argument('--verbose', dest='verbose', help=f'Additional job status info during the run: {xlib.get_verbose_code_list_text()}; default: {xlib.Const.DEFAULT_VERBOSE}.')
+    parser.add_argument('--trace', dest='trace', help=f'Additional info useful to the developer team: {xlib.get_trace_code_list_text()}; default: {xlib.Const.DEFAULT_TRACE}.')
 
     # return the paser
     return parser
@@ -87,7 +87,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The annotation file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.annotation_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.annotation_file))
+        xlib.Message.print('error', f'*** The file {args.annotation_file} does not exist.')
         OK = False
 
     # check "type"
@@ -95,7 +95,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The type of annotation file is not indicated in the input arguments.')
         OK = False
     elif not xlib.check_code(args.type, xlib.get_type_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** The type of annotation file has to be {0}.'.format(xlib.get_type_code_list_text()))
+        xlib.Message.print('error', f'*** The type of annotation file has to be {xlib.get_type_code_list_text()}.')
         OK = False
     else:
         args.type = args.type.upper()
@@ -105,7 +105,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The identification file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.id_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.id_file))
+        xlib.Message.print('error', f'*** The file {args.id_file} does not exist.')
         OK = False
 
     # check "extract_file"
@@ -122,7 +122,7 @@ def check_args(args):
     if args.verbose is None:
         args.verbose = xlib.Const.DEFAULT_VERBOSE
     elif not xlib.check_code(args.verbose, xlib.get_verbose_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** verbose has to be {0}.'.format(xlib.get_verbose_code_list_text()))
+        xlib.Message.print('error', f'*** verbose has to be {xlib.get_verbose_code_list_text()}.')
         OK = False
     if args.verbose.upper() == 'Y':
         xlib.Message.set_verbose_status(True)
@@ -131,7 +131,7 @@ def check_args(args):
     if args.trace is None:
         args.trace = xlib.Const.DEFAULT_TRACE
     elif not xlib.check_code(args.trace, xlib.get_trace_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** trace has to be {0}.'.format(xlib.get_trace_code_list_text()))
+        xlib.Message.print('error', f'*** trace has to be {xlib.get_trace_code_list_text()}.')
         OK = False
     if args.trace.upper() == 'Y':
         xlib.Message.set_trace_status(True)
@@ -184,7 +184,7 @@ def extract_annotations(annotation_file, type, id_file, extract_file, stats_file
     # read the first record of the annotation file (header)
     read_record_counter += 1
     (record, key, data_dict) = xlib.read_annotation_record(annotation_file, annotation_file_id, type, read_record_counter)
-    xlib.Message.print('trace', 'key: {0} - record: {1}'.format(key, record))
+    xlib.Message.print('trace', f'key: {key} - record: {record}')
 
     # while there are records
     while record != '':
@@ -210,18 +210,18 @@ def extract_annotations(annotation_file, type, id_file, extract_file, stats_file
             xlib.write_merged_annotation_record(extract_file_id, type, data_dict)
             written_record_counter += 1
 
-        xlib.Message.print('verbose', '\r{0} read annotations - {1} written annotations'.format(read_record_counter, written_record_counter))
+        xlib.Message.print('verbose', f'\rRead annotations: {read_record_counter} - Written annotations: {written_record_counter}')
 
         # read the next record of the annotation file
         read_record_counter += 1
         (record, key, data_dict) = xlib.read_annotation_record(annotation_file, annotation_file_id, type, read_record_counter)
-        xlib.Message.print('trace', 'key: {0} - record: {1}'.format(key, record))
+        xlib.Message.print('trace', f'key: {key} - record: {record}')
 
     xlib.Message.print('verbose', '\n')
 
     # print summary
-    xlib.Message.print('info', '{0} annotations read in annotation file.'.format(read_record_counter - 1))
-    xlib.Message.print('info', '{0} annotations written in the extracted identification file.'.format(written_record_counter))
+    xlib.Message.print('info', f'{read_record_counter - 1} annotations read in annotation file.')
+    xlib.Message.print('info', f'{written_record_counter} annotations written in the extracted identification file.')
 
     # close files
     annotation_file_id.close()
@@ -267,7 +267,7 @@ def get_id_data(id_file):
 
         # add 1 to the identification counter
         id_counter += 1
-        xlib.Message.print('verbose', '\r{0} identifications.'.format(id_counter))
+        xlib.Message.print('verbose', f'\rIdentifications: {id_counter}')
 
         # read the next record
         record = id_file_id.readline()
@@ -303,19 +303,19 @@ def write_stats(stats_file, id_list, id_dict):
             raise xlib.ProgramException('F003', stats_file)
 
     # write the header
-    stats_file_id.write('"IDENTIFICATION";"ANNOTATION NUMBER";\n')
+    stats_file_id.write( '"IDENTIFICATION";"ANNOTATION NUMBER";\n')
 
     # write the statistics
     for key in id_list:
 
         # write the data in the statistics file
-        stats_file_id.write('"{0}";{1};\n'.format(key, id_dict[key]))
+        stats_file_id.write(f'"{key}";{id_dict[key]};\n')
 
     # close statistics file
     stats_file_id.close()
 
     # show OK message 
-    xlib.Message.print('info', 'The statistics can be consulted in the file {0}.'.format(os.path.basename(stats_file)))
+    xlib.Message.print('info', f'The statistics can be consulted in the file {os.path.basename(stats_file)}.')
 
 #-------------------------------------------------------------------------------
 

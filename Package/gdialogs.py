@@ -86,7 +86,7 @@ class DialogTable(tkinter.Toplevel):
         self.geometry('{}x{}+{}+{}'.format(self.window_width, self.window_height, x, y))
 
         # set the title
-        self.title('{0} - {1} - Table'.format(xlib.get_short_project_name(), self.title_text))
+        self.title(f'{xlib.get_short_project_name()} - {self.title_text} - Table')
 
         # set the icon
         image_app = PIL.Image.open(xlib.get_project_image_file())
@@ -197,7 +197,7 @@ class DialogTable(tkinter.Toplevel):
         '''
 
         # get the log file name and build cluster path
-        log_file = '{0}/{1}'.format(xlib.get_log_dir(), run_id)
+        log_file = f'{xlib.get_log_dir()}/{run_id}'
 
         # create and show a instance "DialogViewer" to view the log file
         dialog_viewer = DialogViewer(self, log_file)
@@ -214,7 +214,7 @@ class DialogTable(tkinter.Toplevel):
         toa_config_dict = xtoa.get_toa_config_dict()
 
         # get the run log file path
-        run_log_file = '{0}/{1}/{2}/{3}'.format(toa_config_dict['RESULT_DIR'], experiment_id, run_id, xlib.get_run_log_file())
+        run_log_file = f'{toa_config_dict["RESULT_DIR"]}/{experiment_id}/{run_id}/{xlib.get_run_log_file()}'
 
         # create and show a instance "DialogViewer" to view the log file
         dialog_viewer = DialogViewer(self, run_log_file)
@@ -283,7 +283,7 @@ class DialogOptionUpdate(tkinter.Toplevel):
         self.geometry('{}x{}+{}+{}'.format(self.window_width, self.window_height, x, y))
 
         # set the title
-        self.title('{0} - {1} - Table'.format(xlib.get_short_project_name(), self.title_text))
+        self.title(f'{xlib.get_short_project_name()} - {self.title_text} - Table')
 
         # set the icon
         image_app = PIL.Image.open(xlib.get_project_image_file())
@@ -415,7 +415,7 @@ class DialogOptionUpdate(tkinter.Toplevel):
         auxliary_window.geometry('{}x{}+{}+{}'.format(self.auxliary_window_width, self.auxliary_window_height, x, y))
 
         # set the title
-        auxliary_window.title('{0} - {1} - Update value'.format(xlib.get_short_project_name(), self.title_text))
+        auxliary_window.title(f'{xlib.get_short_project_name()} - {self.title_text} - Update value')
 
         # set the icon
         image_app = PIL.Image.open(xlib.get_project_image_file())
@@ -479,16 +479,18 @@ class DialogOptionUpdate(tkinter.Toplevel):
         if value_type == 'string_list':
             if option_value not in admitted_option_value_list:
                 OK = False
-                message = 'The value {0} is not OK. It has to be: {1}.'.format(option_value, str(admitted_option_value_list).strip('[]').replace('\'',''))
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), 'Update option value'), message)
+                admitted_option_value_list_text = str(admitted_option_value_list).strip('[]').replace('\'','')
+                message = f'The value {option_value} is not OK. It has to be: {admitted_option_value_list_text}.'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - Update option value', message)
             else:
                 self.item_dict[option_id]['option_value'] = option_value
         elif value_type == 'uppercase_string_list':
             option_value = option_value.upper()
             if option_value not in admitted_option_value_list:
                 OK = False
-                message = 'The value {0} is not OK. It has to be: {1}.'.format(option_value, str(admitted_option_value_list).strip('[]').replace('\'',''))
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), 'Check option value - Error'), message)
+                admitted_option_value_list_text = str(admitted_option_value_list).strip('[]').replace('\'','')
+                message = f'The value {option_value} is not OK. It has to be: {admitted_option_value_list_text}.'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - Check option value - Error', message)
             else:
                 self.item_dict[option_id]['option_value'] = option_value
         elif value_type == 'integer':
@@ -496,27 +498,29 @@ class DialogOptionUpdate(tkinter.Toplevel):
                 self.item_dict[option_id]['option_value'] = int(option_value)
             except Exception as e:
                 OK = False
-                message = 'The value {0} is not OK. It has to be an integer number.'.format(option_value)
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), 'Check option value - Error'), message)
+                message = f'The value {option_value} is not OK. It has to be an integer number.'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - Check option value - Error', message)
         elif value_type == 'integer_list':
             try:
                 if int(option_value) not in admitted_option_value_list:
                     OK = False
-                    message = 'The value {0} is not OK. It has to be: {1}.'.format(option_value, str(admitted_option_value_list).strip('[]').replace('\'',''))
-                    tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), 'Check option value - Error'), message)
+                    admitted_option_value_list_text = str(admitted_option_value_list).strip('[]').replace('\'','')
+                    message = f'The value {option_value} is not OK. It has to be: {admitted_option_value_list_text}.'
+                    tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - Check option value - Error', message)
                 else:
                     self.item_dict[option_id]['option_value'] = int(option_value)
             except Exception as e:
                 OK = False
-                message = 'The value {0} is not OK. It has to be: {1}.'.format(option_value, str(admitted_option_value_list).strip('[]').replace('\'',''))
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), 'Check option value - Error'), message)
+                admitted_option_value_list_text = str(admitted_option_value_list).strip('[]').replace('\'','')
+                message = f'The value {option_value} is not OK. It has to be: {admitted_option_value_list_text}.'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - Check option value - Error', message)
         elif value_type == 'float':
             try:
                 self.item_dict[option_id]['option_value'] = float(option_value)
             except Exception as e:
                 OK = False
-                message = 'The value {0} is not OK. It has to be an float number.'.format(option_value)
-                tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), 'Check option value - Error'), message)
+                message = f'The value {option_value} is not OK. It has to be an float number.'
+                tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - Check option value - Error', message)
 
         # reload the Treeview widget
         if OK:
@@ -583,8 +587,8 @@ class DialogLog(tkinter.Toplevel):
                 os.makedirs(os.path.dirname(self.log_file))
             self.log_file_id = open(self.log_file, mode='w', encoding='iso-8859-1', newline='\n')
         except Exception as e:
-            message = '*** ERROR: The file {0} can not be created'.format(self.log_file)
-            tkinter.messagebox.showerror('{0} - {1}'.format(xlib.get_short_project_name(), self.head), message)
+            message = f'*** ERROR: The file {self.log_file} can not be created.'
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message)
             # delete all widgets and terminate the mainloop
             self.destroy()
 
@@ -603,7 +607,7 @@ class DialogLog(tkinter.Toplevel):
         self.geometry('{}x{}+{}+{}'.format(self.WINDOW_MIN_WIDTH, self.WINDOW_MIN_HEIGHT, x, y))
 
         # set the title
-        self.title('{0} - {1} - Log'.format(xlib.get_short_project_name(), self.head))
+        self.title(f'{xlib.get_short_project_name()} - {self.head} - Log')
 
         # set the icon
         image_app = PIL.Image.open(xlib.get_project_image_file())
@@ -757,7 +761,7 @@ class DialogViewer(tkinter.Toplevel):
         self.geometry('{}x{}+{}+{}'.format(self.WINDOW_MIN_WIDTH, self.WINDOW_MIN_HEIGHT, x, y))
 
         # set the title
-        self.title('{0} - View - {1}'.format(xlib.get_short_project_name(), self.file_path))
+        self.title(f'{xlib.get_short_project_name()} - View - {self.file_path}')
 
         # set the icon
         image_app = PIL.Image.open(xlib.get_project_image_file())
@@ -840,7 +844,8 @@ class DialogViewer(tkinter.Toplevel):
             with open(self.file_path) as file_id:
                 self.text.insert('1.0', file_id.read())
         except Exception as e:
-            tkinter.messagebox.showerror('{0} - Open'.format(xlib.get_short_project_name()), 'The file {0} can not be opened.'.format(self.file_path))
+            message = f'The file {self.file_path} can not be opened.'
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - Open', message)
         else:
             self.text.configure(state='disable')
 
@@ -908,7 +913,7 @@ class DialogEditor(tkinter.Toplevel):
         self.geometry('{}x{}+{}+{}'.format(self.WINDOW_MIN_WIDTH, self.WINDOW_MIN_HEIGHT, x, y))
 
         # set the title
-        self.title('{0} - Edit - {1}'.format(xlib.get_short_project_name(), self.file_path))
+        self.title(f'{xlib.get_short_project_name()} - Edit - {self.file_path}')
 
         # set the icon
         image_app = PIL.Image.open(xlib.get_project_image_file())
@@ -1058,7 +1063,8 @@ class DialogEditor(tkinter.Toplevel):
             with open(self.file_path) as id_config_file:
                 self.text.insert('1.0', id_config_file.read())
         except Exception as e:
-            tkinter.messagebox.showerror('{0} - Open'.format(xlib.get_short_project_name()), 'The file {0} can not be opened.'.format(self.file_path))
+            message = f'The file {self.file_path} can not be opened.'
+            tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - Open', message)
         else:
             self.text.edit_modified(False)
 
@@ -1074,7 +1080,8 @@ class DialogEditor(tkinter.Toplevel):
             with open(self.file_path, 'w') as id_config_file:
                 id_config_file.write(document)
         except IOError:
-            tkinter.messagebox.showwarning('{0} - Save'.format(xlib.get_short_project_name()), 'The file {0} can not be saved.'.format(self.file_path))
+            message = f'The file {self.file_path} can not be saved.'
+            tkinter.messagebox.showwarning(f'{xlib.get_short_project_name()} - Save', message)
         else:
             self.text.edit_modified(False)
 
@@ -1150,7 +1157,8 @@ class DialogEditor(tkinter.Toplevel):
         '''
 
         if self.text.edit_modified():
-            if tkinter.messagebox.askyesno('{0} - Close'.format(xlib.get_short_project_name()), 'The file {0} has been modified. Do you save it?'.format(self.file_path)):
+            message = f'The file {self.file_path} has been modified. Do you save it?'
+            if tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - Close', message):
                 self.save()
 
         # delete all widgets and terminate the mainloop
@@ -1208,7 +1216,7 @@ class DialogAbout(tkinter.Toplevel):
         self.geometry('{}x{}+{}+{}'.format(self.WINDOW_WIDTH, self.WINDOW_HEIGHT, x, y))
 
         # set the title
-        self.title('{0} - About'.format(xlib.get_short_project_name()))
+        self.title(f'{xlib.get_short_project_name()} - About')
 
         # set the icon
         image_app = PIL.Image.open(xlib.get_project_image_file())
@@ -1226,7 +1234,7 @@ class DialogAbout(tkinter.Toplevel):
         '''
 
         # create "label_proyect" and register it with the grid geometry manager
-        self.label_proyect = tkinter.Label(self, text='{0} v{1}'.format(xlib.get_long_project_name(), xlib.get_project_version()), font=tkinter.font.Font(size=10, weight='bold'))
+        self.label_proyect = tkinter.Label(self, text=f'{xlib.get_long_project_name()} v{xlib.get_project_version()}', font=tkinter.font.Font(size=10, weight='bold'))
         self.label_proyect.grid(row=0, column=1, padx=(5,5), pady=(20,5), sticky='w')
 
         # create "canvas_photoimage_app" and register it with the grid geometry manager
@@ -1334,7 +1342,7 @@ class DialogPlot(tkinter.Toplevel):
         self.geometry('{}x{}+{}+{}'.format(self.window_width, self.window_height, x, y))
 
         # set the title
-        self.title('{0} - {1} - Table'.format(xlib.get_short_project_name(), self.title_text))
+        self.title(f'{xlib.get_short_project_name()} - {self.title_text} - Table')
 
         # set the icon
         image_app = PIL.Image.open(xlib.get_project_image_file())
@@ -1395,7 +1403,7 @@ class DialogPlot(tkinter.Toplevel):
 #-------------------------------------------------------------------------------
 
 if __name__ == '__main__':
-    print('This file contains the dialog classes corresponding to the graphical user interface of the {0} software package.'.format(xlib.get_long_project_name()))
+    print(f'This file contains the dialog classes corresponding to the graphical user interface of the {xlib.get_long_project_name()} software package.')
     sys.exit(0)
 
 #-------------------------------------------------------------------------------

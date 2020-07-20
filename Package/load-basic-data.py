@@ -74,8 +74,8 @@ def build_parser():
 
     # create the parser and add arguments
     description = 'Description: This program loads datasets and species data into TOA database.'
-    text = '{0} v{1} - {2}\n\n{3}\n'.format(xlib.get_long_project_name(), xlib.get_project_version(), os.path.basename(__file__), description)
-    usage = '\r{0}\nUsage: {1} arguments'.format(text.ljust(len('usage:')), os.path.basename(__file__))
+    text = f'{xlib.get_long_project_name()} v{xlib.get_project_version()} - {os.path.basename(__file__)}\n\n{description}\n'
+    usage = f'\r{text.ljust(len("usage:"))}\nUsage: {os.path.basename(__file__)} arguments'
     parser = argparse.ArgumentParser(usage=usage)
     parser._optionals.title = 'Arguments'
     parser.add_argument('--db', dest='toa_database', help='Path of the TOA database (mandatory).')
@@ -83,8 +83,8 @@ def build_parser():
     parser.add_argument('--species', dest='species_file', help='Path of species file (mandatory).')
     parser.add_argument('--ecids', dest='ec_id_file', help='Path of EC id file (mandatory).')
     parser.add_argument('--keggids', dest='kegg_id_file', help='Path of KEGG id file (mandatory).')
-    parser.add_argument('--verbose', dest='verbose', help='Additional job status info during the run: {0}; default: {1}.'.format(xlib.get_verbose_code_list_text(), xlib.Const.DEFAULT_VERBOSE))
-    parser.add_argument('--trace', dest='trace', help='Additional info useful to the developer team: {0}; default: {1}.'.format(xlib.get_trace_code_list_text(), xlib.Const.DEFAULT_TRACE))
+    parser.add_argument('--verbose', dest='verbose', help=f'Additional job status info during the run: {xlib.get_verbose_code_list_text()}; default: {xlib.Const.DEFAULT_VERBOSE}.')
+    parser.add_argument('--trace', dest='trace', help=f'Additional info useful to the developer team: {xlib.get_trace_code_list_text()}; default: {xlib.Const.DEFAULT_TRACE}.')
 
     # return the paser
     return parser
@@ -109,7 +109,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The dataset file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.dataset_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.dataset_file))
+        xlib.Message.print('error', f'*** The file {args.dataset_file} does not exist.')
         OK = False
 
     # check "species_file"
@@ -117,7 +117,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The species file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.species_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.species_file))
+        xlib.Message.print('error', f'*** The file {args.species_file} does not exist.')
         OK = False
 
     # check "ec_id_file"
@@ -125,7 +125,7 @@ def check_args(args):
         xlib.Message.print('error', '*** The EC id file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.ec_id_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.ec_id_file))
+        xlib.Message.print('error', f'*** The file {args.ec_id_file} does not exist.')
         OK = False
 
     # check "kegg_id_file"
@@ -133,14 +133,14 @@ def check_args(args):
         xlib.Message.print('error', '*** The KEGG id file is not indicated in the input arguments.')
         OK = False
     elif not os.path.isfile(args.kegg_id_file):
-        xlib.Message.print('error', '*** The file {0} does not exist.'.format(args.kegg_id_file))
+        xlib.Message.print('error', f'*** The file {args.kegg_id_file} does not exist.')
         OK = False
 
     # check "verbose"
     if args.verbose is None:
         args.verbose = xlib.Const.DEFAULT_VERBOSE
     elif not xlib.check_code(args.verbose, xlib.get_verbose_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** verbose has to be {0}.'.format(xlib.get_verbose_code_list_text()))
+        xlib.Message.print('error', f'*** verbose has to be {xlib.get_verbose_code_list_text()}.')
         OK = False
     if args.verbose.upper() == 'Y':
         xlib.Message.set_verbose_status(True)
@@ -149,7 +149,7 @@ def check_args(args):
     if args.trace is None:
         args.trace = xlib.Const.DEFAULT_TRACE
     elif not xlib.check_code(args.trace, xlib.get_trace_code_list(), case_sensitive=False):
-        xlib.Message.print('error', '*** trace has to be {0}.'.format(xlib.get_trace_code_list_text()))
+        xlib.Message.print('error', f'*** trace has to be {xlib.get_trace_code_list_text()}.')
         OK = False
     if args.trace.upper() == 'Y':
         xlib.Message.set_trace_status(True)
@@ -230,7 +230,7 @@ def load_table_datasets(conn, dataset_file):
             inserted_row_counter += 1
 
         # print record counter
-        xlib.Message.print('verbose', '\rDataset file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+        xlib.Message.print('verbose', f'\rProcessed records of dataset file: {record_counter} - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = dataset_file_id.readline()
@@ -331,7 +331,7 @@ def load_table_species(conn, species_file):
             inserted_row_counter += 1
 
         # print record counter
-        xlib.Message.print('verbose', '\rSpecies file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+        xlib.Message.print('verbose', f'\rProcessed records of species file: {record_counter} - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = species_file_id.readline()
@@ -395,7 +395,7 @@ def load_table_ec_ids(conn, ec_id_file):
         record_counter += 1
 
         # print record counter
-        xlib.Message.print('verbose', '\rEC id file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+        xlib.Message.print('verbose', f'\rProcessed records of EC id file: {record_counter} - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = ec_id_file_id.readline()
@@ -418,7 +418,7 @@ def load_table_ec_ids(conn, ec_id_file):
                 row_dict['desc'] = ''
 
                 # print record counter
-                xlib.Message.print('verbose', '\rEC id file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+                xlib.Message.print('verbose', f'\rProcessed records of EC id file: {record_counter} - Inserted rows: {inserted_row_counter}')
 
                 # read the next record
                 record = ec_id_file_id.readline()
@@ -433,13 +433,13 @@ def load_table_ec_ids(conn, ec_id_file):
                 if row_dict['desc'] == '':
                     row_dict['desc'] = record[3:].strip()
                 else:
-                    row_dict['desc'] = '{0}, {1}'.format(row_dict['desc'], record[3:].strip())
+                    row_dict['desc'] = f'''{row_dict['desc']}, {record[3:].strip()}'''
 
                 # change quotation marks and semicolons in "desc"
                 row_dict['desc'] = row_dict['desc'].replace("'", '|').replace(';', ',')
 
                 # print record counter
-                xlib.Message.print('verbose', '\rEC id file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+                xlib.Message.print('verbose', f'\rProcessed records of EC id file: {record_counter} - Inserted rows: {inserted_row_counter}')
 
                 # read the next record
                 record = ec_id_file_id.readline()
@@ -456,7 +456,7 @@ def load_table_ec_ids(conn, ec_id_file):
                 record_counter += 1
 
                 # print record counter
-                xlib.Message.print('verbose', '\rEC id file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+                xlib.Message.print('verbose', f'\rProcessed records of EC id file: {record_counter} - Inserted rows: {inserted_row_counter}')
 
                 # read the next record
                 record = ec_id_file_id.readline()
@@ -560,7 +560,7 @@ def load_table_kegg_ids(conn, kegg_id_file):
             inserted_row_counter += 1
 
         # print record counter
-        xlib.Message.print('verbose', '\rKEGG ids file: {0} processed records - Inserted rows: {1}'.format(record_counter, inserted_row_counter))
+        xlib.Message.print('verbose', f'\rProcessed records of KEGG ids file: {record_counter}  - Inserted rows: {inserted_row_counter}')
 
         # read the next record
         record = kegg_id_file_id.readline()
