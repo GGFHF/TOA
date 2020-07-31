@@ -165,14 +165,16 @@ class FormInstallBioinfoApp(tkinter.Frame):
 
             # install the BLAST+ software
             if self.app_code == xlib.get_blastplus_code():
-                package_list = [(xlib.get_blastplus_conda_code(), 'last')]
+                # -- package_list = [(xlib.get_blastplus_conda_code(), 'last')]
+                package_list = [(xlib.get_blastplus_conda_code(), '2.9.0')]
                 dialog_log = gdialogs.DialogLog(self, self.head, xbioinfoapp.install_conda_package_list.__name__)
                 threading.Thread(target=self.wait_window, args=(dialog_log,)).start()
                 threading.Thread(target=xbioinfoapp.install_conda_package_list, args=(self.app_code, self.app_name, package_list, dialog_log, lambda: dialog_log.enable_button_close())).start()
 
             # install the DIAMOND software
             elif self.app_code == xlib.get_diamond_code():
-                package_list = [(xlib.get_diamond_conda_code(), 'last')]
+                # -- package_list = [(xlib.get_diamond_conda_code(), 'last')]
+                package_list = [(xlib.get_diamond_conda_code(), '0.9.34')]
                 dialog_log = gdialogs.DialogLog(self, self.head, xbioinfoapp.install_conda_package_list.__name__)
                 threading.Thread(target=self.wait_window, args=(dialog_log,)).start()
                 threading.Thread(target=xbioinfoapp.install_conda_package_list, args=(self.app_code, self.app_name, package_list, dialog_log, lambda: dialog_log.enable_button_close())).start()

@@ -79,13 +79,15 @@ def form_install_bioinfo_app(app_code):
 
         # install the BLAST+ software
         if app_code == xlib.get_blastplus_code():
-            package_code_list = [(xlib.get_blastplus_conda_code(), 'last')]
+            # -- package_code_list = [(xlib.get_blastplus_conda_code(), 'last')]
+            package_code_list = [(xlib.get_blastplus_conda_code(), '2.9.0')]
             devstdout = xlib.DevStdOut(xbioinfoapp.install_conda_package_list.__name__)
             OK = xbioinfoapp.install_conda_package_list(app_code, app_name, package_code_list, devstdout, function=None)
 
         # install the DIAMOND software
         elif app_code == xlib.get_diamond_code():
-            package_code_list = [(xlib.get_diamond_conda_code(), 'last')]
+            # -- package_code_list = [(xlib.get_diamond_conda_code(), 'last')]
+            package_code_list = [(xlib.get_diamond_conda_code(), '0.9.34')]
             devstdout = xlib.DevStdOut(xbioinfoapp.install_conda_package_list.__name__)
             OK = xbioinfoapp.install_conda_package_list(app_code, app_name, package_code_list, devstdout, function=None)
 

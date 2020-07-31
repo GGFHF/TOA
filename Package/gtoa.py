@@ -2862,7 +2862,7 @@ class FormPlotStats(tkinter.Frame):
         default_image_dir = os.path.join(os.getcwd(), 'graphics')
         if not os.path.isdir(default_image_dir): os.mkdir(default_image_dir)
         self.wrapper_image_dir.set(default_image_dir)
-        self.wrapper_image_name.set('Figure.jpeg')
+        self.wrapper_image_name.set('Figure.png')
 
         # populate data in comboboxes
         self.populate_combobox_process_type()
@@ -2949,7 +2949,7 @@ class FormPlotStats(tkinter.Frame):
         '''
 
         # clear the value selected in the combobox
-        self.wrapper_image_format.set('JPEG')
+        self.wrapper_image_format.set('PNG')
 
         # load the list of the read dataset names in the combobox
         self.combobox_image_format['values'] =['EPS', 'JPEG', 'PDF', 'PNG', 'PS', 'SVG', 'TIFF']
