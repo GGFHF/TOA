@@ -8,7 +8,7 @@ Changes in v0.65 (November 2020)
 
 * Display improvement in logs.
 
-* Fixation of a bug in config file creation of pipeline (coonsole mode).
+* Fixation of a bug in config file creation of pipeline (console mode).
 
 ********************************************************************************
 
