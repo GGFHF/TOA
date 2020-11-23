@@ -40,21 +40,22 @@ class FormViewSubmissionLogs(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main):
+    def __init__(self, main):
         '''
         Execute actions correspending to the creation of a "FormViewSubmissionLogs" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # assign the text of the "head"
         self.head = 'Logs - View submission logs'
@@ -73,8 +74,8 @@ class FormViewSubmissionLogs(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -95,7 +96,7 @@ class FormViewSubmissionLogs(tkinter.Frame):
         self.combobox_submission_process_text.grid(row=0, column=1, padx=(5,5), pady=(75,5), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(25+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*25)
         self.label_fit.grid(row=2, column=2, padx=(0,0), pady=(45,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -108,6 +109,7 @@ class FormViewSubmissionLogs(tkinter.Frame):
 
         # link a handler to events
         self.combobox_submission_process_text.bind('<<ComboboxSelected>>', self.combobox_submission_process_text_selected_item)
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -177,10 +179,14 @@ class FormViewSubmissionLogs(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Execute the list the submission logs.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()
@@ -268,21 +274,22 @@ class FormViewResultLogs(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main):
+    def __init__(self, main):
         '''
         Execute actions correspending to the creation of a "FormViewResultLogs" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # assign the text of the "head"
         self.head = 'Logs - View result logs'
@@ -298,8 +305,8 @@ class FormViewResultLogs(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -320,7 +327,7 @@ class FormViewResultLogs(tkinter.Frame):
         self.combobox_process_type.grid(row=0, column=1, padx=(5,5), pady=(75,5), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(75+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*75)
         self.label_fit.grid(row=1, column=2, padx=(0,0), pady=(45,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -333,6 +340,7 @@ class FormViewResultLogs(tkinter.Frame):
 
         # link a handler to events
         self.combobox_process_type.bind('<<ComboboxSelected>>', self.combobox_process_type_selected_item)
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -404,10 +412,14 @@ class FormViewResultLogs(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Execute the list the result logs in the cluster.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()

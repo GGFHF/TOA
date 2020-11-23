@@ -239,10 +239,11 @@ def form_recreate_pipeline_config_file(pipeline_type):
     # get the transcriptome file
     transcriptome_file = ''
     while transcriptome_file == '':
-        transcriptome_dir = input('Enter transcriptome file: ')
+        transcriptome_file = input('Enter transcriptome file: ')
+        print(f'transcriptome_file: {transcriptome_file}')
         if not os.path.isfile(f'{transcriptome_dir}/{transcriptome_file}'):
             print(f'***ERROR: The file {transcriptome_file} is not valid.')
-            transcriptome_dir = ''
+            transcriptome_file = ''
 
     # get the database list
     if OK:

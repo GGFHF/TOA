@@ -69,7 +69,7 @@ def get_project_version():
     Get the project version.
     '''
 
-    return '0.64'
+    return '0.65'
 
 #-------------------------------------------------------------------------------
     
@@ -115,24 +115,6 @@ def get_editor():
 
     # return the editor
     return editor
-
-#-------------------------------------------------------------------------------
-
-def get_os_size_fix():
-    '''
-    Get the size fix of the button line in a GUI form.
-    '''
-
-    # assign the size fix
-    if sys.platform.startswith('linux'):
-        os_size_fix = 0
-    elif sys.platform.startswith('darwin'):
-        os_size_fix = 0
-    elif sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):
-        os_size_fix = 20
-
-    # return the size fix
-    return os_size_fix
 
 #-------------------------------------------------------------------------------
 
@@ -1856,7 +1838,7 @@ def get_taxonomy_dict(type, value):
         raise ProgramException('W001', taxonomy_server)
 
     # build the taxonomy dictionary
-    if r.status_code == requests.codes.ok:
+    if r.status_code == requests.codes.ok: #pylint: disable=no-member
         try:
             if r.json()[value].get('error','OK') == 'OK' :
                 taxonomy_dict = r.json()[value]
@@ -2697,19 +2679,19 @@ class Message():
 
     #---------------
 
-    def set_verbose_status(status):
+    def set_verbose_status(status): #pylint: disable=no-self-argument
 
         Message.verbose_status = status
 
     #---------------
 
-    def set_trace_status(status):
+    def set_trace_status(status): #pylint: disable=no-self-argument
 
         Message.trace_status = status
 
     #---------------
 
-    def print(message_type, message_text):
+    def print(message_type, message_text): #pylint: disable=no-self-argument
 
         if message_type == 'info':
             print(message_text, file=sys.stdout)

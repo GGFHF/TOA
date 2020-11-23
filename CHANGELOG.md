@@ -1,4 +1,14 @@
-CURRENT VERSION: 0.64
+CURRENT VERSION: 0.65
+
+********************************************************************************
+
+Changes in v0.65 (November 2020)
+
+* Code improvement in software setup process.
+
+* Display improvement in logs.
+
+* Fixation of a bug in config file creation of pipeline (coonsole mode).
 
 ********************************************************************************
 

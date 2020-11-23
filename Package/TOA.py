@@ -27,6 +27,8 @@ import argparse
 import os
 import sys
 
+import xlib
+
 #-------------------------------------------------------------------------------
 
 def main(argv):
@@ -109,14 +111,22 @@ def main(argv):
             print('Please, review how to requests in the manual.')
             sys.exit(1)
 
+    # remove the subdirectory __pycache__
+    # -- try:
+    # --     shutil.rmtree('__pycache__')
+    # -- except:
+    # --     pass
+
     # import required modules
     import cmenu
     import gmain
 
     # start the user interface depending on the mode
     if args.mode == 'gui' or args.mode is None:
+        print(f'Starting {xlib.get_long_project_name()} v{xlib.get_project_version()} ...')
         main = gmain.Main()
-        main.mainloop()
+        print('Please, press [Ctrl] to continue  ...')
+        main.root.mainloop()
     else:
         cmenu.build_menu_main()
 

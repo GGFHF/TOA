@@ -38,22 +38,23 @@ class FormInstallBioinfoApp(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main, app):
+    def __init__(self, main, app):
         '''
         Execute actions correspending to the creation of a "FormInstallBioinfoApp" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
         self.app_code = app
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # set the software name
         if self.app_code == xlib.get_blastplus_code():
@@ -87,8 +88,8 @@ class FormInstallBioinfoApp(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -101,7 +102,7 @@ class FormInstallBioinfoApp(tkinter.Frame):
         self.main.label_process['text'] = self.head
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(168+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*168)
         self.label_fit.grid(row=0, column=3, padx=(0,0), pady=(75,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -113,7 +114,7 @@ class FormInstallBioinfoApp(tkinter.Frame):
         self.button_close.grid(row=0, column=5, padx=(5,5), pady=(75,5), sticky='w')
 
         # link a handler to events
-        pass
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -139,10 +140,14 @@ class FormInstallBioinfoApp(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Execute the app installation process.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()

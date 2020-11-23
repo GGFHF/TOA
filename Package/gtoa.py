@@ -49,21 +49,22 @@ class FormRecreateToaConfigFile(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main):
+    def __init__(self, main):
         '''
         Execute actions correspending to the creation of a "FormRecreateToaConfigFile" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # assign the text of the "head"
         self.head = f'Recreate {xlib.get_toa_name()} config file'
@@ -83,8 +84,8 @@ class FormRecreateToaConfigFile(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -133,7 +134,7 @@ class FormRecreateToaConfigFile(tkinter.Frame):
         self.label_result_dir_warning.grid(row=5, column=1, padx=(5,5), pady=(5,5), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(1+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*1)
         self.label_fit.grid(row=6, column=2, padx=(0,0), pady=(25,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -145,7 +146,7 @@ class FormRecreateToaConfigFile(tkinter.Frame):
         self.button_close.grid(row=6, column=4, padx=(5,5), pady=(25,5), sticky='w')
 
         # link a handler to events
-        pass
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -269,10 +270,14 @@ class FormRecreateToaConfigFile(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Execute the recreation of the TOA config file.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()
@@ -327,22 +332,23 @@ class FormManageToaDatabase(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main, process_type):
+    def __init__(self, main, process_type):
         '''
         Execute actions correspending to the creation of a "FormManageToaDatabase" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
         self.process_type = process_type
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # assign the text of the "head"
         if self.process_type == xlib.get_toa_type_recreate():
@@ -360,8 +366,8 @@ class FormManageToaDatabase(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -374,7 +380,7 @@ class FormManageToaDatabase(tkinter.Frame):
         self.main.label_process['text'] = self.head
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(168+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*168)
         self.label_fit.grid(row=0, column=3, padx=(0,0), pady=(75,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -386,7 +392,7 @@ class FormManageToaDatabase(tkinter.Frame):
         self.button_close.grid(row=0, column=5, padx=(5,5), pady=(75,5), sticky='w')
 
         # link a handler to events
-        pass
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -412,10 +418,14 @@ class FormManageToaDatabase(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Run TOA process.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()
@@ -460,23 +470,24 @@ class FormManageGenomicDatabase(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main, process_type, genomic_database):
+    def __init__(self, main, process_type, genomic_database):
         '''
         Execute actions correspending to the creation of a "FormManageGenomicDatabase" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
         self.process_type = process_type
         self.genomic_database = genomic_database
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # set the genomica database name
         if self.genomic_database == xlib.get_toa_data_basic_data_code():
@@ -530,8 +541,8 @@ class FormManageGenomicDatabase(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -547,7 +558,7 @@ class FormManageGenomicDatabase(tkinter.Frame):
         self.main.label_process['text'] = self.head
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(168+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*168)
         self.label_fit.grid(row=0, column=3, padx=(0,0), pady=(75,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -559,7 +570,7 @@ class FormManageGenomicDatabase(tkinter.Frame):
         self.button_close.grid(row=0, column=5, padx=(5,5), pady=(75,5), sticky='w')
 
         # link a handler to events
-        pass
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -585,10 +596,14 @@ class FormManageGenomicDatabase(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Run TOA process.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()
@@ -633,22 +648,23 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main, pipeline_type):
+    def __init__(self, main, pipeline_type):
         '''
         Execute actions correspending to the creation of a "FormRecreatePipelineConfigFile" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
         self.pipeline_type = pipeline_type
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # set the name
         if self.pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
@@ -688,8 +704,8 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -750,7 +766,7 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
         self.button_select_selected_databases.grid(row=3, column=2, padx=(5,0), pady=(45,5), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(1+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*1)
         self.label_fit.grid(row=4, column=3, padx=(0,0), pady=(45,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -764,6 +780,7 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
         # link a handler to events
         self.combobox_transcriptome_file.bind('<<ComboboxSelected>>', self.combobox_transcriptome_file_selected_item)
         self.entry_species.bind('<FocusOut>', self.entry_species_focus_out)
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -1023,10 +1040,14 @@ class FormRecreatePipelineConfigFile(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Execute the creation of the config file.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()
@@ -1096,21 +1117,22 @@ class FormRecreateAnnotatioMergerConfigFile(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main):
+    def __init__(self, main):
         '''
         Execute actions correspending to the creation of a "FormRecreateAnnotatioMergerConfigFile" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # set the name
         self.name = xlib.get_toa_process_merge_annotations_name()
@@ -1135,8 +1157,8 @@ class FormRecreateAnnotatioMergerConfigFile(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -1185,7 +1207,7 @@ class FormRecreateAnnotatioMergerConfigFile(tkinter.Frame):
         self.label_pipeline_dataset_2_warning.grid(row=3, column=2, columnspan=4, padx=(5,5), pady=(45,5), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(25+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*25)
         self.label_fit.grid(row=4, column=2, padx=(0,0), pady=(45,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -1201,6 +1223,7 @@ class FormRecreateAnnotatioMergerConfigFile(tkinter.Frame):
         self.combobox_pipeline_dataset_1.bind('<<ComboboxSelected>>', self.combobox_pipeline_dataset_1_selected_item)
         self.combobox_merger_operation.bind('<<ComboboxSelected>>', self.combobox_merger_operation_selected_item)
         self.combobox_pipeline_dataset_2.bind('<<ComboboxSelected>>', self.combobox_pipeline_dataset_2_selected_item)
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -1286,16 +1309,16 @@ class FormRecreateAnnotatioMergerConfigFile(tkinter.Frame):
         '''
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # load data in "combobox_pipeline_dataset_1" and "combobox_pipeline_dataset_2"
         self.populate_combobox_pipeline_dataset_1()
         self.populate_combobox_pipeline_dataset_2()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -1397,10 +1420,14 @@ class FormRecreateAnnotatioMergerConfigFile(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Execute the creation of the config file.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()
@@ -1464,22 +1491,23 @@ class FormRunPipelineProcess(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main, pipeline_type):
+    def __init__(self, main, pipeline_type):
         '''
         Execute actions correspending to the creation of a "FormRunPipelineProcess" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
         self.pipeline_type = pipeline_type
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # set the name
         if self.pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
@@ -1504,8 +1532,8 @@ class FormRunPipelineProcess(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -1518,7 +1546,7 @@ class FormRunPipelineProcess(tkinter.Frame):
         self.main.label_process['text'] = self.head
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(168+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*168)
         self.label_fit.grid(row=0, column=3, padx=(0,0), pady=(75,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -1530,7 +1558,7 @@ class FormRunPipelineProcess(tkinter.Frame):
         self.button_close.grid(row=0, column=5, padx=(5,5), pady=(75,5), sticky='w')
 
         # link a handler to events
-        pass
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -1557,10 +1585,14 @@ class FormRunPipelineProcess(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Run TOA process.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()
@@ -1616,22 +1648,23 @@ class FormRestartPipelineProcess(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main, pipeline_type):
+    def __init__(self, main, pipeline_type):
         '''
         Execute actions correspending to the creation of a "FormRestartPipelineProcess" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
         self.pipeline_type = pipeline_type
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # set the name
         if self.pipeline_type == xlib.get_toa_process_pipeline_nucleotide_code():
@@ -1655,8 +1688,8 @@ class FormRestartPipelineProcess(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -1685,7 +1718,7 @@ class FormRestartPipelineProcess(tkinter.Frame):
         self.combobox_pipeline_dataset.grid(row=1, column=1, padx=(5,5), pady=(45,5), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(40+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*40)
         self.label_fit.grid(row=2, column=2, padx=(0,0), pady=(45,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -1699,6 +1732,7 @@ class FormRestartPipelineProcess(tkinter.Frame):
         # link a handler to events
         self.combobox_process_type.bind('<<ComboboxSelected>>', self.combobox_process_type_selected_item)
         self.combobox_pipeline_dataset.bind('<<ComboboxSelected>>', self.combobox_pipeline_dataset_selected_item)
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -1767,15 +1801,15 @@ class FormRestartPipelineProcess(tkinter.Frame):
         '''
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # load data in "combobox_pipeline_dataset"
         self.populate_combobox_pipeline_dataset()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -1807,10 +1841,14 @@ class FormRestartPipelineProcess(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Run TOA process.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()
@@ -1855,22 +1893,23 @@ class FormViewStats(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main, stats_code):
+    def __init__(self, main, stats_code):
         '''
         Execute actions correspending to the creation of a "FormViewStats" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
         self.stats_code = stats_code
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # assign the text of the "name"
         if self.stats_code == 'hit_per_hsp':
@@ -1926,8 +1965,8 @@ class FormViewStats(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -1956,7 +1995,7 @@ class FormViewStats(tkinter.Frame):
         self.combobox_pipeline_dataset.grid(row=1, column=1, padx=(5,5), pady=(45,5), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(40+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*40)
         self.label_fit.grid(row=2, column=2, padx=(0,0), pady=(45,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -1970,6 +2009,7 @@ class FormViewStats(tkinter.Frame):
         # link a handler to events
         self.combobox_process_type.bind('<<ComboboxSelected>>', self.combobox_process_type_selected_item)
         self.combobox_pipeline_dataset.bind('<<ComboboxSelected>>', self.combobox_pipeline_dataset_selected_item)
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -2041,15 +2081,15 @@ class FormViewStats(tkinter.Frame):
         '''
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # load data in "combobox_pipeline_dataset"
         self.populate_combobox_pipeline_dataset()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -2081,10 +2121,14 @@ class FormViewStats(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Run TOA process.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()
@@ -2639,22 +2683,23 @@ class FormPlotStats(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main, stats_code):
+    def __init__(self, main, stats_code):
         '''
         Execute actions correspending to the creation of a "FormPlotStats" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
         self.stats_code = stats_code
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # get the dictionary of TOA configuration
         self.toa_config_dict = xtoa.get_toa_config_dict()
@@ -2727,8 +2772,8 @@ class FormPlotStats(tkinter.Frame):
         self.initialize_inputs()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -2826,7 +2871,7 @@ class FormPlotStats(tkinter.Frame):
         self.label_image_name_warning.grid(row=9, column=1, columnspan=4, padx=(5,5), pady=(0,0), sticky='w')
 
         # create "label_fit" and register it with the grid geometry manager
-        self.label_fit = tkinter.Label(self, text=' '*(1+xlib.get_os_size_fix()))
+        self.label_fit = tkinter.Label(self, text=' '*1)
         self.label_fit.grid(row=10, column=3, padx=(0,0), pady=(15,5), sticky='e')
 
         # create "button_execute" and register it with the grid geometry manager
@@ -2845,6 +2890,7 @@ class FormPlotStats(tkinter.Frame):
         if self.stats_code in ['species', 'family', 'phylum', 'go', 'namespace', 'ec', 'interpro', 'kegg', 'mapman', 'metacyc']:
             self.combobox_alignment_count_level.bind('<<ComboboxSelected>>', self.combobox_alignment_count_level_selected_item)
         self.combobox_image_format.bind('<<ComboboxSelected>>', self.combobox_image_format_selected_item)
+        self.root.bind('<Return>', self.execute)
 
     #---------------
 
@@ -2976,15 +3022,15 @@ class FormPlotStats(tkinter.Frame):
         '''
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # load data in "combobox_pipeline_dataset"
         self.populate_combobox_pipeline_dataset()
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -3108,10 +3154,14 @@ class FormPlotStats(tkinter.Frame):
 
     #---------------
 
-    def execute(self):
+    def execute(self, event=None):
         '''
         Run TOA process.
         '''
+
+        # if "button_execute" is disabled, exit function
+        if str(self.button_execute['state']) == 'disabled':
+            return
 
         # check inputs
         OK = self.check_inputs()
@@ -3146,8 +3196,8 @@ class FormPlotStats(tkinter.Frame):
         '''
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # initialize the control variable
         OK = True
@@ -3269,8 +3319,8 @@ class FormPlotStats(tkinter.Frame):
             webbrowser.open_new(f'file://{image_file}')
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 
@@ -3280,8 +3330,8 @@ class FormPlotStats(tkinter.Frame):
         '''
 
         # set cursor to show busy status
-        self.main.config(cursor='watch')
-        self.main.update()
+        self.root.config(cursor='watch')
+        self.root.update()
 
         # initialize the control variable
         OK = True
@@ -3484,8 +3534,8 @@ class FormPlotStats(tkinter.Frame):
             webbrowser.open_new(f'file://{image_file}')
 
         # set cursor to show normal status
-        self.main.config(cursor='')
-        self.main.update()
+        self.root.config(cursor='')
+        self.root.update()
 
     #---------------
 

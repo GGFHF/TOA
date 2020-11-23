@@ -42,7 +42,7 @@ import xtoa
 
 #-------------------------------------------------------------------------------
 
-class Main(tkinter.Tk):
+class Main():
 
     #---------------
 
@@ -54,7 +54,7 @@ class Main(tkinter.Tk):
         WINDOW_WIDTH = 980
     elif sys.platform.startswith('win32') or sys.platform.startswith('cygwin'):
         WINDOW_HEIGHT = 585
-        WINDOW_WIDTH = 780
+        WINDOW_WIDTH = 800
 
     #---------------
 
@@ -64,19 +64,20 @@ class Main(tkinter.Tk):
         '''
 
         # call the init method of the parent class
-        tkinter.Tk.__init__(self)
-
-        # initialize the forms dictionary
-        self.forms_dict = {}
+        self.root = tkinter.Tk()
 
         # create the window
         self.create_window()
 
         # build the graphical user interface
         self.build_gui()
+        # self.root.grid()
+
+        # initialize the forms dictionary
+        self.forms_dict = {}
 
         # create "form_welcome" and register it in "container" with the grid geometry manager
-        self.form_welcome = FormWelcome(self.container, self)
+        self.form_welcome = FormWelcome(self)
         self.form_welcome.grid(row=0, column=0, sticky='nsew')
 
         # set "form_welcome" as current form and add it in the forms dictionary
@@ -94,19 +95,25 @@ class Main(tkinter.Tk):
         '''
 
         # define the dimensions
-        x = round((self.winfo_screenwidth() - self.WINDOW_WIDTH) / 2)
-        y = round((self.winfo_screenheight() - self.WINDOW_HEIGHT) / 2)
-        self.geometry('{}x{}+{}+{}'.format(self.WINDOW_WIDTH, self.WINDOW_HEIGHT, x, y))
-        self.minsize(height=self.WINDOW_HEIGHT, width=self.WINDOW_WIDTH)
-        self.maxsize(height=self.WINDOW_HEIGHT, width=self.WINDOW_WIDTH)
+        x = round((self.root.winfo_screenwidth() - self.WINDOW_WIDTH) / 2)
+        y = round((self.root.winfo_screenheight() - self.WINDOW_HEIGHT) / 2)
+        self.root.geometry('{}x{}+{}+{}'.format(self.WINDOW_WIDTH, self.WINDOW_HEIGHT, x, y))
+        self.root.minsize(height=self.WINDOW_HEIGHT, width=self.WINDOW_WIDTH)
+        self.root.maxsize(height=self.WINDOW_HEIGHT, width=self.WINDOW_WIDTH)
+
+        # set default fondt
+        self.root.option_add("*Font", "Verdana 10")
+
+        # set default language of MessageBox
+        self.root.tk.eval('::msgcat::mclocale en')
 
         # set the title
-        self.title(xlib.get_long_project_name())
+        self.root.title(xlib.get_long_project_name())
 
         # set the icon
         image_app = PIL.Image.open(xlib.get_project_image_file())
         self.photoimage_app = PIL.ImageTk.PhotoImage(image_app)
-        self.tk.call('wm', 'iconphoto', self._w, self.photoimage_app)
+        self.root.tk.call('wm', 'iconphoto', self.root._w, self.photoimage_app)
 
     #---------------
 
@@ -119,8 +126,11 @@ class Main(tkinter.Tk):
         image_exit = PIL.Image.open('./image_exit.png')
         imagetk_exit = PIL.ImageTk.PhotoImage(image_exit)  
 
+        # maximize the width of column 0
+        self.root.grid_columnconfigure(0, weight=1)
+
         # create "menu_bar"
-        self.menu_bar = tkinter.Menu(self)
+        self.menu_bar = tkinter.Menu(self.root)
 
         # create "menu_system" and add its menu items
         self.menu_system = tkinter.Menu(self.menu_bar, tearoff=0)
@@ -415,10 +425,10 @@ class Main(tkinter.Tk):
         self.menu_bar.add_cascade(label='Help', menu=self.initial_menu_help)
 
         #  assign "initial_menu_bar" as the window menu
-        self.config(menu=self.menu_bar)
+        self.root.config(menu=self.menu_bar)
 
         # create "frame_toolbar" and register it in "Main" with the grid geometry manager
-        self.frame_toolbar = tkinter.Frame(self, borderwidth=1, relief='raised')
+        self.frame_toolbar = tkinter.Frame(self.root, borderwidth=1, relief='raised')
         self.frame_toolbar.grid(row=0, column=0, sticky='ew')
 
         # create and register "button_exit" in "frame_toolbar" with the pack geometry manager
@@ -427,7 +437,7 @@ class Main(tkinter.Tk):
         self.button_exit.pack(side='left', padx=2, pady=5)
 
         # create "frame_information" and register it in "Main" with the grid geometry manager
-        self.frame_information = tkinter.Frame(self, borderwidth=1, relief='raised')
+        self.frame_information = tkinter.Frame(self.root, borderwidth=1, relief='raised')
         self.frame_information.grid(row=1, column=0, sticky='ew')
 
         # create "label_process" and register it in "frame_information" with the pack geometry manager
@@ -435,15 +445,15 @@ class Main(tkinter.Tk):
         self.label_process.pack(side='right', padx=(0,10))
 
         # create "container" and register it in "Main" with the grid geometry manager
-        self.container = tkinter.Frame(self)
+        self.container = tkinter.Frame(self.root)
         self.container.grid(row=2, column=0, sticky='nsew')
 
         # link a handler to events
-        self.bind('<F1>', self.open_help)
-        self.bind('<Alt-F4>', self.exit)
+        self.root.bind('<F1>', self.open_help)
+        self.root.bind('<Alt-F4>', self.exit)
 
         # link a handler to interactions between the application and the window manager
-        self.protocol('WM_DELETE_WINDOW', self.exit)
+        self.root.protocol('WM_DELETE_WINDOW', self.exit)
 
     #---------------
 
@@ -456,7 +466,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_install_miniconda3" in "container" with the grid geometry manager
-        form_install_miniconda3 = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_miniconda3_code())
+        form_install_miniconda3 = gbioinfoapp.FormInstallBioinfoApp(self, app=xlib.get_miniconda3_code())
         form_install_miniconda3.grid(row=0, column=0, sticky='nsew')
 
         # set "form_install_miniconda3" as current form and add it in the forms dictionary
@@ -477,7 +487,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_install_blastplus" in "container" with the grid geometry manager
-        form_install_blastplus = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_blastplus_code())
+        form_install_blastplus = gbioinfoapp.FormInstallBioinfoApp(self, app=xlib.get_blastplus_code())
         form_install_blastplus.grid(row=0, column=0, sticky='nsew')
 
         # set "form_install_blastplus" as current form and add it in the forms dictionary
@@ -498,7 +508,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_install_diamond" in "container" with the grid geometry manager
-        form_install_diamond = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_diamond_code())
+        form_install_diamond = gbioinfoapp.FormInstallBioinfoApp(self, app=xlib.get_diamond_code())
         form_install_diamond.grid(row=0, column=0, sticky='nsew')
 
         # set "form_install_diamond" as current form and add it in the forms dictionary
@@ -519,7 +529,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_install_entrez_direct" in "container" with the grid geometry manager
-        form_install_entrez_direct = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_entrez_direct_code())
+        form_install_entrez_direct = gbioinfoapp.FormInstallBioinfoApp(self, app=xlib.get_entrez_direct_code())
         form_install_entrez_direct.grid(row=0, column=0, sticky='nsew')
 
         # set "form_install_entrez_direct" as current form and add it in the forms dictionary
@@ -540,7 +550,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_install_r" in "container" with the grid geometry manager
-        form_install_r = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_r_code())
+        form_install_r = gbioinfoapp.FormInstallBioinfoApp(self, app=xlib.get_r_code())
         form_install_r.grid(row=0, column=0, sticky='nsew')
 
         # set "form_install_r" as current form and add it in the forms dictionary
@@ -561,7 +571,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_install_transdecoder" in "container" with the grid geometry manager
-        form_install_transdecoder = gbioinfoapp.FormInstallBioinfoApp(self.container, self, app=xlib.get_transdecoder_code())
+        form_install_transdecoder = gbioinfoapp.FormInstallBioinfoApp(self, app=xlib.get_transdecoder_code())
         form_install_transdecoder.grid(row=0, column=0, sticky='nsew')
 
         # set "form_install_transdecoder" as current form and add it in the forms dictionary
@@ -582,7 +592,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_recreate_toa_config_file" in "container" with the grid geometry manager
-        form_recreate_toa_config_file = gtoa.FormRecreateToaConfigFile(self.container, self)
+        form_recreate_toa_config_file = gtoa.FormRecreateToaConfigFile(self)
         form_recreate_toa_config_file.grid(row=0, column=0, sticky='nsew')
 
         # set "form_recreate_toa_config_file" as current form and add it in the forms dictionary
@@ -606,8 +616,8 @@ class Main(tkinter.Tk):
         toa_config_file = xtoa.get_toa_config_file()
 
         # create and show a instance DialogViewer to view the TOA config file
-        dialog_viewer = gdialogs.DialogViewer(self, toa_config_file)
-        self.wait_window(dialog_viewer)
+        dialog_viewer = gdialogs.DialogViewer(self.root, toa_config_file)
+        self.root.wait_window(dialog_viewer)
 
     #---------------
 
@@ -620,7 +630,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_recreate_toa_database" in "container" with the grid geometry manager
-        form_recreate_toa_database = gtoa.FormManageToaDatabase(self.container, self, process_type=xlib.get_toa_type_recreate())
+        form_recreate_toa_database = gtoa.FormManageToaDatabase(self, process_type=xlib.get_toa_type_recreate())
         form_recreate_toa_database.grid(row=0, column=0, sticky='nsew')
 
         # set "form_recreate_toa_database" as current form and add it in the forms dictionary
@@ -641,7 +651,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_rebuild_toa_database" in "container" with the grid geometry manager
-        form_rebuild_toa_database = gtoa.FormManageToaDatabase(self.container, self, process_type=xlib.get_toa_type_rebuild())
+        form_rebuild_toa_database = gtoa.FormManageToaDatabase(self, process_type=xlib.get_toa_type_rebuild())
         form_rebuild_toa_database.grid(row=0, column=0, sticky='nsew')
 
         # set "form_rebuild_toa_database" as current form and add it in the forms dictionary
@@ -684,8 +694,8 @@ class Main(tkinter.Tk):
         if OK:
 
             # edit the data file using "DialogEditor" 
-            dialog_editor = gdialogs.DialogEditor(self, xtoa.get_dataset_file())
-            self.wait_window(dialog_editor)
+            dialog_editor = gdialogs.DialogEditor(self.root, xtoa.get_dataset_file())
+            self.root.wait_window(dialog_editor)
 
             # check the data file
             (OK, error_list) = xtoa.check_dataset_file(strict=False)
@@ -715,8 +725,8 @@ class Main(tkinter.Tk):
         head = f'{xlib.get_toa_name()} - Edit file of datasets'
 
         # edit the file of datasets using "DialogEditor" 
-        dialog_editor = gdialogs.DialogEditor(self, xtoa.get_dataset_file())
-        self.wait_window(dialog_editor)
+        dialog_editor = gdialogs.DialogEditor(self.root, xtoa.get_dataset_file())
+        self.root.wait_window(dialog_editor)
 
         # check the file of datasets
         (OK, error_list) = xtoa.check_dataset_file(strict=False)
@@ -762,8 +772,8 @@ class Main(tkinter.Tk):
         if OK:
 
             # edit the data file using "DialogEditor" 
-            dialog_editor = gdialogs.DialogEditor(self, xtoa.get_species_file())
-            self.wait_window(dialog_editor)
+            dialog_editor = gdialogs.DialogEditor(self.root, xtoa.get_species_file())
+            self.root.wait_window(dialog_editor)
 
             # check the data file
             (OK, error_list) = xtoa.check_species_file(strict=False)
@@ -793,8 +803,8 @@ class Main(tkinter.Tk):
         head = f'{xlib.get_toa_name()} - Edit file of species'.format()
 
         # edit the file of species using "DialogEditor" 
-        dialog_editor = gdialogs.DialogEditor(self, xtoa.get_species_file())
-        self.wait_window(dialog_editor)
+        dialog_editor = gdialogs.DialogEditor(self.root, xtoa.get_species_file())
+        self.root.wait_window(dialog_editor)
 
         # check the file of species
         (OK, error_list) = xtoa.check_species_file(strict=False)
@@ -818,7 +828,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_download_basic_data" in "container" with the grid geometry manager
-        form_download_basic_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_basic_data_code())
+        form_download_basic_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_basic_data_code())
         form_download_basic_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_download_basic_data" as current form and add it in the forms dictionary
@@ -839,7 +849,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_load_basic_data" in "container" with the grid geometry manager
-        form_load_basic_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_basic_data_code())
+        form_load_basic_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_basic_data_code())
         form_load_basic_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_load_basic_data" as current form and add it in the forms dictionary
@@ -860,7 +870,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_build_gymno_01_proteome" in "container" with the grid geometry manager
-        form_build_gymno_01_proteome = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_gymno_01_code())
+        form_build_gymno_01_proteome = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_gymno_01_code())
         form_build_gymno_01_proteome.grid(row=0, column=0, sticky='nsew')
 
         # set "form_build_gymno_01_proteome" as current form and add it in the forms dictionary
@@ -881,7 +891,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_download_gymno_01_data" in "container" with the grid geometry manager
-        form_download_gymno_01_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_gymno_01_code())
+        form_download_gymno_01_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_gymno_01_code())
         form_download_gymno_01_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_download_gymno_01_data" as current form and add it in the forms dictionary
@@ -902,7 +912,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_load_gymno_01_data" in "container" with the grid geometry manager
-        form_load_gymno_01_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_gymno_01_code())
+        form_load_gymno_01_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_gymno_01_code())
         form_load_gymno_01_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_load_gymno_01_data" as current form and add it in the forms dictionary
@@ -923,7 +933,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_build_dicots_04_proteome" in "container" with the grid geometry manager
-        form_build_dicots_04_proteome = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_dicots_04_code())
+        form_build_dicots_04_proteome = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_dicots_04_code())
         form_build_dicots_04_proteome.grid(row=0, column=0, sticky='nsew')
 
         # set "form_build_dicots_04_proteome" as current form and add it in the forms dictionary
@@ -944,7 +954,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_download_dicots_04_data" in "container" with the grid geometry manager
-        form_download_dicots_04_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_dicots_04_code())
+        form_download_dicots_04_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_dicots_04_code())
         form_download_dicots_04_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_download_dicots_04_data" as current form and add it in the forms dictionary
@@ -965,7 +975,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_load_dicots_04_data" in "container" with the grid geometry manager
-        form_load_dicots_04_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_dicots_04_code())
+        form_load_dicots_04_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_dicots_04_code())
         form_load_dicots_04_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_load_dicots_04_data" as current form and add it in the forms dictionary
@@ -986,7 +996,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_build_monocots_04_proteome" in "container" with the grid geometry manager
-        form_build_monocots_04_proteome = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_monocots_04_code())
+        form_build_monocots_04_proteome = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_monocots_04_code())
         form_build_monocots_04_proteome.grid(row=0, column=0, sticky='nsew')
 
         # set "form_build_monocots_04_proteome" as current form and add it in the forms dictionary
@@ -1007,7 +1017,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_download_monocots_04_data" in "container" with the grid geometry manager
-        form_download_monocots_04_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_monocots_04_code())
+        form_download_monocots_04_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_monocots_04_code())
         form_download_monocots_04_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_download_monocots_04_data" as current form and add it in the forms dictionary
@@ -1028,7 +1038,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_load_monocots_04_data" in "container" with the grid geometry manager
-        form_load_monocots_04_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_monocots_04_code())
+        form_load_monocots_04_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_monocots_04_code())
         form_load_monocots_04_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_load_monocots_04_data" as current form and add it in the forms dictionary
@@ -1049,7 +1059,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_build_refseq_plant_proteome" in "container" with the grid geometry manager
-        form_build_refseq_plant_proteome = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_refseq_plant_code())
+        form_build_refseq_plant_proteome = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_build_proteome(), genomic_database=xlib.get_toa_data_refseq_plant_code())
         form_build_refseq_plant_proteome.grid(row=0, column=0, sticky='nsew')
 
         # set "form_build_refseq_plant_proteome" as current form and add it in the forms dictionary
@@ -1070,7 +1080,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_download_taxonomy_data" in "container" with the grid geometry manager
-        form_download_taxonomy_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_taxonomy_code())
+        form_download_taxonomy_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_taxonomy_code())
         form_download_taxonomy_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_download_taxonomy_data" as current form and add it in the forms dictionary
@@ -1091,7 +1101,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_build_blastplus_nt_db" in "container" with the grid geometry manager
-        form_build_blastplus_nt_db = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_blastplus_db(), genomic_database=xlib.get_toa_data_nt_code())
+        form_build_blastplus_nt_db = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_build_blastplus_db(), genomic_database=xlib.get_toa_data_nt_code())
         form_build_blastplus_nt_db.grid(row=0, column=0, sticky='nsew')
 
         # set "form_build_blastplus_nt_db" as current form and add it in the forms dictionary
@@ -1112,7 +1122,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_build_viridiplantae_nucleotide_gi_gilist" in "container" with the grid geometry manager
-        form_build_viridiplantae_nucleotide_gi_gilist = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_gilist(), genomic_database=xlib.get_toa_data_viridiplantae_nucleotide_gi_code())
+        form_build_viridiplantae_nucleotide_gi_gilist = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_build_gilist(), genomic_database=xlib.get_toa_data_viridiplantae_nucleotide_gi_code())
         form_build_viridiplantae_nucleotide_gi_gilist.grid(row=0, column=0, sticky='nsew')
 
         # set "form_build_viridiplantae_nucleotide_gi_gilist" as current form and add it in the forms dictionary
@@ -1133,7 +1143,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_build_blastplus_nr_db" in "container" with the grid geometry manager
-        form_build_blastplus_nr_db = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_blastplus_db(), genomic_database=xlib.get_toa_data_nr_code())
+        form_build_blastplus_nr_db = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_build_blastplus_db(), genomic_database=xlib.get_toa_data_nr_code())
         form_build_blastplus_nr_db.grid(row=0, column=0, sticky='nsew')
 
         # set "form_build_blastplus_nr_db" as current form and add it in the forms dictionary
@@ -1154,7 +1164,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_build_diamond_nr_db" in "container" with the grid geometry manager
-        form_build_diamond_nr_db = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_diamond_db(), genomic_database=xlib.get_toa_data_nr_code())
+        form_build_diamond_nr_db = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_build_diamond_db(), genomic_database=xlib.get_toa_data_nr_code())
         form_build_diamond_nr_db.grid(row=0, column=0, sticky='nsew')
 
         # set "form_build_diamond_nr_db" as current form and add it in the forms dictionary
@@ -1175,7 +1185,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_build_viridiplantae_protein_gi_gilist" in "container" with the grid geometry manager
-        form_build_viridiplantae_protein_gi_gilist = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_build_gilist(), genomic_database=xlib.get_toa_data_viridiplantae_protein_gi_code())
+        form_build_viridiplantae_protein_gi_gilist = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_build_gilist(), genomic_database=xlib.get_toa_data_viridiplantae_protein_gi_code())
         form_build_viridiplantae_protein_gi_gilist.grid(row=0, column=0, sticky='nsew')
 
         # set "form_build_viridiplantae_protein_gi_gilist" as current form and add it in the forms dictionary
@@ -1196,7 +1206,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_download_gene_data" in "container" with the grid geometry manager
-        form_download_gene_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_gene_code())
+        form_download_gene_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_gene_code())
         form_download_gene_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_download_gene_data" as current form and add it in the forms dictionary
@@ -1217,7 +1227,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_load_gene_data" in "container" with the grid geometry manager
-        form_load_gene_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_gene_code())
+        form_load_gene_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_gene_code())
         form_load_gene_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_load_gene_data" as current form and add it in the forms dictionary
@@ -1238,7 +1248,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_download_interpro_data" in "container" with the grid geometry manager
-        form_download_interpro_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_interpro_code())
+        form_download_interpro_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_interpro_code())
         form_download_interpro_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_download_interpro_data" as current form and add it in the forms dictionary
@@ -1259,7 +1269,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_load_interpro_data" in "container" with the grid geometry manager
-        form_load_interpro_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_interpro_code())
+        form_load_interpro_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_interpro_code())
         form_load_interpro_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_load_interpro_data" as current form and add it in the forms dictionary
@@ -1280,7 +1290,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_download_go_data" in "container" with the grid geometry manager
-        form_download_go_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_go_code())
+        form_download_go_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_download_data(), genomic_database=xlib.get_toa_data_go_code())
         form_download_go_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_download_go_data" as current form and add it in the forms dictionary
@@ -1301,7 +1311,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_load_go_data" in "container" with the grid geometry manager
-        form_load_go_data = gtoa.FormManageGenomicDatabase(self.container, self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_go_code())
+        form_load_go_data = gtoa.FormManageGenomicDatabase(self, process_type=xlib.get_toa_type_load_data(), genomic_database=xlib.get_toa_data_go_code())
         form_load_go_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_load_go_data" as current form and add it in the forms dictionary
@@ -1323,7 +1333,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_recreate_nucleotide_pipeline_config_file" in "container" with the grid geometry manager
-        form_recreate_nucleotide_pipeline_config_file = gtoa.FormRecreatePipelineConfigFile(self.container, self, pipeline_type=xlib.get_toa_process_pipeline_nucleotide_code())
+        form_recreate_nucleotide_pipeline_config_file = gtoa.FormRecreatePipelineConfigFile(self, pipeline_type=xlib.get_toa_process_pipeline_nucleotide_code())
         form_recreate_nucleotide_pipeline_config_file.grid(row=0, column=0, sticky='nsew')
 
         # set "form_recreate_nucleotide_pipeline_config_file" as current form and add it in the forms dictionary
@@ -1350,8 +1360,8 @@ class Main(tkinter.Tk):
         head = f'{xlib.get_toa_process_pipeline_nucleotide_name()} - Edit config file'
 
         # edit the nucleotide pipeline config file using "DialogEditor" 
-        dialog_editor = gdialogs.DialogEditor(self, xtoa.get_nucleotide_pipeline_config_file())
-        self.wait_window(dialog_editor)
+        dialog_editor = gdialogs.DialogEditor(self.root, xtoa.get_nucleotide_pipeline_config_file())
+        self.root.wait_window(dialog_editor)
 
         # check the nucleotide pipeline config file
         (OK, error_list) = xtoa.check_pipeline_config_file(pipeline_type=xlib.get_toa_process_pipeline_nucleotide_code(), strict=False)
@@ -1375,7 +1385,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_run_nucleotide_pipeline_process" in "container" with the grid geometry manager
-        form_run_nucleotide_pipeline_process = gtoa.FormRunPipelineProcess(self.container, self, pipeline_type=xlib.get_toa_process_pipeline_nucleotide_code())
+        form_run_nucleotide_pipeline_process = gtoa.FormRunPipelineProcess(self, pipeline_type=xlib.get_toa_process_pipeline_nucleotide_code())
         form_run_nucleotide_pipeline_process.grid(row=0, column=0, sticky='nsew')
 
         # set "form_run_nucleotide_pipeline_process" as current form and add it in the forms dictionary
@@ -1396,7 +1406,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_restart_nucleotide_pipeline_process" in "container" with the grid geometry manager
-        form_restart_nucleotide_pipeline_process = gtoa.FormRestartPipelineProcess(self.container, self, pipeline_type=xlib.get_toa_process_pipeline_nucleotide_code())
+        form_restart_nucleotide_pipeline_process = gtoa.FormRestartPipelineProcess(self, pipeline_type=xlib.get_toa_process_pipeline_nucleotide_code())
         form_restart_nucleotide_pipeline_process.grid(row=0, column=0, sticky='nsew')
 
         # set "form_restart_nucleotide_pipeline_process" as current form and add it in the forms dictionary
@@ -1418,7 +1428,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_recreate_aminoacid_pipeline_config_file" in "container" with the grid geometry manager
-        form_recreate_aminoacid_pipeline_config_file = gtoa.FormRecreatePipelineConfigFile(self.container, self, pipeline_type=xlib.get_toa_process_pipeline_aminoacid_code())
+        form_recreate_aminoacid_pipeline_config_file = gtoa.FormRecreatePipelineConfigFile(self, pipeline_type=xlib.get_toa_process_pipeline_aminoacid_code())
         form_recreate_aminoacid_pipeline_config_file.grid(row=0, column=0, sticky='nsew')
 
         # set "form_recreate_aminoacid_pipeline_config_file" as current form and add it in the forms dictionary
@@ -1445,8 +1455,8 @@ class Main(tkinter.Tk):
         head = f'{xlib.get_toa_process_pipeline_aminoacid_name()} - Edit config file'
 
         # edit the amino acid pipeline config file using "DialogEditor" 
-        dialog_editor = gdialogs.DialogEditor(self, xtoa.get_aminoacid_pipeline_config_file())
-        self.wait_window(dialog_editor)
+        dialog_editor = gdialogs.DialogEditor(self.root, xtoa.get_aminoacid_pipeline_config_file())
+        self.root.wait_window(dialog_editor)
 
         # check the amino acid pipeline config file
         (OK, error_list) = xtoa.check_pipeline_config_file(pipeline_type=xlib.get_toa_process_pipeline_aminoacid_code(), strict=False)
@@ -1470,7 +1480,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_run_aminoacid_pipeline_process" in "container" with the grid geometry manager
-        form_run_aminoacid_pipeline_process = gtoa.FormRunPipelineProcess(self.container, self, pipeline_type=xlib.get_toa_process_pipeline_aminoacid_code())
+        form_run_aminoacid_pipeline_process = gtoa.FormRunPipelineProcess(self, pipeline_type=xlib.get_toa_process_pipeline_aminoacid_code())
         form_run_aminoacid_pipeline_process.grid(row=0, column=0, sticky='nsew')
 
         # set "form_run_aminoacid_pipeline_process" as current form and add it in the forms dictionary
@@ -1491,7 +1501,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_restart_aminoacid_pipeline_process" in "container" with the grid geometry manager
-        form_restart_aminoacid_pipeline_process = gtoa.FormRestartPipelineProcess(self.container, self, pipeline_type=xlib.get_toa_process_pipeline_aminoacid_code())
+        form_restart_aminoacid_pipeline_process = gtoa.FormRestartPipelineProcess(self, pipeline_type=xlib.get_toa_process_pipeline_aminoacid_code())
         form_restart_aminoacid_pipeline_process.grid(row=0, column=0, sticky='nsew')
 
         # set "form_restart_aminoacid_pipeline_process" as current form and add it in the forms dictionary
@@ -1513,7 +1523,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_recreate_annotation_merger_config_file" in "container" with the grid geometry manager
-        form_recreate_annotation_merger_config_file = gtoa.FormRecreateAnnotatioMergerConfigFile(self.container, self)
+        form_recreate_annotation_merger_config_file = gtoa.FormRecreateAnnotatioMergerConfigFile(self)
         form_recreate_annotation_merger_config_file.grid(row=0, column=0, sticky='nsew')
 
         # set "form_recreate_annotation_merger_config_file" as current form and add it in the forms dictionary
@@ -1540,8 +1550,8 @@ class Main(tkinter.Tk):
         head = f'{xlib.get_toa_process_merge_annotations_name()} - Edit config file'
 
         # edit the pipeline merger config file using "DialogEditor" 
-        dialog_editor = gdialogs.DialogEditor(self, xtoa.get_annotation_merger_config_file())
-        self.wait_window(dialog_editor)
+        dialog_editor = gdialogs.DialogEditor(self.root, xtoa.get_annotation_merger_config_file())
+        self.root.wait_window(dialog_editor)
 
         # check the nucleotide pipeline config file
         (OK, error_list) = xtoa.check_annotation_merger_config_file(strict=False)
@@ -1565,7 +1575,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_run_annotation_merger_process" in "container" with the grid geometry manager
-        form_run_annotation_merger_process = gtoa.FormRunPipelineProcess(self.container, self, pipeline_type=xlib.get_toa_process_merge_annotations_code())
+        form_run_annotation_merger_process = gtoa.FormRunPipelineProcess(self, pipeline_type=xlib.get_toa_process_merge_annotations_code())
         form_run_annotation_merger_process.grid(row=0, column=0, sticky='nsew')
 
         # set "form_run_annotation_merger_process" as current form and add it in the forms dictionary
@@ -1586,7 +1596,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_hit_per_hsp_data" in "container" with the grid geometry manager
-        form_view_hit_per_hsp_data = gtoa.FormViewStats(self.container, self, stats_code='hit_per_hsp')
+        form_view_hit_per_hsp_data = gtoa.FormViewStats(self, stats_code='hit_per_hsp')
         form_view_hit_per_hsp_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_hit_per_hsp_data" as current form and add it in the forms dictionary
@@ -1607,7 +1617,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_dataset_frequency" in "container" with the grid geometry manager
-        form_plot_dataset_frequency = gtoa.FormPlotStats(self.container, self, stats_code='hit_per_hsp')
+        form_plot_dataset_frequency = gtoa.FormPlotStats(self, stats_code='hit_per_hsp')
         form_plot_dataset_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_dataset_frequency" as current form and add it in the forms dictionary
@@ -1628,7 +1638,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_dataset_frequency" in "container" with the grid geometry manager
-        form_view_dataset_frequency = gtoa.FormViewStats(self.container, self, stats_code='dataset')
+        form_view_dataset_frequency = gtoa.FormViewStats(self, stats_code='dataset')
         form_view_dataset_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_dataset_frequency" as current form and add it in the forms dictionary
@@ -1649,7 +1659,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_dataset_frequency" in "container" with the grid geometry manager
-        form_plot_dataset_frequency = gtoa.FormPlotStats(self.container, self, stats_code='dataset')
+        form_plot_dataset_frequency = gtoa.FormPlotStats(self, stats_code='dataset')
         form_plot_dataset_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_dataset_frequency" as current form and add it in the forms dictionary
@@ -1670,7 +1680,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_species_frequency" in "container" with the grid geometry manager
-        form_view_species_frequency = gtoa.FormViewStats(self.container, self, stats_code='species')
+        form_view_species_frequency = gtoa.FormViewStats(self, stats_code='species')
         form_view_species_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_species_frequency" as current form and add it in the forms dictionary
@@ -1691,7 +1701,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_species_frequency" in "container" with the grid geometry manager
-        form_plot_species_frequency = gtoa.FormPlotStats(self.container, self, stats_code='species')
+        form_plot_species_frequency = gtoa.FormPlotStats(self, stats_code='species')
         form_plot_species_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_species_frequency" as current form and add it in the forms dictionary
@@ -1712,7 +1722,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_family_frequency" in "container" with the grid geometry manager
-        form_view_family_frequency = gtoa.FormViewStats(self.container, self, stats_code='family')
+        form_view_family_frequency = gtoa.FormViewStats(self, stats_code='family')
         form_view_family_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_family_frequency" as current form and add it in the forms dictionary
@@ -1733,7 +1743,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_family_frequency" in "container" with the grid geometry manager
-        form_plot_family_frequency = gtoa.FormPlotStats(self.container, self, stats_code='family')
+        form_plot_family_frequency = gtoa.FormPlotStats(self, stats_code='family')
         form_plot_family_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_family_frequency" as current form and add it in the forms dictionary
@@ -1754,7 +1764,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_phylum_frequency" in "container" with the grid geometry manager
-        form_view_phylum_frequency = gtoa.FormViewStats(self.container, self, stats_code='phylum')
+        form_view_phylum_frequency = gtoa.FormViewStats(self, stats_code='phylum')
         form_view_phylum_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_phylum_frequency" as current form and add it in the forms dictionary
@@ -1775,7 +1785,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_phylum_frequency" in "container" with the grid geometry manager
-        form_plot_phylum_frequency = gtoa.FormPlotStats(self.container, self, stats_code='phylum')
+        form_plot_phylum_frequency = gtoa.FormPlotStats(self, stats_code='phylum')
         form_plot_phylum_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_phylum_frequency" as current form and add it in the forms dictionary
@@ -1796,7 +1806,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_ec_frequency" in "container" with the grid geometry manager
-        form_view_ec_frequency = gtoa.FormViewStats(self.container, self, stats_code='ec')
+        form_view_ec_frequency = gtoa.FormViewStats(self, stats_code='ec')
         form_view_ec_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_ec_frequency" as current form and add it in the forms dictionary
@@ -1817,7 +1827,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_ec_frequency" in "container" with the grid geometry manager
-        form_plot_ec_frequency = gtoa.FormPlotStats(self.container, self, stats_code='ec')
+        form_plot_ec_frequency = gtoa.FormPlotStats(self, stats_code='ec')
         form_plot_ec_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_ec_frequency" as current form and add it in the forms dictionary
@@ -1838,7 +1848,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_seq_per_ec_data" in "container" with the grid geometry manager
-        form_view_seq_per_ec_data = gtoa.FormViewStats(self.container, self, stats_code='seq_per_ec')
+        form_view_seq_per_ec_data = gtoa.FormViewStats(self, stats_code='seq_per_ec')
         form_view_seq_per_ec_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_seq_per_ec_data" as current form and add it in the forms dictionary
@@ -1859,7 +1869,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_seq_per_ec_data" in "container" with the grid geometry manager
-        form_plot_seq_per_ec_data = gtoa.FormPlotStats(self.container, self, stats_code='seq_per_ec')
+        form_plot_seq_per_ec_data = gtoa.FormPlotStats(self, stats_code='seq_per_ec')
         form_plot_seq_per_ec_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_seq_per_ec_data" as current form and add it in the forms dictionary
@@ -1880,7 +1890,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_go_frequency" in "container" with the grid geometry manager
-        form_view_go_frequency = gtoa.FormViewStats(self.container, self, stats_code='go')
+        form_view_go_frequency = gtoa.FormViewStats(self, stats_code='go')
         form_view_go_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_go_frequency" as current form and add it in the forms dictionary
@@ -1901,7 +1911,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_go_frequency" in "container" with the grid geometry manager
-        form_plot_go_frequency = gtoa.FormPlotStats(self.container, self, stats_code='go')
+        form_plot_go_frequency = gtoa.FormPlotStats(self, stats_code='go')
         form_plot_go_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_go_frequency" as current form and add it in the forms dictionary
@@ -1922,7 +1932,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_namespace_frequency" in "container" with the grid geometry manager
-        form_view_namespace_frequency = gtoa.FormViewStats(self.container, self, stats_code='namespace')
+        form_view_namespace_frequency = gtoa.FormViewStats(self, stats_code='namespace')
         form_view_namespace_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_namespace_frequency" as current form and add it in the forms dictionary
@@ -1943,7 +1953,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_namespace_frequency" in "container" with the grid geometry manager
-        form_plot_namespace_frequency = gtoa.FormPlotStats(self.container, self, stats_code='namespace')
+        form_plot_namespace_frequency = gtoa.FormPlotStats(self, stats_code='namespace')
         form_plot_namespace_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_namespace_frequency" as current form and add it in the forms dictionary
@@ -1964,7 +1974,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_seq_per_go_data" in "container" with the grid geometry manager
-        form_view_seq_per_go_data = gtoa.FormViewStats(self.container, self, stats_code='seq_per_go')
+        form_view_seq_per_go_data = gtoa.FormViewStats(self, stats_code='seq_per_go')
         form_view_seq_per_go_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_seq_per_go_data" as current form and add it in the forms dictionary
@@ -1985,7 +1995,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_seq_per_go_data" in "container" with the grid geometry manager
-        form_plot_seq_per_go_data = gtoa.FormPlotStats(self.container, self, stats_code='seq_per_go')
+        form_plot_seq_per_go_data = gtoa.FormPlotStats(self, stats_code='seq_per_go')
         form_plot_seq_per_go_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_seq_per_go_data" as current form and add it in the forms dictionary
@@ -2006,7 +2016,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_interpro_frequency" in "container" with the grid geometry manager
-        form_view_interpro_frequency = gtoa.FormViewStats(self.container, self, stats_code='interpro')
+        form_view_interpro_frequency = gtoa.FormViewStats(self, stats_code='interpro')
         form_view_interpro_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_interpro_frequency" as current form and add it in the forms dictionary
@@ -2027,7 +2037,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_interpro_frequency" in "container" with the grid geometry manager
-        form_plot_interpro_frequency = gtoa.FormPlotStats(self.container, self, stats_code='interpro')
+        form_plot_interpro_frequency = gtoa.FormPlotStats(self, stats_code='interpro')
         form_plot_interpro_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_interpro_frequency" as current form and add it in the forms dictionary
@@ -2048,7 +2058,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_seq_per_interpro_data" in "container" with the grid geometry manager
-        form_view_seq_per_interpro_data = gtoa.FormViewStats(self.container, self, stats_code='seq_per_interpro')
+        form_view_seq_per_interpro_data = gtoa.FormViewStats(self, stats_code='seq_per_interpro')
         form_view_seq_per_interpro_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_seq_per_interpro_data" as current form and add it in the forms dictionary
@@ -2069,7 +2079,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_seq_per_interpro_data" in "container" with the grid geometry manager
-        form_plot_seq_per_interpro_data = gtoa.FormPlotStats(self.container, self, stats_code='seq_per_interpro')
+        form_plot_seq_per_interpro_data = gtoa.FormPlotStats(self, stats_code='seq_per_interpro')
         form_plot_seq_per_interpro_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_seq_per_interpro_data" as current form and add it in the forms dictionary
@@ -2090,7 +2100,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_kegg_frequency" in "container" with the grid geometry manager
-        form_view_kegg_frequency = gtoa.FormViewStats(self.container, self, stats_code='kegg')
+        form_view_kegg_frequency = gtoa.FormViewStats(self, stats_code='kegg')
         form_view_kegg_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_kegg_frequency" as current form and add it in the forms dictionary
@@ -2111,7 +2121,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_kegg_frequency" in "container" with the grid geometry manager
-        form_plot_kegg_frequency = gtoa.FormPlotStats(self.container, self, stats_code='kegg')
+        form_plot_kegg_frequency = gtoa.FormPlotStats(self, stats_code='kegg')
         form_plot_kegg_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_kegg_frequency" as current form and add it in the forms dictionary
@@ -2132,7 +2142,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_seq_per_kegg_data" in "container" with the grid geometry manager
-        form_view_seq_per_kegg_data = gtoa.FormViewStats(self.container, self, stats_code='seq_per_kegg')
+        form_view_seq_per_kegg_data = gtoa.FormViewStats(self, stats_code='seq_per_kegg')
         form_view_seq_per_kegg_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_seq_per_kegg_data" as current form and add it in the forms dictionary
@@ -2153,7 +2163,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_seq_per_kegg_data" in "container" with the grid geometry manager
-        form_plot_seq_per_kegg_data = gtoa.FormPlotStats(self.container, self, stats_code='seq_per_kegg')
+        form_plot_seq_per_kegg_data = gtoa.FormPlotStats(self, stats_code='seq_per_kegg')
         form_plot_seq_per_kegg_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_seq_per_kegg_data" as current form and add it in the forms dictionary
@@ -2174,7 +2184,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_mapman_frequency" in "container" with the grid geometry manager
-        form_view_mapman_frequency = gtoa.FormViewStats(self.container, self, stats_code='mapman')
+        form_view_mapman_frequency = gtoa.FormViewStats(self, stats_code='mapman')
         form_view_mapman_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_mapman_frequency" as current form and add it in the forms dictionary
@@ -2195,7 +2205,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_mapman_frequency" in "container" with the grid geometry manager
-        form_plot_mapman_frequency = gtoa.FormPlotStats(self.container, self, stats_code='mapman')
+        form_plot_mapman_frequency = gtoa.FormPlotStats(self, stats_code='mapman')
         form_plot_mapman_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_mapman_frequency" as current form and add it in the forms dictionary
@@ -2216,7 +2226,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_seq_per_mapman_data" in "container" with the grid geometry manager
-        form_view_seq_per_mapman_data = gtoa.FormViewStats(self.container, self, stats_code='seq_per_mapman')
+        form_view_seq_per_mapman_data = gtoa.FormViewStats(self, stats_code='seq_per_mapman')
         form_view_seq_per_mapman_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_seq_per_mapman_data" as current form and add it in the forms dictionary
@@ -2237,7 +2247,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_seq_per_mapman_data" in "container" with the grid geometry manager
-        form_plot_seq_per_mapman_data = gtoa.FormPlotStats(self.container, self, stats_code='seq_per_mapman')
+        form_plot_seq_per_mapman_data = gtoa.FormPlotStats(self, stats_code='seq_per_mapman')
         form_plot_seq_per_mapman_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_seq_per_mapman_data" as current form and add it in the forms dictionary
@@ -2258,7 +2268,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_metacyc_frequency" in "container" with the grid geometry manager
-        form_view_metacyc_frequency = gtoa.FormViewStats(self.container, self, stats_code='metacyc')
+        form_view_metacyc_frequency = gtoa.FormViewStats(self, stats_code='metacyc')
         form_view_metacyc_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_metacyc_frequency" as current form and add it in the forms dictionary
@@ -2279,7 +2289,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_metacyc_frequency" in "container" with the grid geometry manager
-        form_plot_metacyc_frequency = gtoa.FormPlotStats(self.container, self, stats_code='metacyc')
+        form_plot_metacyc_frequency = gtoa.FormPlotStats(self, stats_code='metacyc')
         form_plot_metacyc_frequency.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_metacyc_frequency" as current form and add it in the forms dictionary
@@ -2300,7 +2310,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_seq_per_metacyc_data" in "container" with the grid geometry manager
-        form_view_seq_per_metacyc_data = gtoa.FormViewStats(self.container, self, stats_code='seq_per_metacyc')
+        form_view_seq_per_metacyc_data = gtoa.FormViewStats(self, stats_code='seq_per_metacyc')
         form_view_seq_per_metacyc_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_seq_per_metacyc_data" as current form and add it in the forms dictionary
@@ -2321,7 +2331,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_plot_seq_per_metacyc_data" in "container" with the grid geometry manager
-        form_plot_seq_per_metacyc_data = gtoa.FormPlotStats(self.container, self, stats_code='seq_per_metacyc')
+        form_plot_seq_per_metacyc_data = gtoa.FormPlotStats(self, stats_code='seq_per_metacyc')
         form_plot_seq_per_metacyc_data.grid(row=0, column=0, sticky='nsew')
 
         # set "form_plot_seq_per_metacyc_data" as current form and add it in the forms dictionary
@@ -2342,7 +2352,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "form_view_submission_logs" in container with the grid geometry manager
-        form_view_submission_logs = glog.FormViewSubmissionLogs(self.container, self)
+        form_view_submission_logs = glog.FormViewSubmissionLogs(self)
         form_view_submission_logs.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_submission_logs" as current form and add it in the forms dictionary
@@ -2363,7 +2373,7 @@ class Main(tkinter.Tk):
         self.close_current_form()
 
         # create and register "view_result_logs" in container with the grid geometry manager
-        form_view_result_logs = glog.FormViewResultLogs(self.container, self)
+        form_view_result_logs = glog.FormViewResultLogs(self)
         form_view_result_logs.grid(row=0, column=0, sticky='nsew')
 
         # set "form_view_result_logs" as current form and add it in the forms dictionary
@@ -2394,15 +2404,15 @@ class Main(tkinter.Tk):
         Show the application information.
         '''
 
-        dialog_about = gdialogs.DialogAbout(self)
-        self.wait_window(dialog_about)
+        dialog_about = gdialogs.DialogAbout(self.root)
+        self.root.wait_window(dialog_about)
 
     #---------------
 
     def warn_unavailable_process(self):
 
         message = 'This process is been built.\nIt is coming soon!'
-        tkinter.messagebox.showwarning(tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.head}', message), message)
+        tkinter.messagebox.showwarning(tkinter.messagebox.showerror(f'{xlib.get_short_project_name()} - {self.root.head}', message), message)
 
     #---------------
 
@@ -2428,7 +2438,10 @@ class Main(tkinter.Tk):
 
         message = f'Are you sure to exit {xlib.get_short_project_name()}?'
         if tkinter.messagebox.askyesno(f'{xlib.get_short_project_name()} - Exit', message):
-            self.destroy()
+            self.close_current_form()
+            self.root.quit()
+            self.root.destroy()
+            exit()
 
    #---------------
 
@@ -2438,17 +2451,18 @@ class FormWelcome(tkinter.Frame):
 
     #---------------
 
-    def __init__(self, parent, main):
+    def __init__(self, main):
         '''
         Execute actions correspending to the creation of a "FormWelcome" instance.
         '''
 
         # save initial parameters in instance variables
-        self.parent = parent
         self.main = main
+        self.root = main.root
+        self.container = main.container
 
         # call the init method of the parent class
-        tkinter.Frame.__init__(self, self.parent)
+        tkinter.Frame.__init__(self, self.container)
 
         # build the graphical user interface
         self.build_gui()
