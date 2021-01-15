@@ -13,19 +13,15 @@ implements the most appropriate workflow for the experiment they are analyzing; 
 graphics of results; and iv) track the status of processes during execution.
 
 Refer to the TOA manual (https://github.com/GGFHF/TOA/blob/master/Package/TOA-manual.pdf) for installation
-instructions, a description of the software and examples of use. Also, you can see the paper:
-
-Mora‐Márquez, F., Chano, V., Vázquez‐Poletti, J. L., & López de Heredia, U. (2021).
-TOA: A software package for automated functional annotation in non‐model plant species.
-*Molecular Ecology Resources*, **21(2)**, 621–636. DOI: 10.1111/1755-0998.13285
+instructions, a description of the software and examples of use.
 
 This software has been developed by:
 
     GI Sistemas Naturales e Historia Forestal
-    (formerly known as GI Genética, Fisiología e Historia Forestal)
+    (formerly known as GI Gen�tica, Fisiolog�a e Historia Forestal)
     Dpto. Sistemas y Recursos Naturales
     ETSI Montes, Forestal y del Medio Natural
-    Universidad Politécnica de Madrid
+    Universidad Polit�cnica de Madrid
     
     https://github.com/ggfhf/
 
