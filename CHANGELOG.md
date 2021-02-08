@@ -21,6 +21,8 @@ reporting fewer matches.
 
 * Assignment of default database list according to the species in the creation of pipelines.
 
+* Adaptation for the Docker image building.
+
 ********************************************************************************
 
 Changes in v0.56 (February 2020)
