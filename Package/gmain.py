@@ -145,7 +145,7 @@ class Main():
         self.menu_bioinfo_software_installation.add_separator()
         self.menu_bioinfo_software_installation.add_command(label=xlib.get_blastplus_name(), command=self.install_blastplus)
         self.menu_bioinfo_software_installation.add_command(label=xlib.get_diamond_name(), command=self.install_diamond)
-        self.menu_bioinfo_software_installation.add_command(label=xlib.get_entrez_direct_name(), command=self.install_entrez_direct)
+        # -  self.menu_bioinfo_software_installation.add_command(label=xlib.get_entrez_direct_name(), command=self.install_entrez_direct)
         self.menu_bioinfo_software_installation.add_command(label=xlib.get_transdecoder_name(), command=self.install_transdecoder)
         # -- self.menu_bioinfo_software_installation.add_separator()
         # -- self.menu_bioinfo_software_installation.add_command(label=f'{xlib.get_r_name()} & analysis packages', command=self.install_r)

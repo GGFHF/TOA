@@ -358,6 +358,9 @@ def load_table_go_cross_references(conn, ec2go_file, kegg2go_file, metacyc2go_fi
 
             # extract data 
             # record format: ec_id > go_term ; go_id
+            wrong_semicolon_position = record.find('; >')
+            if wrong_semicolon_position > -1:
+                record = record[:wrong_semicolon_position] + record[wrong_semicolon_position + 1:]
             gt_position = record.find('>')
             semicolon_position = record.find(';')
             if gt_position == -1 or semicolon_position == -1 or gt_position > semicolon_position:

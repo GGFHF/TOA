@@ -147,10 +147,10 @@ def build_menu_bioinfo_software_installation():
         print()
         print(f'    2. {xlib.get_blastplus_name()}'.format())
         print(f'    3. {xlib.get_diamond_name()}')
-        print(f'    4. {xlib.get_entrez_direct_name()}')
-        print(f'    5. {xlib.get_transdecoder_name()}')
+        # -- print(f'    n. {xlib.get_entrez_direct_name()}')
+        print(f'    4. {xlib.get_transdecoder_name()}')
         # -- print()
-        # -- print(f'    X. {xlib.get_r_name()} & analysis packages')
+        # -- print(f'    n. {xlib.get_r_name()} & analysis packages')
         print()
         print( '    X. Return to menu Main')
         print()
@@ -165,11 +165,11 @@ def build_menu_bioinfo_software_installation():
             cbioinfoapp.form_install_bioinfo_app(xlib.get_blastplus_code())
         elif option == '3':
             cbioinfoapp.form_install_bioinfo_app(xlib.get_diamond_code())
+        # -- elif option == 'n':
+        # --     cbioinfoapp.form_install_bioinfo_app(xlib.get_entrez_direct_code())
         elif option == '4':
-            cbioinfoapp.form_install_bioinfo_app(xlib.get_entrez_direct_code())
-        elif option == '5':
             cbioinfoapp.form_install_bioinfo_app(xlib.get_transdecoder_code())
-        # -- elif option == 'X':
+        # -- elif option == 'n':
         # --     cbioinfoapp.form_install_bioinfo_app(xlib.get_r_code())
         elif option == 'X':
             break

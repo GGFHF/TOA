@@ -1,4 +1,14 @@
-CURRENT VERSION: 0.65
+CURRENT VERSION: 0.66
+
+********************************************************************************
+
+Changes in v0.66 (June 2021)
+
+* Workaround to manage wrong format records of the file ec2go.txt.
+
+* Removal of the EntrezDirect installation because this software is not currently in use.
+
+* Fixation of date parameters in Bash scripts when they are run in macOS.
 
 ********************************************************************************
 
