@@ -21,8 +21,7 @@ TOA: A software package for automated functional annotation in non‐model plant
 
 This software has been developed by:
 
-    GI Sistemas Naturales e Historia Forestal
-    (formerly known as GI Genética, Fisiología e Historia Forestal)
+    GI en Especies Leñosas (WooSp)
     Dpto. Sistemas y Recursos Naturales
     ETSI Montes, Forestal y del Medio Natural
     Universidad Politécnica de Madrid
